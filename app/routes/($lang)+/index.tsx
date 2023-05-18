@@ -1,11 +1,11 @@
 import React from 'react';
-import {GeneralErrorBoundary} from '~/components/base';
+import {GeneralErrorBoundary, Spinner} from '~/components/base';
 
 export default function HomePage() {
   return (
-    <p>
-      Edit this route in <em>app/routes/index.tsx</em>.
-    </p>
+    <h1 className="flex items-center gap-4 text-3xl font-bold underline">
+      Hello world <Spinner show />
+    </h1>
   );
 }
 
