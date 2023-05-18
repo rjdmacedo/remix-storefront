@@ -8,12 +8,32 @@ import {
   ScrollRestoration,
 } from '@remix-run/react';
 import type {Shop} from '@shopify/hydrogen/storefront-api-types';
-import styles from './styles/app.css';
+import tailwind from './styles/tailwind.css';
 import favicon from '../public/favicon.ico';
 
 export const links: LinksFunction = () => {
   return [
-    {rel: 'stylesheet', href: styles},
+    {
+      rel: 'apple-touch-icon',
+      sizes: '180x180',
+      href: '/favicons/apple-touch-icon.png',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      sizes: '32x32',
+      href: '/favicons/favicon-32x32.png',
+    },
+    {
+      rel: 'icon',
+      type: 'image/png',
+      sizes: '16x16',
+      href: '/favicons/favicon-16x16.png',
+    },
+    {rel: 'manifest', href: '/site.webmanifest'},
+    {rel: 'icon', href: '/favicon.ico'},
+    {rel: 'stylesheet', href: '/fonts/nunito-sans/font.css'},
+    {rel: 'stylesheet', href: tailwind},
     {
       rel: 'preconnect',
       href: 'https://cdn.shopify.com',
@@ -23,7 +43,7 @@ export const links: LinksFunction = () => {
       href: 'https://shop.app',
     },
     {rel: 'icon', type: 'image/svg+xml', href: favicon},
-  ];
+  ].filter(Boolean);
 };
 
 export async function loader({context}: LoaderArgs) {

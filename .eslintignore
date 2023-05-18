@@ -1,5 +1,6 @@
-build
-node_modules
-bin
-*.d.ts
 dist
+build
+.cache
+node_modules
+*.d.ts
+.env
