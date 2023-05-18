@@ -1,3 +1,5 @@
+const {flatRoutes} = require('remix-flat-routes');
+
 /** @type {import('@remix-run/dev').AppConfig} */
 module.exports = {
   appDirectory: 'app',
@@ -21,5 +23,19 @@ module.exports = {
     v2_errorBoundary: true,
     v2_routeConvention: true,
     v2_normalizeFormMethod: true,
+    unstable_dev: {
+      port: '', // let it choose a random port
+      appServerPort: process.env.APP_SERVER_PORT || process.env.PORT || 3000,
+    },
+  },
+  routes: async (defineRoutes) => {
+    return flatRoutes('routes', defineRoutes, {
+      ignoredRouteFiles: [
+        '.*',
+        '**/*.css',
+        '**/*.test.{js,jsx,ts,tsx}',
+        '**/__*.*',
+      ],
+    });
   },
 };
