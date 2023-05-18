@@ -1,0 +1,8 @@
+schema: schema.graphql
+extensions:
+  endpoints:
+    Default GraphQL Endpoint:
+      url: https://primate-leeway.myshopify.com/api/2023-04/graphql.json
+      headers:
+        Shopify-Storefront-Private-Token: XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
+      introspect: false
