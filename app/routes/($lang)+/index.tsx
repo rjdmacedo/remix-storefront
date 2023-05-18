@@ -1,4 +1,5 @@
-import {isRouteErrorResponse, useRouteError} from '@remix-run/react';
+import React from 'react';
+import {GeneralErrorBoundary} from '~/components/base';
 
 export default function HomePage() {
   return (
@@ -9,13 +10,5 @@ export default function HomePage() {
 }
 
 export function ErrorBoundary() {
-  const error = useRouteError();
-
-  if (isRouteErrorResponse(error)) {
-    console.error(error.status, error.statusText, error.data);
-    return <div>Route Error</div>;
-  } else {
-    console.error((error as Error).message);
-    return <div>Thrown Error</div>;
-  }
+  return <GeneralErrorBoundary />;
 }
