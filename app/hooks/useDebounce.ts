@@ -1,6 +1,6 @@
 import React from 'react';
 
-export default function useDebounce<
+export function useDebounce<
   Callback extends (...args: Parameters<Callback>) => ReturnType<Callback>,
 >(callback: Callback, delay: number) {
   const callbackRef = React.useRef(callback);
