@@ -37,7 +37,10 @@ export async function loader({request, context: {storefront}}: LoaderArgs) {
   invariant(data, 'Sitemap data is missing');
 
   return new Response(
-    shopSitemap({data, baseUrl: new URL(request.url).origin}),
+    shopSitemap({
+      data,
+      baseUrl: new URL(request.url).origin,
+    }),
     {
       headers: {
         contentType: 'application/xml',
@@ -59,74 +62,55 @@ function shopSitemap({
   data: SitemapQueryData;
   baseUrl: string;
 }) {
-  const productsData = flattenConnection(data.products)
+  const productsData: ProductEntry[] = flattenConnection(data.products)
     .filter((product) => product.onlineStoreUrl)
-    .map((product) => {
-      const url = `${baseUrl}/products/${xmlEncode(product.handle)}`;
-
-      const finalObject: ProductEntry = {
-        url,
-        lastMod: product.updatedAt,
-        changeFreq: 'daily',
-      };
-
-      if (product.featuredImage?.url) {
-        finalObject.image = {
+    .map((product) => ({
+      url: `${baseUrl}/product/${xmlEncode(product.handle)}`,
+      lastMod: product.updatedAt,
+      changeFreq: 'daily',
+      ...(product.featuredImage?.url && {
+        image: {
           url: xmlEncode(product.featuredImage.url),
-        };
-
-        if (product.title) {
-          finalObject.image.title = xmlEncode(product.title);
-        }
-
-        if (product.featuredImage.altText) {
-          finalObject.image.caption = xmlEncode(product.featuredImage.altText);
-        }
-      }
-
-      return finalObject;
-    });
+          ...(product.title && {title: xmlEncode(product.title)}),
+          ...(product.featuredImage.altText && {
+            caption: xmlEncode(product.featuredImage.altText),
+          }),
+        },
+      }),
+    }));
 
   const collectionsData = flattenConnection(data.collections)
     .filter((collection) => collection.onlineStoreUrl)
-    .map((collection) => {
-      const url = `${baseUrl}/collections/${collection.handle}`;
-
-      return {
-        url,
-        lastMod: collection.updatedAt,
-        changeFreq: 'daily',
-      };
-    });
+    .map((collection) => ({
+      url: `${baseUrl}/collections/${collection.handle}`,
+      lastMod: collection.updatedAt,
+      changeFreq: 'daily',
+    }));
 
   const pagesData = flattenConnection(data.pages)
     .filter((page) => page.onlineStoreUrl)
-    .map((page) => {
-      const url = `${baseUrl}/pages/${page.handle}`;
-
-      return {
-        url,
-        lastMod: page.updatedAt,
-        changeFreq: 'weekly',
-      };
-    });
-
-  const urlsDatas = [...productsData, ...collectionsData, ...pagesData];
+    .map((page) => ({
+      url: `${baseUrl}/pages/${page.handle}`,
+      lastMod: page.updatedAt,
+      changeFreq: 'weekly',
+    }));
 
   return `
     <urlset
       xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"
       xmlns:image="http://www.google.com/schemas/sitemap-image/1.1"
     >
-      ${urlsDatas.map((url) => renderUrlTag(url)).join('')}
+      ${[...productsData, ...collectionsData, ...pagesData]
+        .map((data) => renderUrlTag(data))
+        .join('')}
     </urlset>`;
 }
 
 function renderUrlTag({
   url,
+  image,
   lastMod,
   changeFreq,
-  image,
 }: {
   url: string;
   lastMod?: string;
@@ -158,17 +142,16 @@ function renderUrlTag({
 }
 
 const SITEMAP_QUERY = `#graphql
-  query sitemaps($urlLimits: Int, $language: LanguageCode)
-  @inContext(language: $language) {
+  query sitemaps($urlLimits: Int, $language: LanguageCode) @inContext(language: $language) {
     products(
       first: $urlLimits
       query: "published_status:'online_store:visible'"
     ) {
       nodes {
-        updatedAt
-        handle
-        onlineStoreUrl
         title
+        handle
+        updatedAt
+        onlineStoreUrl
         featuredImage {
           url
           altText
@@ -180,15 +163,15 @@ const SITEMAP_QUERY = `#graphql
       query: "published_status:'online_store:visible'"
     ) {
       nodes {
-        updatedAt
         handle
+        updatedAt
         onlineStoreUrl
       }
     }
     pages(first: $urlLimits, query: "published_status:'published'") {
       nodes {
-        updatedAt
         handle
+        updatedAt
         onlineStoreUrl
       }
     }

@@ -1,5 +1,5 @@
 import clsx from 'clsx';
-import React, {forwardRef} from 'react';
+import React, {ComponentProps, forwardRef} from 'react';
 import {Link} from '@remix-run/react';
 
 import {missingClass} from '~/lib/utils';
@@ -10,9 +10,12 @@ type ButtonProps = {
   variant?: 'primary' | 'secondary' | 'inline';
   className?: string;
   [key: string]: any;
-}
+};
 
-export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
+export const Button = forwardRef<
+  HTMLButtonElement,
+  ComponentProps<'button'> & ButtonProps
+>(
   (
     {
       as = 'button',
@@ -29,9 +32,9 @@ export const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       'inline-block rounded font-medium text-center py-3 px-6';
 
     const variants = {
-      inline: 'border-b border-primary/10 leading-none pb-1',
+      inline: 'border-b border-primary/30 leading-none pb-1',
       primary: `${baseClasses} bg-primary text-contrast`,
-      secondary: `${baseClasses} border border-primary/10 bg-contrast text-primary`,
+      secondary: `${baseClasses} border border-primary/30 bg-contrast text-primary`,
     };
 
     const widths = {

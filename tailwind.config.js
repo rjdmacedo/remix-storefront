@@ -13,6 +13,10 @@ export default {
         contrast: 'rgb(var(--color-contrast) / <alpha-value>)',
         notice: 'rgb(var(--color-accent) / <alpha-value>)',
         shopPay: 'rgb(var(--color-shop-pay) / <alpha-value>)',
+        info: 'rgb(var(--color-info) / <alpha-value>)',
+        error: 'rgb(var(--color-error) / <alpha-value>)',
+        success: 'rgb(var(--color-success) / <alpha-value>)',
+        warning: 'rgb(var(--color-warning) / <alpha-value>)',
       },
       screens: {
         sm: '32em',
@@ -52,13 +56,13 @@ export default {
         fine: ['var(--font-size-fine)', '1.333'],
       },
       maxWidth: {
-        'prose-narrow': '45ch',
         'prose-wide': '80ch',
+        'prose-narrow': '45ch',
       },
       boxShadow: {
         border: 'inset 0px 0px 0px 1px rgb(var(--color-primary) / 0.08)',
-        darkHeader: 'inset 0px -1px 0px 0px rgba(21, 21, 21, 0.4)',
-        lightHeader: 'inset 0px -1px 0px 0px rgba(21, 21, 21, 0.05)',
+        'dark-header': 'inset 0px -1px 0px 0px rgba(21, 21, 21, 0.4)',
+        'light-header': 'inset 0px -1px 0px 0px rgba(21, 21, 21, 0.05)',
       },
     },
   },

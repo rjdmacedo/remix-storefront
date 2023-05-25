@@ -154,46 +154,6 @@ export default function HomePage() {
         necessitatibus vero! Aut dolorem ducimus est molestiae obcaecati qui
         repellendus saepe sed suscipit unde.
       </Prose>
-
-      <Prose as="article">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error fuga
-        harum non officiis praesentium repellat veritatis voluptas! Animi autem
-        commodi dicta doloribus est eveniet exercitationem, necessitatibus
-        nesciunt quod voluptate. Nisi. Lorem ipsum dolor sit amet, consectetur
-        adipisicing elit. Animi aperiam aut autem beatae dignissimos, dolor
-        doloremque doloribus eos ipsa iure maxime praesentium quaerat saepe
-        suscipit temporibus tenetur, veniam. Libero, praesentium? Lorem ipsum
-        dolor sit amet, consectetur adipisicing elit. Aperiam asperiores
-        blanditiis dolorum fugit laboriosam minima odio placeat tenetur, vitae.
-        Architecto dicta enim excepturi labore natus officia, praesentium quas
-        tempore totam! Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-        Autem, dignissimos libero maxime pariatur ratione sapiente! Ad animi
-        aperiam asperiores cumque inventore necessitatibus nobis, perspiciatis
-        quas quo sed totam unde velit. Lorem ipsum dolor sit amet, consectetur
-        adipisicing elit. In omnis quaerat quibusdam reiciendis! Animi minus nam
-        necessitatibus vero! Aut dolorem ducimus est molestiae obcaecati qui
-        repellendus saepe sed suscipit unde.
-      </Prose>
-
-      <Prose as="article">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error fuga
-        harum non officiis praesentium repellat veritatis voluptas! Animi autem
-        commodi dicta doloribus est eveniet exercitationem, necessitatibus
-        nesciunt quod voluptate. Nisi. Lorem ipsum dolor sit amet, consectetur
-        adipisicing elit. Animi aperiam aut autem beatae dignissimos, dolor
-        doloremque doloribus eos ipsa iure maxime praesentium quaerat saepe
-        suscipit temporibus tenetur, veniam. Libero, praesentium? Lorem ipsum
-        dolor sit amet, consectetur adipisicing elit. Aperiam asperiores
-        blanditiis dolorum fugit laboriosam minima odio placeat tenetur, vitae.
-        Architecto dicta enim excepturi labore natus officia, praesentium quas
-        tempore totam! Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-        Autem, dignissimos libero maxime pariatur ratione sapiente! Ad animi
-        aperiam asperiores cumque inventore necessitatibus nobis, perspiciatis
-        quas quo sed totam unde velit. Lorem ipsum dolor sit amet, consectetur
-        adipisicing elit. In omnis quaerat quibusdam reiciendis! Animi minus nam
-        necessitatibus vero! Aut dolorem ducimus est molestiae obcaecati qui
-        repellendus saepe sed suscipit unde.
-      </Prose>
     </>
   );
 }

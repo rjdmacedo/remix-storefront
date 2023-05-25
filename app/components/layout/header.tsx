@@ -19,9 +19,9 @@ import {
   useDrawer,
   CartLoading,
 } from '~/components';
+import {Search} from '~/routes/api+/search';
 import {useCartFetchers, useIsHydrated} from '~/hooks';
 import {useIsHomePath, type EnhancedMenu} from '~/lib/utils';
-import {Search} from '~/routes/resources+/search';
 
 export function Header({title, menu}: {title: string; menu?: EnhancedMenu}) {
   const {
@@ -76,14 +76,14 @@ function DesktopHeader({
       role="banner"
       className={`${
         isHome
-          ? 'bg-primary/80 text-contrast shadow-darkHeader dark:bg-contrast/60 dark:text-primary'
-          : 'bg-contrast/80 text-primary'
+          ? 'bg-primary/70 text-contrast shadow-dark-header'
+          : 'bg-contrast/70 text-primary'
       } ${
-        !isHome && y > 50 && ' shadow-lightHeader'
-      } sticky top-0 z-40 hidden h-nav w-full items-center justify-between gap-8 px-12 py-8 leading-none backdrop-blur-lg transition duration-300 lg:flex`}
+        !isHome && y > 50 ? ' shadow-light-header' : ''
+      } sticky top-0 z-40 hidden h-nav w-full items-center px-8 leading-none backdrop-blur-lg transition duration-300 lg:flex`}
     >
       <nav className="mx-auto flex w-full items-center justify-between">
-        <div className="flex flex-1 justify-start gap-x-8">
+        <div className="flex flex-1 justify-start gap-x-6">
           {(menu?.items || []).map((item) => (
             <Link
               key={item.id}
@@ -92,8 +92,9 @@ function DesktopHeader({
               prefetch="intent"
               className={({isActive}) =>
                 clsx(
-                  isActive ? 'border-b' : 'border-transparent',
-                  'transition duration-300 ease-in-out hover:border-b hover:border-primary/50',
+                  isActive ? 'border-b-2' : 'border-transparent',
+                  isHome ? 'hover:border-contrast' : 'hover:border-primary',
+                  'p-2 transition duration-300 ease-in-out hover:border-b-2',
                 )
               }
             >
@@ -133,7 +134,7 @@ function MobileHeader({
       role="banner"
       className={`${
         isHome
-          ? 'bg-primary/80 text-contrast shadow-darkHeader dark:bg-contrast/60 dark:text-primary'
+          ? 'bg-primary/80 text-contrast shadow-dark-header dark:bg-contrast/60 dark:text-primary'
           : 'bg-contrast/80 text-primary'
       } sticky top-0 z-40 flex h-nav w-full items-center justify-between gap-4 px-4 leading-none backdrop-blur-lg md:px-8 lg:hidden`}
     >

@@ -177,7 +177,7 @@ function collectionJsonLd({
       return {
         '@type': 'ListItem',
         position: index + 1,
-        url: `/products/${product.handle}`,
+        url: `/product/${product.handle}`,
       };
     });
 

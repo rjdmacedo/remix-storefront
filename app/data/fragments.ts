@@ -40,8 +40,15 @@ export const PRODUCT_CARD_FRAGMENT = `#graphql
   fragment ProductCard on Product {
     id
     title
-    publishedAt
     handle
+    publishedAt
+    description
+    featuredImage {
+      url
+      width
+      height
+      altText
+    }
     variants(first: 1) {
       nodes {
         id

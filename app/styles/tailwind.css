@@ -7,12 +7,16 @@
   --color-primary: 20 20 20; /* Text, buttons, etc. */
   --color-contrast: 250 250 249; /* Backgrounds, borders, etc. */
   --color-accent: 235 86 40; /* Labels like "On sale" */
+  --color-info: 2 136 209; /* Info messages */
+  --color-error: 211 47 47; /* Error messages */
+  --color-success: 46 125 50; /* Success messages */
+  --color-warning: 237 108 2; /* Warning messages */
   --font-size-fine: 0.75rem; /* text-xs */
   --font-size-copy: 1rem; /* text-base */
   --font-size-lead: 1.125rem; /* text-lg */
   --font-size-heading: 2rem; /* text-2xl */
   --font-size-display: 3rem; /* text-4xl */
-  --color-shop-pay: #5a31f4;
+  --color-shop-pay: 90 49 244;
   --shop-pay-button--width: 100%; /* Sets the width for the shop-pay-button web component */
   --height-nav: 2rem;
   --screen-height: 100vh;
@@ -39,6 +43,10 @@
     --color-primary: 250 250 250;
     --color-contrast: 32 33 36;
     --color-accent: 16 185 129;
+    --color-info: 41 182 246;
+    --color-error: 244 67 54;
+    --color-success: 102 187 106;
+    --color-warning: 255 167 38;
   }
 }
 

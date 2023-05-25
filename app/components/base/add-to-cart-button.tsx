@@ -24,8 +24,9 @@ export function AddToCartButton({
   [key: string]: any;
 }) {
   const [root] = useMatches();
-  const selectedLocale = root?.data?.selectedLocale;
   const fetcher = useFetcher();
+
+  const selectedLocale = root?.data?.selectedLocale;
   const fetcherIsNotIdle = fetcher.state !== 'idle';
 
   return (

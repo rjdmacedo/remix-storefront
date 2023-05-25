@@ -60,14 +60,14 @@ export function ProductCard({
     <div className="flex flex-col gap-2">
       <Link
         onClick={onClick}
-        to={`/products/${product.handle}`}
+        to={`/product/${product.handle}`}
         prefetch="intent"
       >
         <div className={clsx('grid gap-4', className)}>
           <div className="card-image aspect-[4/5] bg-primary/5">
             {image && (
               <Image
-                className="object-cover w-full fadeIn"
+                className="fadeIn w-full object-cover"
                 sizes="(min-width: 64em) 25vw, (min-width: 48em) 30vw, 45vw"
                 aspectRatio="4/5"
                 data={image}
@@ -78,14 +78,14 @@ export function ProductCard({
             <Text
               as="label"
               size="fine"
-              className="absolute top-0 right-0 m-4 text-right text-notice"
+              className="absolute right-0 top-0 m-4 text-right text-notice"
             >
               {cardLabel}
             </Text>
           </div>
           <div className="grid gap-1">
             <Text
-              className="w-full overflow-hidden whitespace-nowrap text-ellipsis "
+              className="w-full overflow-hidden text-ellipsis whitespace-nowrap "
               as="h3"
             >
               {product.title}

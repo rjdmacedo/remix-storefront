@@ -1,5 +1,7 @@
+export * from './icon';
 export * from './link';
 export * from './text';
+export * from './grid';
 export * from './input';
 export * from './prose';
 export * from './button';
