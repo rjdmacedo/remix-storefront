@@ -20,7 +20,9 @@ module.exports = {
   serverMinify: process.env.NODE_ENV === 'production',
   future: {
     v2_meta: true,
+    unstable_postcss: true,
     v2_errorBoundary: true,
+    unstable_tailwind: true,
     v2_routeConvention: true,
     v2_normalizeFormMethod: true,
     unstable_dev: {
