@@ -19,7 +19,7 @@ import {
   useDrawer,
   CartLoading,
 } from '~/components';
-import {Search} from '~/routes/api+/search';
+import {Search} from '~/routes/($locale)+/api+/search';
 import {useCartFetchers, useIsHydrated} from '~/hooks';
 import {useIsHomePath, type EnhancedMenu} from '~/lib/utils';
 

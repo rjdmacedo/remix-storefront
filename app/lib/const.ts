@@ -1,6 +1,7 @@
 import type {TwSize} from '~/lib/type';
 
 export const PAGINATION_SIZE = 8;
+export const MAX_AMOUNT_SIZE = 250;
 export const DEFAULT_GRID_IMG_LOAD_EAGER_COUNT = 4;
 export const ATTR_LOADING_EAGER = 'eager';
 

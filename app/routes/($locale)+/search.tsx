@@ -25,6 +25,7 @@ import {PAGINATION_SIZE} from '~/lib/const';
 import {PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
 
 export async function loader({request, context: {storefront}}: LoaderArgs) {
+  console.log(storefront.i18n.country);
   const searchParams = new URL(request.url).searchParams;
 
   const cursor = searchParams.get('cursor')!;
@@ -151,11 +152,11 @@ export default function SearchPage() {
 export const SEARCH_QUERY = `#graphql
 ${PRODUCT_CARD_FRAGMENT}
 query search(
-    $searchTerm: String
-    $country: CountryCode
-    $language: LanguageCode
     $pageBy: Int!
     $after: String
+    $country: CountryCode
+    $language: LanguageCode
+    $searchTerm: String
 ) @inContext(country: $country, language: $language) {
     products(
         first: $pageBy

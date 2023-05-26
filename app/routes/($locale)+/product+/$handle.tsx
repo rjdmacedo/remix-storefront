@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain */
+/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain,eslint-comments/disable-enable-pair */
 import {
   Money,
   ShopPayButton,

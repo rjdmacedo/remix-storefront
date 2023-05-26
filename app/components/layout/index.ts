@@ -1,5 +1,6 @@
 export * from './cart';
 export * from './hero';
+export * from './footer';
 export * from './header';
 export * from './layout';
 export * from './product-card';

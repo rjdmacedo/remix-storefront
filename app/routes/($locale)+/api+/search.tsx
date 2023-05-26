@@ -1,4 +1,11 @@
 import {
+  Form,
+  useParams,
+  useFetcher,
+  useLocation,
+  useNavigate,
+} from '@remix-run/react';
+import {
   XCircleIcon,
   ChevronRightIcon,
   MagnifyingGlassIcon,
@@ -15,7 +22,6 @@ import {flattenConnection} from '@shopify/hydrogen';
 import {json, type LoaderArgs} from '@shopify/remix-oxygen';
 import {Combobox, Dialog, Transition} from '@headlessui/react';
 import React, {useState, useEffect, Fragment} from 'react';
-import {Form, useFetcher, useLocation, useNavigate} from '@remix-run/react';
 
 import {
   SEARCH_QUERY,
@@ -25,6 +31,7 @@ import {seoPayload} from '~/lib/seo.server';
 import {useDebounce} from '~/hooks';
 import {ProductCard} from '~/components';
 import {useIsHomePath} from '~/lib/utils';
+import {MAX_AMOUNT_SIZE} from '~/lib/const';
 
 export async function loader({request, context: {storefront}}: LoaderArgs) {
   const searchParams = new URL(request.url).searchParams;
@@ -36,8 +43,8 @@ export async function loader({request, context: {storefront}}: LoaderArgs) {
     products: ProductConnection;
   }>(SEARCH_QUERY, {
     variables: {
-      pageBy: 250,
       cursor,
+      pageBy: MAX_AMOUNT_SIZE,
       country: storefront.i18n.country,
       language: storefront.i18n.language,
       searchTerm,
@@ -132,6 +139,11 @@ export function Search() {
   );
 }
 
+// no-op
+export default function SearchApiRoute() {
+  return null;
+}
+
 function SearchDialog({
   open,
   setOpen,
@@ -141,8 +153,9 @@ function SearchDialog({
   setOpen: (value: boolean) => void;
   className?: string;
 }) {
-  const navigate = useNavigate();
+  const params = useParams();
   const location = useLocation();
+  const navigate = useNavigate();
   const searchFetcher = useFetcher<typeof loader>();
   const [query, setQuery] = useState('');
 
@@ -150,7 +163,11 @@ function SearchDialog({
     setQuery(value);
     searchFetcher.submit(
       {q: value ?? ''},
-      {method: 'get', action: '/api/search', replace: true},
+      {
+        method: 'get',
+        action: params.locale ? `/${params.locale}/api/search` : '/api/search',
+        replace: true,
+      },
     );
   }, 300);
 
