@@ -1,7 +1,9 @@
+import clsx from 'clsx';
+import {XMarkIcon} from '@heroicons/react/24/outline';
 import React, {useState} from 'react';
 import {Dialog, Transition} from '@headlessui/react';
+
 import {Heading} from '~/components';
-import {XMarkIcon} from '@heroicons/react/24/outline';
 
 /**
  * Drawer component that opens on user click.
@@ -47,9 +49,10 @@ export function Drawer({
         <div className="fixed inset-0">
           <div className="absolute inset-0 overflow-hidden">
             <div
-              className={`fixed inset-y-0 flex max-w-full ${
-                openFrom === 'right' ? 'right-0' : ''
-              }`}
+              className={clsx(
+                'fixed inset-y-0 flex max-w-full',
+                openFrom === 'right' ? 'right-0' : '',
+              )}
             >
               <Transition.Child
                 as={React.Fragment}
@@ -60,11 +63,12 @@ export function Drawer({
                 leaveFrom="translate-x-0"
                 leaveTo={offScreen[openFrom]}
               >
-                <Dialog.Panel className="w-screen max-w-lg text-left align-middle transition-all transform shadow-xl h-screen-dynamic bg-contrast">
+                <Dialog.Panel className="h-screen-dynamic w-screen max-w-lg transform bg-contrast text-left align-middle shadow-xl transition-all">
                   <header
-                    className={`sticky top-0 flex items-center px-6 h-nav sm:px-8 md:px-12 ${
-                      heading ? 'justify-between' : 'justify-end'
-                    }`}
+                    className={clsx(
+                      'sticky top-0 flex h-nav items-center px-6 sm:px-8 md:px-12',
+                      heading ? 'justify-between' : 'justify-end',
+                    )}
                   >
                     {heading !== null && (
                       <Dialog.Title>
@@ -75,7 +79,7 @@ export function Drawer({
                     )}
                     <button
                       type="button"
-                      className="p-4 -m-4 transition text-primary hover:text-primary/50"
+                      className="-m-4 p-4 text-primary transition hover:text-primary/50"
                       onClick={onClose}
                       data-test="close-cart"
                     >

@@ -1,11 +1,13 @@
 export const MEDIA_FRAGMENT = `#graphql
   fragment Media on Media {
     __typename
-    mediaContentType
     alt
+    mediaContentType
+
     previewImage {
       url
     }
+
     ... on MediaImage {
       id
       image {
@@ -17,15 +19,15 @@ export const MEDIA_FRAGMENT = `#graphql
     ... on Video {
       id
       sources {
-        mimeType
         url
+        mimeType
       }
     }
     ... on Model3d {
       id
       sources {
-        mimeType
         url
+        mimeType
       }
     }
     ... on ExternalVideo {

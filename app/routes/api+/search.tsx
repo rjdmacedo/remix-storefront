@@ -202,7 +202,7 @@ function SearchDialog({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-primary bg-opacity-50 transition-opacity" />
+          <div className="fixed inset-0 bg-black bg-opacity-50 backdrop-blur transition-opacity" />
         </Transition.Child>
 
         <div className="fixed inset-0 z-10 overflow-y-auto p-4 sm:p-6 md:p-20">
@@ -226,10 +226,10 @@ function SearchDialog({
                         className="pointer-events-none absolute left-4 top-3.5 h-5 w-5"
                         aria-hidden="true"
                       />
-                      <Combobox.Input
+                      <Combobox.Input<Product>
                         type="search"
                         autoComplete="off"
-                        className="h-12 w-full border-0 bg-contrast pl-11 pr-4 text-primary placeholder:text-primary"
+                        className="h-12 w-full border-0 bg-contrast pl-11 pr-4 text-primary placeholder:text-primary focus:ring-0"
                         placeholder="Start typing to search..."
                         onChange={(event) =>
                           handleInputChange(event.target.value)
