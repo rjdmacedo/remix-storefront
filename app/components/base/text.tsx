@@ -57,47 +57,49 @@ export function Text({
   );
 }
 
-export function Heading({
-  children,
-  as: Component = 'h2',
-  size = 'heading',
-  width = 'default',
-  format,
-  className = '',
-  ...props
-}: {
-  children: React.ReactNode;
-  as?: React.ElementType;
-  size?: 'display' | 'heading' | 'lead' | 'copy';
-  width?: 'default' | 'narrow' | 'wide';
-  format?: boolean;
-} & React.HTMLAttributes<HTMLHeadingElement>) {
-  const sizes = {
-    display: 'font-bold text-display',
-    heading: 'font-bold text-heading',
-    lead: 'font-bold text-lead',
-    copy: 'font-medium text-copy',
-  };
+export const Heading = React.forwardRef<
+  HTMLHeadingElement,
+  HeadingProps & React.HTMLAttributes<HTMLHeadingElement>
+>(
+  (
+    {
+      as: Component = 'h2',
+      size = 'heading',
+      width = 'default',
+      format,
+      children,
+      className = '',
+      ...props
+    },
+    ref,
+  ) => {
+    const sizes = {
+      display: 'font-bold text-display',
+      heading: 'font-bold text-heading',
+      lead: 'font-bold text-lead',
+      copy: 'font-medium text-copy',
+    };
 
-  const widths = {
-    default: 'max-w-prose',
-    narrow: 'max-w-prose-narrow',
-    wide: 'max-w-prose-wide',
-  };
+    const widths = {
+      default: 'max-w-prose',
+      narrow: 'max-w-prose-narrow',
+      wide: 'max-w-prose-wide',
+    };
 
-  const styles = clsx(
-    missingClass(className, 'whitespace-') && 'whitespace-pre-wrap',
-    missingClass(className, 'max-w-') && widths[width],
-    missingClass(className, 'font-') && sizes[size],
-    className,
-  );
+    const styles = clsx(
+      missingClass(className, 'whitespace-') && 'whitespace-pre-wrap',
+      missingClass(className, 'max-w-') && widths[width],
+      missingClass(className, 'font-') && sizes[size],
+      className,
+    );
 
-  return (
-    <Component {...props} className={styles}>
-      {format ? formatText(children) : children}
-    </Component>
-  );
-}
+    return (
+      <Component {...props} className={styles}>
+        {format ? formatText(children) : children}
+      </Component>
+    );
+  },
+);
 
 export function Section({
   children,
@@ -191,3 +193,11 @@ export function PageHeader({
     </header>
   );
 }
+
+type HeadingProps = {
+  as?: React.ElementType;
+  size?: 'display' | 'heading' | 'lead' | 'copy';
+  width?: 'default' | 'narrow' | 'wide';
+  format?: boolean;
+  children: React.ReactNode;
+};

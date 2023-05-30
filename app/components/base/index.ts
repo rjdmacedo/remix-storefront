@@ -11,4 +11,5 @@ export * from './spacer';
 export * from './spinner';
 export * from './skeleton';
 export * from './cart-loading';
+export * from './country-selector';
 export * from './add-to-cart-button';

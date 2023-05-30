@@ -242,7 +242,7 @@ function CartLineItem({line}: {line: CartLine}) {
         <div className="grid gap-2">
           <Heading as="h3" size="copy">
             {merchandise?.product?.handle ? (
-              <Link to={`/products/${merchandise.product.handle}`}>
+              <Link to={`/product/${merchandise.product.handle}`}>
                 {merchandise?.product?.title || ''}
               </Link>
             ) : (

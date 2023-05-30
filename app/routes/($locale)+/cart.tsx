@@ -167,6 +167,9 @@ export async function action({request, context}: ActionArgs) {
   }
 
   const {cart, errors} = result;
+
+  console.log(redirectTo);
+
   return json(
     {
       cart,
@@ -181,6 +184,7 @@ export async function action({request, context}: ActionArgs) {
 
 export default function CartPage() {
   const [root] = useMatches();
+
   // @todo: finish on a separate PR
   return (
     <div className="grid w-full justify-items-start gap-8 p-6 py-8 md:p-8 lg:p-12">

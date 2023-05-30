@@ -111,10 +111,10 @@ export function Search() {
           onClick={() => setOpen(true)}
           placeholder="Search something..."
           className={clsx(
-            'rounded-md border-0 py-1.5 pr-10 transition-shadow focus:shadow-xl focus:outline-none',
+            'rounded-md border-0 py-1.5 pr-10 ring-0 transition-shadow focus:outline-none focus:ring-2',
             isHome
-              ? 'bg-contrast/30 text-contrast placeholder:text-contrast focus:ring-contrast'
-              : 'bg-primary/20 text-primary placeholder:text-primary focus:ring-primary',
+              ? 'bg-contrast/30 text-contrast placeholder:text-contrast'
+              : 'bg-primary/20 text-primary placeholder:text-primary focus:shadow-xl',
           )}
           autoCorrect="off"
           autoComplete="off"
