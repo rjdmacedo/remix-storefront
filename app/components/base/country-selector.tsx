@@ -143,8 +143,8 @@ export function CountrySelector() {
 
 function getCountryUrlPath({
   locale,
-  defaultLocalePrefix,
   pathWithoutLocale,
+  defaultLocalePrefix,
 }: {
   locale: Locale;
   pathWithoutLocale: string;
