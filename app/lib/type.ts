@@ -44,3 +44,5 @@ export type TwSize =
   | '2xl'
   | '3xl'
   | '4xl';
+
+export type Status = 'success' | 'info' | 'warning' | 'error';

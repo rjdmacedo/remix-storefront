@@ -4,7 +4,6 @@ export * from './text';
 export * from './grid';
 export * from './input';
 export * from './prose';
-export * from './button';
 export * from './avatar';
 export * from './drawer';
 export * from './spacer';

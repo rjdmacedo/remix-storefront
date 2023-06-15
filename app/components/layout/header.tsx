@@ -94,7 +94,7 @@ function DesktopHeader({
                 clsx(
                   isActive ? 'border-b-2' : 'border-transparent',
                   isHome ? 'hover:border-contrast' : 'hover:border-primary',
-                  'p-2 transition duration-300 ease-in-out hover:border-b-2',
+                  'p-2 hover:border-b-2',
                 )
               }
             >

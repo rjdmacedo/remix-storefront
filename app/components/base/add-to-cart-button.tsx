@@ -3,11 +3,13 @@ import type {CartLineInput} from '@shopify/hydrogen/storefront-api-types';
 import {useFetcher, useMatches} from '@remix-run/react';
 import {Button} from '~/components';
 import {CartAction} from '~/lib/type';
+import {VariantProps} from 'class-variance-authority';
+import {buttonVariants} from '~/components/atoms/button/base-button';
 
 export function AddToCartButton({
   lines,
   width = 'full',
-  variant = 'primary',
+  variant = 'default',
   children,
   disabled,
   analytics,
@@ -16,7 +18,7 @@ export function AddToCartButton({
 }: {
   lines: CartLineInput[];
   width?: 'auto' | 'full';
-  variant?: 'primary' | 'secondary' | 'inline';
+  variant?: VariantProps<typeof buttonVariants>['variant'];
   children: React.ReactNode;
   disabled?: boolean;
   analytics?: unknown;
@@ -38,8 +40,8 @@ export function AddToCartButton({
       <Button
         as="button"
         type="submit"
-        width={width}
         variant={variant}
+        fullWidth={width === 'full'}
         disabled={disabled ?? fetcherIsNotIdle}
         className={className}
         {...props}

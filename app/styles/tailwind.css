@@ -8,7 +8,7 @@
   --color-contrast: 250 250 249; /* Backgrounds, borders, etc. */
   --color-accent: 235 86 40; /* Labels like "On sale" */
   --color-info: 2 136 209; /* Info messages */
-  --color-error: 211 47 47; /* Error messages */
+  --color-error: 359 100 65; /* Error messages */
   --color-success: 46 125 50; /* Success messages */
   --color-warning: 237 108 2; /* Warning messages */
   --font-size-fine: 0.75rem; /* text-xs */

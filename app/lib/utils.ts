@@ -10,6 +10,9 @@ import type {
 import typographicBase from 'typographic-base';
 import {countries} from '~/data/countries';
 import {I18nLocale, Locale} from './type';
+import React from 'react';
+import {twMerge} from 'tailwind-merge';
+import clsx, {ClassValue} from 'clsx';
 
 export interface EnhancedMenuItem extends MenuItem {
   to: string;
@@ -20,6 +23,10 @@ export interface EnhancedMenuItem extends MenuItem {
 
 export interface EnhancedMenu extends Menu {
   items: EnhancedMenuItem[];
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
 
 export function missingClass(string?: string, prefix?: string) {
@@ -316,13 +323,4 @@ export function isLocalPath(url: string) {
 export function getCartId(request: Request) {
   const cookies = parseCookie(request.headers.get('Cookie') || '');
   return cookies.cart ? `gid://shopify/Cart/${cookies.cart}` : undefined;
-}
-
-export function remToPx(remValue: string) {
-  const rootFontSize =
-    typeof window === 'undefined'
-      ? 16
-      : parseFloat(window.getComputedStyle(document.documentElement).fontSize);
-
-  return parseFloat(remValue) * rootFontSize;
 }

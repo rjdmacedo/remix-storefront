@@ -1,8 +1,16 @@
-export function Spinner({show}: {show: boolean}) {
+import {cn} from '~/lib/utils';
+
+export function Spinner({
+  show,
+  className,
+}: {
+  show: boolean;
+  className?: string;
+}) {
   return (
     <div className={`transition-opacity ${show ? 'opacity-100' : 'opacity-0'}`}>
       <svg
-        className="-ml-1 mr-3 h-5 w-5 animate-spin"
+        className={cn('-ml-1 mr-3 h-5 w-5 animate-spin', className)}
         xmlns="http://www.w3.org/2000/svg"
         fill="none"
         viewBox="0 0 24 24"

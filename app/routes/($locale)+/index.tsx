@@ -4,13 +4,19 @@ import type {
 } from '@shopify/hydrogen/storefront-api-types';
 import React from 'react';
 import {defer, type LoaderArgs} from '@shopify/remix-oxygen';
-import {useLoaderData, V2_MetaFunction} from '@remix-run/react';
+import {V2_MetaFunction} from '@remix-run/react';
 
 import {seoPayload} from '~/lib/seo.server';
 import {AnalyticsPageType} from '@shopify/hydrogen';
 import {CACHE_SHORT, routeHeaders} from '~/data/cache';
-import {Prose, type CollectionHero} from '~/components';
+import {
+  Heading,
+  IconSearch,
+  type CollectionHero,
+  IconRemove,
+} from '~/components';
 import {MEDIA_FRAGMENT, PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
+import {Button} from '~/components/atoms/button/button';
 
 interface HomeSeoData {
   shop: {
@@ -114,47 +120,86 @@ export default function HomePage() {
   // } = useLoaderData<typeof loader>();
 
   return (
-    <>
-      <Prose as="article">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error fuga
-        harum non officiis praesentium repellat veritatis voluptas! Animi autem
-        commodi dicta doloribus est eveniet exercitationem, necessitatibus
-        nesciunt quod voluptate. Nisi. Lorem ipsum dolor sit amet, consectetur
-        adipisicing elit. Animi aperiam aut autem beatae dignissimos, dolor
-        doloremque doloribus eos ipsa iure maxime praesentium quaerat saepe
-        suscipit temporibus tenetur, veniam. Libero, praesentium? Lorem ipsum
-        dolor sit amet, consectetur adipisicing elit. Aperiam asperiores
-        blanditiis dolorum fugit laboriosam minima odio placeat tenetur, vitae.
-        Architecto dicta enim excepturi labore natus officia, praesentium quas
-        tempore totam! Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-        Autem, dignissimos libero maxime pariatur ratione sapiente! Ad animi
-        aperiam asperiores cumque inventore necessitatibus nobis, perspiciatis
-        quas quo sed totam unde velit. Lorem ipsum dolor sit amet, consectetur
-        adipisicing elit. In omnis quaerat quibusdam reiciendis! Animi minus nam
-        necessitatibus vero! Aut dolorem ducimus est molestiae obcaecati qui
-        repellendus saepe sed suscipit unde.
-      </Prose>
+    <div className="m-10 flex gap-2">
+      <div className="flex flex-col items-center justify-center gap-2 text-center">
+        <Heading>Solid</Heading>
+        <Button>solid</Button>
+        <Button variant="ghost">ghost</Button>
+        <Button variant="secondary" rightIcon={<IconRemove />}>
+          secondary
+        </Button>
+        <Button variant="danger">danger</Button>
 
-      <Prose as="article">
-        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Error fuga
-        harum non officiis praesentium repellat veritatis voluptas! Animi autem
-        commodi dicta doloribus est eveniet exercitationem, necessitatibus
-        nesciunt quod voluptate. Nisi. Lorem ipsum dolor sit amet, consectetur
-        adipisicing elit. Animi aperiam aut autem beatae dignissimos, dolor
-        doloremque doloribus eos ipsa iure maxime praesentium quaerat saepe
-        suscipit temporibus tenetur, veniam. Libero, praesentium? Lorem ipsum
-        dolor sit amet, consectetur adipisicing elit. Aperiam asperiores
-        blanditiis dolorum fugit laboriosam minima odio placeat tenetur, vitae.
-        Architecto dicta enim excepturi labore natus officia, praesentium quas
-        tempore totam! Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-        Autem, dignissimos libero maxime pariatur ratione sapiente! Ad animi
-        aperiam asperiores cumque inventore necessitatibus nobis, perspiciatis
-        quas quo sed totam unde velit. Lorem ipsum dolor sit amet, consectetur
-        adipisicing elit. In omnis quaerat quibusdam reiciendis! Animi minus nam
-        necessitatibus vero! Aut dolorem ducimus est molestiae obcaecati qui
-        repellendus saepe sed suscipit unde.
-      </Prose>
-    </>
+        <Button loading>solid</Button>
+        <Button variant="secondary" loading>
+          secondary loading
+        </Button>
+        <Button variant="danger" loading>
+          danger loading
+        </Button>
+      </div>
+
+      <div className="flex flex-col items-center justify-center gap-2 text-center">
+        <Heading>Unstyled</Heading>
+        <Button variant="unstyled">unstyled</Button>
+        <Button variant="unstyled" loading>
+          unstyled loading
+        </Button>
+      </div>
+
+      <div className="flex flex-col items-center justify-center gap-2 text-center">
+        <Heading>Link</Heading>
+        <Button variant="link">link</Button>
+        <Button variant="link" loading>
+          link loading
+        </Button>
+      </div>
+
+      <div className="flex flex-col items-center justify-center gap-2 text-center">
+        <Heading>Ghost</Heading>
+        <Button variant="ghost">ghost</Button>
+        <Button variant="ghost-danger">ghost-danger</Button>
+
+        <Button variant="ghost" loading>
+          ghost loading
+        </Button>
+        <Button variant="ghost-danger" loading>
+          ghost-danger loading
+        </Button>
+      </div>
+
+      <div className="flex flex-col items-center justify-center gap-2 text-center">
+        <Heading>Icon</Heading>
+        <Button.Icon rounded="full" className="h-10 w-10">
+          <IconSearch />
+        </Button.Icon>
+        <Button.Icon variant="secondary" rounded="full" className="h-10 w-10">
+          <IconSearch />
+        </Button.Icon>
+        <Button.Icon variant="danger" rounded="full" className="h-10 w-10">
+          <IconRemove />
+        </Button.Icon>
+        <Button.Icon rounded="full" className="h-10 w-10" loading>
+          <IconSearch />
+        </Button.Icon>
+        <Button.Icon
+          variant="secondary"
+          rounded="full"
+          className="h-10 w-10"
+          loading
+        >
+          <IconSearch />
+        </Button.Icon>
+        <Button.Icon
+          variant="danger"
+          rounded="full"
+          className="h-10 w-10"
+          loading
+        >
+          <IconRemove className="absolute inset-x-0" />
+        </Button.Icon>
+      </div>
+    </div>
   );
 }
 

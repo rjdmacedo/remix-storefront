@@ -1,7 +1,6 @@
 /* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain,eslint-comments/disable-enable-pair */
 import {
   Money,
-  ShopPayButton,
   AnalyticsPageType,
   type ShopifyAnalyticsProduct,
 } from '@shopify/hydrogen';
@@ -246,7 +245,7 @@ function ProductForm() {
         {selectedVariant && (
           <div className="grid items-stretch gap-4">
             {isOutOfStock ? (
-              <Button variant="secondary" disabled>
+              <Button variant="secondary" disabled fullWidth>
                 <Text>Sold out</Text>
               </Button>
             ) : (
@@ -257,7 +256,6 @@ function ProductForm() {
                     quantity: 1,
                   },
                 ]}
-                variant="primary"
                 data-test="add-to-cart"
                 analytics={{
                   products: [productAnalytics],
@@ -284,13 +282,6 @@ function ProductForm() {
                   )}
                 </Text>
               </AddToCartButton>
-            )}
-            {!isOutOfStock && (
-              <ShopPayButton
-                width="100%"
-                variantIds={[selectedVariant?.id!]}
-                storeDomain={storeDomain}
-              />
             )}
           </div>
         )}

@@ -19,10 +19,17 @@ import {
   ProductGrid,
   ProductSwimlane,
   FeaturedCollections,
+  Button,
 } from '~/components';
 import {seoPayload} from '~/lib/seo.server';
 import {PAGINATION_SIZE} from '~/lib/const';
 import {PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
+import {
+  EnvelopeIcon,
+  MagnifyingGlassIcon,
+  XCircleIcon,
+  XMarkIcon,
+} from '@heroicons/react/24/outline';
 
 export async function loader({request, context: {storefront}}: LoaderArgs) {
   console.log(storefront.i18n.country);
@@ -87,20 +94,24 @@ export default function SearchPage() {
   return (
     <>
       <PageHeader>
-        <Heading as="h1" size="copy">
-          Search
-        </Heading>
-        <Form method="get" className="relative flex w-full text-heading">
+        <Form method="get" className="flex w-full items-center justify-end">
           <Input
-            defaultValue={searchTerm}
-            placeholder="Search…"
-            type="search"
-            variant="search"
             name="q"
+            type="search"
+            className="w-full max-w-sm px-10"
+            placeholder="Type something to search…"
+            defaultValue={searchTerm}
+            prefix={
+              <button type="submit" className="p-1">
+                <MagnifyingGlassIcon className="h-5 w-5" aria-hidden="true" />
+              </button>
+            }
+            suffix={
+              <button type="submit" className="px-2">
+                Go
+              </button>
+            }
           />
-          <button className="absolute right-0 py-2" type="submit">
-            Go
-          </button>
         </Form>
       </PageHeader>
       {!searchTerm || noResults ? (

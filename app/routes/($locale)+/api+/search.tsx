@@ -29,7 +29,7 @@ import {
 } from '~/routes/($locale)+/search';
 import {seoPayload} from '~/lib/seo.server';
 import {useDebounce} from '~/hooks';
-import {ProductCard} from '~/components';
+import {IconCaret, Input, ProductCard} from '~/components';
 import {useIsHomePath} from '~/lib/utils';
 import {MAX_AMOUNT_SIZE} from '~/lib/const';
 
@@ -105,33 +105,30 @@ export function Search() {
         action="/search"
         className="relative flex items-center"
       >
-        <input
+        <Input
           name="q"
           type="text"
           onClick={() => setOpen(true)}
           placeholder="Search something..."
-          className={clsx(
-            'rounded-md border-0 py-1.5 pr-10 ring-0 transition-shadow focus:outline-none focus:ring-2',
-            isHome
-              ? 'bg-contrast/30 text-contrast placeholder:text-contrast'
-              : 'bg-primary/20 text-primary placeholder:text-primary focus:shadow-xl',
-          )}
+          className={clsx('pr-10')}
+          addonAfter={
+            <div className="mx-1 flex items-center rounded border px-1 py-1.5 pr-1.5">
+              <kbd
+                className={clsx(
+                  'font-sans text-xs',
+                  isHome
+                    ? 'border-contrast text-contrast'
+                    : 'border-primary text-primary',
+                )}
+              >
+                {modifierKey}K
+              </kbd>
+            </div>
+          }
           autoCorrect="off"
           autoComplete="off"
           autoCapitalize="off"
         />
-        <div className="absolute inset-y-0 right-0 flex py-1.5 pr-1.5">
-          <kbd
-            className={clsx(
-              'inline-flex items-center rounded border px-1 font-sans text-xs',
-              isHome
-                ? 'border-contrast text-contrast'
-                : 'border-primary text-primary',
-            )}
-          >
-            {modifierKey}K
-          </kbd>
-        </div>
       </Form>
 
       <SearchDialog setOpen={setOpen} open={open} />

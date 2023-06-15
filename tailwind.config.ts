@@ -1,11 +1,13 @@
-const defaultTheme = require('tailwindcss/defaultTheme');
+import typography from './typography';
 
+import {type Config} from 'tailwindcss';
 import formsPlugin from '@tailwindcss/forms';
+import defaultTheme from 'tailwindcss/defaultTheme';
 import typographyPlugin from '@tailwindcss/typography';
 
-/** @type {import('tailwindcss').Config} */
-export default {
+const config = {
   content: ['./app/**/*.{js,ts,jsx,tsx}'],
+  mode: 'jit',
   theme: {
     extend: {
       colors: {
@@ -47,7 +49,7 @@ export default {
       fontFamily: {
         sans: ['Nunito Sans', ...defaultTheme.fontFamily.sans],
       },
-      typography: require('./typography'),
+      typography,
       fontSize: {
         display: ['var(--font-size-display)', '1.1'],
         heading: ['var(--font-size-heading)', '1.25'],
@@ -67,4 +69,6 @@ export default {
     },
   },
   plugins: [formsPlugin, typographyPlugin],
-};
+} satisfies Config;
+
+export default config;
