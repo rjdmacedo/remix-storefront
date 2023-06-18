@@ -9,14 +9,10 @@ import {V2_MetaFunction} from '@remix-run/react';
 import {seoPayload} from '~/lib/seo.server';
 import {AnalyticsPageType} from '@shopify/hydrogen';
 import {CACHE_SHORT, routeHeaders} from '~/data/cache';
-import {
-  Heading,
-  IconSearch,
-  type CollectionHero,
-  IconRemove,
-} from '~/components';
+import {Heading, type CollectionHero} from '~/components';
 import {MEDIA_FRAGMENT, PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
-import {Button} from '~/components/atoms/button/button';
+import {Button} from '~/components/ui/button';
+import {Loader2, Mail} from 'lucide-react';
 
 interface HomeSeoData {
   shop: {
@@ -125,79 +121,37 @@ export default function HomePage() {
         <Heading>Solid</Heading>
         <Button>solid</Button>
         <Button variant="ghost">ghost</Button>
-        <Button variant="secondary" rightIcon={<IconRemove />}>
-          secondary
+        <Button variant="secondary">
+          <Mail className="mr-2 h-4 w-4" /> secondary
         </Button>
-        <Button variant="danger">danger</Button>
+        <Button variant="destructive">destructive</Button>
 
-        <Button loading>solid</Button>
-        <Button variant="secondary" loading>
-          secondary loading
+        <Button disabled>
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          Please wait
         </Button>
-        <Button variant="danger" loading>
-          danger loading
+        <Button variant="secondary" disabled>
+          secondary loading
+          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+        </Button>
+        <Button variant="destructive" disabled>
+          destructive <Loader2 className="mr-2 h-4 w-4 animate-spin" /> loading
         </Button>
       </div>
 
       <div className="flex flex-col items-center justify-center gap-2 text-center">
-        <Heading>Unstyled</Heading>
-        <Button variant="unstyled">unstyled</Button>
-        <Button variant="unstyled" loading>
-          unstyled loading
-        </Button>
+        <Heading>Outline</Heading>
+        <Button variant="outline">outline</Button>
       </div>
 
       <div className="flex flex-col items-center justify-center gap-2 text-center">
         <Heading>Link</Heading>
         <Button variant="link">link</Button>
-        <Button variant="link" loading>
-          link loading
-        </Button>
       </div>
 
       <div className="flex flex-col items-center justify-center gap-2 text-center">
         <Heading>Ghost</Heading>
         <Button variant="ghost">ghost</Button>
-        <Button variant="ghost-danger">ghost-danger</Button>
-
-        <Button variant="ghost" loading>
-          ghost loading
-        </Button>
-        <Button variant="ghost-danger" loading>
-          ghost-danger loading
-        </Button>
-      </div>
-
-      <div className="flex flex-col items-center justify-center gap-2 text-center">
-        <Heading>Icon</Heading>
-        <Button.Icon rounded="full" className="h-10 w-10">
-          <IconSearch />
-        </Button.Icon>
-        <Button.Icon variant="secondary" rounded="full" className="h-10 w-10">
-          <IconSearch />
-        </Button.Icon>
-        <Button.Icon variant="danger" rounded="full" className="h-10 w-10">
-          <IconRemove />
-        </Button.Icon>
-        <Button.Icon rounded="full" className="h-10 w-10" loading>
-          <IconSearch />
-        </Button.Icon>
-        <Button.Icon
-          variant="secondary"
-          rounded="full"
-          className="h-10 w-10"
-          loading
-        >
-          <IconSearch />
-        </Button.Icon>
-        <Button.Icon
-          variant="danger"
-          rounded="full"
-          className="h-10 w-10"
-          loading
-        >
-          <IconRemove className="absolute inset-x-0" />
-        </Button.Icon>
       </div>
     </div>
   );

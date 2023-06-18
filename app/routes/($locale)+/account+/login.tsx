@@ -13,8 +13,8 @@ import {
 } from '@shopify/remix-oxygen';
 import {useState} from 'react';
 import type {
-  CustomerAccessTokenCreatePayload,
   Shop,
+  CustomerAccessTokenCreatePayload,
 } from '@shopify/hydrogen/storefront-api-types';
 
 import {Link} from '~/components';
@@ -105,8 +105,8 @@ export default function Login() {
           className="mb-4 mt-4 space-y-3 pb-8 pt-6"
         >
           {actionData?.formError && (
-            <div className="mb-6 flex items-center justify-center rounded-md border border-error text-justify">
-              <p className="text-s m-4 text-error">{actionData.formError}</p>
+            <div className="border-error mb-6 flex items-center justify-center rounded-md border text-justify">
+              <p className="text-s text-error m-4">{actionData.formError}</p>
             </div>
           )}
           <div>
@@ -172,7 +172,7 @@ export default function Login() {
           </div>
           <div className="flex items-center justify-between">
             <button
-              className="focus:shadow-outline block w-full rounded bg-primary px-4 py-2 text-contrast"
+              className="focus:shadow-outline text-contrast block w-full rounded bg-primary px-4 py-2"
               type="submit"
               disabled={!!(nativePasswordError || nativeEmailError)}
             >

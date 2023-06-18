@@ -229,7 +229,7 @@ function SearchDialog({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <Dialog.Panel className="mx-auto max-w-3xl transform divide-y divide-primary overflow-hidden rounded-xl bg-contrast shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
+            <Dialog.Panel className="bg-contrast mx-auto max-w-3xl transform divide-y divide-primary overflow-hidden rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
               <Combobox<Product>
                 onChange={(product) => navigate(`/product/${product.handle}`)}
               >
@@ -243,7 +243,7 @@ function SearchDialog({
                       <Combobox.Input<Product>
                         type="search"
                         autoComplete="off"
-                        className="h-12 w-full border-0 bg-contrast pl-11 pr-4 text-primary placeholder:text-primary focus:ring-0"
+                        className="bg-contrast h-12 w-full border-0 pl-11 pr-4 text-primary placeholder:text-primary focus:ring-0"
                         placeholder="Start typing to search..."
                         onChange={(event) =>
                           handleInputChange(event.target.value)
@@ -310,12 +310,12 @@ function SearchDialog({
                     {query !== '' && !busy && products.length === 0 && (
                       <div className="px-6 py-14 text-center text-xl sm:px-14">
                         <XCircleIcon
-                          className="mx-auto h-10 w-10 text-error"
+                          className="text-error mx-auto h-10 w-10"
                           aria-hidden="true"
                         />
                         <p className="mt-4 font-semibold text-primary">
                           Nothing found for{' '}
-                          <strong className="break-words font-semibold text-notice">
+                          <strong className="text-notice break-words font-semibold">
                             &lsquo;{query}&rsquo;
                           </strong>
                           . Please try again.

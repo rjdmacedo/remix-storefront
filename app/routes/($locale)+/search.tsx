@@ -14,22 +14,15 @@ import {
   Text,
   Input,
   Section,
-  Heading,
   PageHeader,
   ProductGrid,
   ProductSwimlane,
   FeaturedCollections,
-  Button,
 } from '~/components';
 import {seoPayload} from '~/lib/seo.server';
 import {PAGINATION_SIZE} from '~/lib/const';
+import {MagnifyingGlassIcon} from '@heroicons/react/24/outline';
 import {PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
-import {
-  EnvelopeIcon,
-  MagnifyingGlassIcon,
-  XCircleIcon,
-  XMarkIcon,
-} from '@heroicons/react/24/outline';
 
 export async function loader({request, context: {storefront}}: LoaderArgs) {
   console.log(storefront.i18n.country);
@@ -86,8 +79,7 @@ export async function loader({request, context: {storefront}}: LoaderArgs) {
 }
 
 export default function SearchPage() {
-  const {searchTerm, products, noResultRecommendations} =
-    useLoaderData<typeof loader>();
+  const {searchTerm, products, noResultRecommendations} = useLoaderData();
 
   const noResults = products?.nodes?.length === 0;
 
