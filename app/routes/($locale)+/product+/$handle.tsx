@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-non-null-asserted-optional-chain,eslint-comments/disable-enable-pair */
 import {
   Money,
   AnalyticsPageType,
@@ -23,6 +22,10 @@ import invariant from 'tiny-invariant';
 import {Disclosure, Listbox} from '@headlessui/react';
 import {defer, type LoaderArgs} from '@shopify/remix-oxygen';
 import {type ReactNode, useRef, Suspense, useMemo} from 'react';
+import type {
+  MediaEdge,
+  MediaImage,
+} from '@shopify/hydrogen/dist/storefront-api-types';
 
 import {
   Link,
@@ -124,10 +127,10 @@ export default function ProductPage() {
       <Section className="px-0 md:px-8 lg:px-12">
         <div className="grid items-start md:grid-cols-2 md:gap-6 lg:grid-cols-3 lg:gap-20">
           <ProductGallery
-            media={media.nodes}
+            media={media.nodes as (MediaEdge['node'] & MediaImage)[]}
             className="w-full lg:col-span-2"
           />
-          <div className="hiddenScroll sticky md:top-nav md:-mb-nav md:h-screen md:-translate-y-nav md:overflow-y-scroll md:pt-nav">
+          <div className="hiddenScroll md:top-nav md:-mb-nav md:-translate-y-nav md:pt-nav sticky md:h-screen md:overflow-y-scroll">
             <section className="flex w-full max-w-xl flex-col gap-8 p-6 md:mx-auto md:max-w-sm md:px-0">
               <div className="grid gap-2">
                 <Heading as="h1" className="whitespace-normal">
@@ -182,7 +185,7 @@ export default function ProductPage() {
 function ProductForm() {
   const {location} = useNavigation();
   const [currentSearchParams] = useSearchParams();
-  const {product, analytics, storeDomain} = useLoaderData<typeof loader>();
+  const {product, analytics} = useLoaderData<typeof loader>();
 
   /**
    * We update `searchParams` with in-flight request data from `location` (if available)
@@ -340,7 +343,7 @@ function ProductOptions({
                         </Listbox.Button>
                         <Listbox.Options
                           className={clsx(
-                            'absolute bottom-12 z-30 grid h-48 w-full overflow-y-scroll rounded-t border border-primary bg-contrast px-2 py-2 transition-[max-height] duration-150 sm:bottom-auto md:rounded-b md:rounded-t-none md:border-b md:border-t-0',
+                            'bg-contrast absolute bottom-12 z-30 grid h-48 w-full overflow-y-scroll rounded-t border border-primary px-2 py-2 transition-[max-height] duration-150 sm:bottom-auto md:rounded-b md:rounded-t-none md:border-b md:border-t-0',
                             open ? 'max-h-48' : 'max-h-0',
                           )}
                         >

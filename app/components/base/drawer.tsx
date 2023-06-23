@@ -63,10 +63,10 @@ export function Drawer({
                 leaveFrom="translate-x-0"
                 leaveTo={offScreen[openFrom]}
               >
-                <Dialog.Panel className="h-screen-dynamic w-screen max-w-lg transform bg-contrast text-left align-middle shadow-xl transition-all">
+                <Dialog.Panel className="h-screen-dynamic bg-contrast w-screen max-w-lg transform text-left align-middle shadow-xl transition-all">
                   <header
                     className={clsx(
-                      'sticky top-0 flex h-nav items-center px-6 sm:px-8 md:px-12',
+                      'h-nav sticky top-0 flex items-center px-6 sm:px-8 md:px-12',
                       heading ? 'justify-between' : 'justify-end',
                     )}
                   >

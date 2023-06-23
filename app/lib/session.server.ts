@@ -1,8 +1,23 @@
 import {
-  createCookieSessionStorage,
-  type SessionStorage,
   type Session,
+  type SessionStorage,
+  createCookieSessionStorage,
 } from '@shopify/remix-oxygen';
+import {createThemeSessionResolver} from 'remix-themes';
+
+const themeStorage = createCookieSessionStorage({
+  cookie: {
+    name: '__theme',
+    // domain: 'remix.run',
+    path: '/',
+    httpOnly: true,
+    sameSite: 'lax',
+    secrets: ['s3cr3t'],
+    // secure: true,
+  },
+});
+
+export const themeSessionResolver = createThemeSessionResolver(themeStorage);
 
 /**
  * This is a custom session implementation for your Hydrogen shop.
@@ -18,7 +33,7 @@ export class HydrogenSession {
   static async init(request: Request, secrets: string[]) {
     const storage = createCookieSessionStorage({
       cookie: {
-        name: 'session',
+        name: '__session',
         httpOnly: true,
         path: '/',
         sameSite: 'lax',

@@ -78,7 +78,7 @@ export function ProductCard({
             <Text
               as="label"
               size="fine"
-              className="absolute right-0 top-0 m-4 text-right text-notice"
+              className="text-notice absolute right-0 top-0 m-4 text-right"
             >
               {cardLabel}
             </Text>

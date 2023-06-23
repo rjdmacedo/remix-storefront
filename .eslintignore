@@ -1,6 +1,4 @@
-dist
-build
 .cache
+dist
 node_modules
 *.d.ts
-.env

@@ -22,29 +22,36 @@ import {flattenConnection} from '@shopify/hydrogen';
 import {json, type LoaderArgs} from '@shopify/remix-oxygen';
 import {Combobox, Dialog, Transition} from '@headlessui/react';
 import React, {useState, useEffect, Fragment} from 'react';
+import type {CollectionConnection} from '@shopify/hydrogen/dist/storefront-api-types';
 
-import {
-  SEARCH_QUERY,
-  getNoResultRecommendations,
-} from '~/routes/($locale)+/search';
 import {seoPayload} from '~/lib/seo.server';
 import {useDebounce} from '~/hooks';
-import {IconCaret, Input, ProductCard} from '~/components';
+import {Input, ProductCard} from '~/components';
 import {useIsHomePath} from '~/lib/utils';
-import {MAX_AMOUNT_SIZE} from '~/lib/const';
+import {PAGINATION_SIZE} from '~/lib/const';
+import {PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
 
 export async function loader({request, context: {storefront}}: LoaderArgs) {
   const searchParams = new URL(request.url).searchParams;
 
   const cursor = searchParams.get('cursor')!;
-  const searchTerm = searchParams.get('q')!;
+  const searchTerm = searchParams.get('q');
+
+  if (!searchTerm) {
+    return json({
+      seo: null,
+      products: [],
+      searchTerm,
+      noResultRecommendations: null,
+    });
+  }
 
   const data = await storefront.query<{
     products: ProductConnection;
   }>(SEARCH_QUERY, {
     variables: {
       cursor,
-      pageBy: MAX_AMOUNT_SIZE,
+      pageBy: PAGINATION_SIZE,
       country: storefront.i18n.country,
       language: storefront.i18n.language,
       searchTerm,
@@ -229,7 +236,7 @@ function SearchDialog({
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <Dialog.Panel className="mx-auto max-w-3xl transform divide-y divide-primary overflow-hidden rounded-xl bg-contrast shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
+            <Dialog.Panel className="bg-contrast mx-auto max-w-3xl transform divide-y divide-primary overflow-hidden rounded-xl shadow-2xl ring-1 ring-black ring-opacity-5 transition-all">
               <Combobox<Product>
                 onChange={(product) => navigate(`/product/${product.handle}`)}
               >
@@ -243,7 +250,7 @@ function SearchDialog({
                       <Combobox.Input<Product>
                         type="search"
                         autoComplete="off"
-                        className="h-12 w-full border-0 bg-contrast pl-11 pr-4 text-primary placeholder:text-primary focus:ring-0"
+                        className="bg-contrast h-12 w-full border-0 pl-11 pr-4 text-primary placeholder:text-primary focus:ring-0"
                         placeholder="Start typing to search..."
                         onChange={(event) =>
                           handleInputChange(event.target.value)
@@ -310,12 +317,12 @@ function SearchDialog({
                     {query !== '' && !busy && products.length === 0 && (
                       <div className="px-6 py-14 text-center text-xl sm:px-14">
                         <XCircleIcon
-                          className="mx-auto h-10 w-10 text-error"
+                          className="text-error mx-auto h-10 w-10"
                           aria-hidden="true"
                         />
                         <p className="mt-4 font-semibold text-primary">
                           Nothing found for{' '}
-                          <strong className="break-words font-semibold text-notice">
+                          <strong className="text-notice break-words font-semibold">
                             &lsquo;{query}&rsquo;
                           </strong>
                           . Please try again.
@@ -342,4 +349,82 @@ function HighlightQuery({text, query}: {text: string; query: string}) {
       textToHighlight={text}
     />
   );
+}
+
+export const SEARCH_QUERY = `#graphql
+${PRODUCT_CARD_FRAGMENT}
+query search(
+    $pageBy: Int!
+    $after: String
+    $country: CountryCode
+    $language: LanguageCode
+    $searchTerm: String
+) @inContext(country: $country, language: $language) {
+    products(
+        first: $pageBy
+        query: $searchTerm
+        after: $after
+        sortKey: RELEVANCE
+    ) {
+        nodes {
+            ...ProductCard
+        }
+        pageInfo {
+            startCursor
+            endCursor
+            hasNextPage
+            hasPreviousPage
+        }
+    }
+}
+`;
+
+export const SEARCH_NO_RESULTS_QUERY = `#graphql
+query searchNoResult(
+    $pageBy: Int!
+    $country: CountryCode
+    $language: LanguageCode
+) @inContext(country: $country, language: $language) {
+    featuredCollections: collections(first: 3, sortKey: UPDATED_AT) {
+        nodes {
+            id
+            title
+            handle
+            image {
+                url
+                width
+                height
+                altText
+            }
+        }
+    }
+    featuredProducts: products(first: $pageBy) {
+        nodes {
+            ...ProductCard
+        }
+    }
+}
+${PRODUCT_CARD_FRAGMENT}
+`;
+
+export async function getNoResultRecommendations(
+  storefront: LoaderArgs['context']['storefront'],
+) {
+  const data = await storefront.query<{
+    featuredProducts: ProductConnection;
+    featuredCollections: CollectionConnection;
+  }>(SEARCH_NO_RESULTS_QUERY, {
+    variables: {
+      pageBy: PAGINATION_SIZE,
+      country: storefront.i18n.country,
+      language: storefront.i18n.language,
+    },
+  });
+
+  invariant(data, 'No data returned from Shopify API');
+
+  return {
+    featuredProducts: flattenConnection(data.featuredProducts),
+    featuredCollections: flattenConnection(data.featuredCollections),
+  };
 }

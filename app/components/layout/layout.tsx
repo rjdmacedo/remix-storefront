@@ -11,8 +11,8 @@ export function Layout({
   children: React.ReactNode;
 }) {
   return (
-    <>
-      <div className="flex min-h-screen flex-col">
+    <div>
+      <div className="relative flex min-h-screen flex-col">
         <a href="#main-content" className="sr-only">
           Skip to content
         </a>
@@ -22,12 +22,12 @@ export function Layout({
           title={layout?.shop.name ?? 'Hydrogen'}
         />
 
-        <main role="main" id="main-content" className="flex-grow">
+        <main role="main" id="main-content" className="container">
           {children}
         </main>
       </div>
 
       <Footer menu={layout?.footerMenu} />
-    </>
+    </div>
   );
 }

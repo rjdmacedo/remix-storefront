@@ -17,16 +17,14 @@ export function Footer({menu}: {menu?: EnhancedMenu}) {
       as="footer"
       role="contentinfo"
       divider={isHome ? 'none' : 'top'}
-      className={`grid min-h-[25rem] w-full grid-flow-row grid-cols-1 items-start gap-6 px-6 py-8 md:grid-cols-2 md:gap-8 md:px-8 lg:gap-12 lg:px-12 lg:grid-cols-${itemsCount}
-        overflow-hidden bg-primary text-contrast dark:bg-contrast dark:text-primary`}
+      className={`grid min-h-[25rem] w-full grid-flow-row grid-cols-1 items-start gap-6 px-6 py-8 md:grid-cols-2 md:gap-8 md:px-8 lg:gap-12 lg:px-12 lg:grid-cols-${itemsCount}`}
     >
       <FooterMenu menu={menu} />
       <CountrySelector />
       <div
         className={`self-end pt-8 opacity-50 md:col-span-2 lg:col-span-${itemsCount}`}
       >
-        &copy; {new Date().getFullYear()} / Shopify, Inc. Hydrogen is an MIT
-        Licensed Open Source project.
+        &copy; {new Date().getFullYear()}
       </div>
     </Section>
   );

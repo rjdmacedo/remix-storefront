@@ -1,5 +1,6 @@
 import clsx from 'clsx';
-import React, {ComponentProps, forwardRef, useId} from 'react';
+import type {ComponentProps} from 'react';
+import React, {forwardRef, useId} from 'react';
 
 import {missingClass} from '~/lib/utils';
 import type {Status} from '~/lib/type';
@@ -98,8 +99,10 @@ export const Input = forwardRef<
             {...props}
             id={id}
             className={clsx(
-              'block w-full rounded-md border-0 bg-contrast py-1.5 text-primary ring-1 ring-inset ring-primary/30 placeholder:text-primary/30 sm:text-sm sm:leading-6',
+              'block w-full rounded-md border-0 bg-transparent py-1.5 text-primary ring-1 ring-inset ring-primary/30 placeholder:text-primary/30 sm:text-sm sm:leading-6',
               missingClass(className, 'h-') && heights[height],
+              prefix && 'pl-12',
+              suffix && 'pr-12',
               className,
             )}
           />

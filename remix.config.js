@@ -18,17 +18,14 @@ module.exports = {
   serverModuleFormat: 'esm',
   serverPlatform: 'neutral',
   serverMinify: process.env.NODE_ENV === 'production',
+  postcss: true,
+  tailwind: true,
   future: {
     v2_meta: true,
-    unstable_postcss: true,
+    v2_headers: true,
     v2_errorBoundary: true,
-    unstable_tailwind: true,
     v2_routeConvention: true,
     v2_normalizeFormMethod: true,
-    unstable_dev: {
-      port: '', // let it choose a random port
-      appServerPort: process.env.APP_SERVER_PORT || process.env.PORT || 3000,
-    },
   },
   routes: async (defineRoutes) => {
     return flatRoutes('routes', defineRoutes, {

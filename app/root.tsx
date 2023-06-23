@@ -5,28 +5,33 @@ import {
   type AppLoadContext,
 } from '@shopify/remix-oxygen';
 import {
-  Links,
   Meta,
+  Links,
   Outlet,
   Scripts,
   useLoaderData,
   ScrollRestoration,
 } from '@remix-run/react';
+import React from 'react';
+import invariant from 'tiny-invariant';
+import type {Shop, Cart} from '@shopify/hydrogen/storefront-api-types';
 import {ShopifySalesChannel, Seo} from '@shopify/hydrogen';
-import styles from './styles/tailwind.css';
-import favicon from '../public/favicon.ico';
+import {PreventFlashOnWrongTheme, ThemeProvider, useTheme} from 'remix-themes';
+
+import {Layout} from '~/components';
 import {seoPayload} from '~/lib/seo.server';
+import {useAnalytics} from '~/hooks';
+import {themeSessionResolver} from '~/lib/session.server';
+
+import favicon from '../public/favicon.ico';
+
 import {
   parseMenu,
   getCartId,
   DEFAULT_LOCALE,
   type EnhancedMenu,
 } from './lib/utils';
-import invariant from 'tiny-invariant';
-import {Shop, Cart} from '@shopify/hydrogen/storefront-api-types';
-import {useAnalytics} from '~/hooks';
-import React from 'react';
-import {Layout} from '~/components';
+import styles from './tailwind.css';
 
 export const links: LinksFunction = () => {
   return [
@@ -61,42 +66,65 @@ export const links: LinksFunction = () => {
 
 export async function loader({request, context}: LoaderArgs) {
   const cartId = getCartId(request);
-  const [customerAccessToken, layout] = await Promise.all([
-    context.session.get('customerAccessToken'),
+  const [theme, layout, customerAccessToken] = await Promise.all([
+    themeSessionResolver(request).then(({getTheme}) => getTheme()),
     getLayoutData(context),
+    context.session.get('customerAccessToken'),
   ]);
 
   const seo = seoPayload.root({shop: layout.shop, url: request.url});
+  const cart = cartId ? getCart(context, cartId) : undefined;
+  const isLoggedIn = Boolean(customerAccessToken);
+  const selectedLocale = context.storefront.i18n;
 
   return defer({
-    isLoggedIn: Boolean(customerAccessToken),
-    layout,
-    selectedLocale: context.storefront.i18n,
-    cart: cartId ? getCart(context, cartId) : undefined,
-    analytics: {
-      shopifySalesChannel: ShopifySalesChannel.hydrogen,
-      shopId: layout.shop.id,
-    },
     seo,
+    cart,
+    theme,
+    layout,
+    isLoggedIn,
+    selectedLocale,
+    analytics: {
+      shopId: layout.shop.id,
+      shopifySalesChannel: ShopifySalesChannel.hydrogen,
+    },
   });
 }
 
-export default function App() {
-  const data = useLoaderData<typeof loader>();
+// Wrap your app with ThemeProvider.
+// `specifiedTheme` is the stored theme in the session storage.
+// `themeAction` is the action name that's used to change the theme in the session storage.
+export default function AppWithProviders() {
+  const {theme} = useLoaderData();
+
+  return (
+    <ThemeProvider specifiedTheme={theme} themeAction="/api/theme">
+      <App />
+    </ThemeProvider>
+  );
+}
+
+// Use the theme in your app.
+// If the theme is missing in session storage, PreventFlashOnWrongTheme will get
+// the browser theme before hydration and will prevent a flash in the browser.
+// The client code runs conditionally, it won't be rendered if we have a theme in session storage.
+function App() {
+  const data = useLoaderData();
+  const [theme] = useTheme();
   const locale = data.selectedLocale ?? DEFAULT_LOCALE;
   const hasUserConsent = true;
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   useAnalytics(hasUserConsent, locale);
 
   return (
-    <html lang={locale.language}>
+    <html lang={locale.language} data-theme={theme ?? ''}>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
         <Seo />
         <Meta />
+        <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
         <Links />
       </head>
       <body>
