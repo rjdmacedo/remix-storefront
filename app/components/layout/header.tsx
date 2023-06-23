@@ -1,5 +1,11 @@
 import React, {Suspense, useEffect, useMemo} from 'react';
-import {Await, useMatches, useNavigate, type LinkProps} from '@remix-run/react';
+import {
+  Await,
+  useMatches,
+  useNavigate,
+  type LinkProps,
+  useLocation,
+} from '@remix-run/react';
 
 import {cn, type EnhancedMenu} from '~/lib/utils';
 import {Badge} from '~/components/ui/badge';
@@ -55,13 +61,16 @@ function MainNav({menu, title}: {menu?: EnhancedMenu; title: string}) {
       <Link
         to="/"
         prefetch="intent"
-        className="mr-6 flex items-center space-x-2"
+        className={cn(
+          buttonVariants({variant: 'link'}),
+          'mr-6 flex items-center space-x-2',
+        )}
       >
         <Icons.Tailwind className="h-6 w-6" />
         <span className="hidden font-bold sm:inline-block">{title}</span>
       </Link>
 
-      <nav className="flex items-center space-x-6 text-sm font-medium">
+      <nav className="flex items-center space-x-2 text-sm font-medium">
         {(menu?.items || []).map((item) => (
           <Link
             key={item.id}
@@ -70,7 +79,8 @@ function MainNav({menu, title}: {menu?: EnhancedMenu; title: string}) {
             prefetch="intent"
             className={({isActive}) =>
               cn(
-                isActive ? 'text-foreground' : 'text-foreground/60',
+                buttonVariants({variant: 'link'}),
+                isActive ? 'bg-accent text-foreground' : 'text-foreground/60',
                 'transition-colors hover:text-foreground/80',
               )
             }
@@ -78,27 +88,6 @@ function MainNav({menu, title}: {menu?: EnhancedMenu; title: string}) {
             {item.title}
           </Link>
         ))}
-
-        {/*<div className="flex flex-1 items-center justify-end gap-x-4">*/}
-        {/*  <Search />*/}
-        {/*  <Button*/}
-        {/*    type="button"*/}
-        {/*    size="sm"*/}
-        {/*    variant="ghost"*/}
-        {/*    className="rounded-full p-2"*/}
-        {/*    onClick={() =>*/}
-        {/*      setTheme(theme === Theme.DARK ? Theme.LIGHT : Theme.DARK)*/}
-        {/*    }*/}
-        {/*  >*/}
-        {/*    {theme === Theme.DARK ? (*/}
-        {/*      <SunIcon className="h-6 w-6" />*/}
-        {/*    ) : (*/}
-        {/*      <MoonIcon className="h-6 w-6" />*/}
-        {/*    )}*/}
-        {/*  </Button>*/}
-        {/*  <AccountLink className="relative flex h-8 w-8 items-center justify-center focus:ring-primary/5" />*/}
-        {/*  <CartCount isHome={isHome} openCart={openCart} />*/}
-        {/*</div>*/}
       </nav>
     </div>
   );
@@ -111,8 +100,11 @@ function MobileNav({menu, title}: {menu?: EnhancedMenu; title: string}) {
     <Sheet open={open} onOpenChange={setOpen}>
       <SheetTrigger asChild>
         <Button
-          variant="ghost"
-          className="mr-2 px-0 text-base hover:bg-transparent focus-visible:bg-transparent focus-visible:ring-0 focus-visible:ring-offset-0 md:hidden"
+          size="sm"
+          variant="outline"
+          className={cn(
+            'mr-2 flex h-9 w-9 px-0 text-foreground/60 hover:text-foreground/80 md:hidden',
+          )}
         >
           <Icons.SidebarOpen className="h-6 w-6" />
           <span className="sr-only">Toggle Menu</span>
@@ -192,19 +184,23 @@ function AccountLink({className}: {className?: string}) {
       prefetch="intent"
       className={({isActive}) =>
         cn(
-          isActive ? 'text-foreground' : 'text-foreground/60',
-          'transition-colors hover:text-foreground/80',
+          buttonVariants({variant: 'outline'}),
+          isActive ? 'bg-accent text-foreground' : 'text-foreground/60',
+          'flex h-9 w-9 px-0 hover:text-foreground/80',
           className,
         )
       }
     >
       {isLoggedIn ? (
-        <Avatar className="h-8 w-8">
-          <Avatar.Image src="https://github.com/rjdmacedo.png" alt="@shadcn" />
+        <Avatar className="h-6 w-6">
+          <Avatar.Image
+            src="https://github.com/rjdmacedo.png"
+            alt="@rjdmacedo"
+          />
           <Avatar.Fallback>RM</Avatar.Fallback>
         </Avatar>
       ) : (
-        <Icons.User />
+        <Icons.User className="h-6 w-6" />
       )}
     </Link>
   );
@@ -226,14 +222,22 @@ function CartCount({openCart}: {openCart: () => void}) {
 
 function CartBadge({count, openCart}: {count: number; openCart: () => void}) {
   const isHydrated = useIsHydrated();
+  const {pathname} = useLocation();
 
   const BadgeCounter = useMemo(
     () => (
       <>
         <Icons.ShoppingBag className="h-6 w-6" />
-        <Badge className="absolute right-0 top-0 flex h-3 w-auto min-w-[0.75rem] items-center justify-center rounded-full px-[0.125rem] pb-px text-center text-[0.625rem] font-medium leading-none subpixel-antialiased">
-          <span>{count || 0}</span>
-        </Badge>
+        {count > 0 && (
+          <Badge
+            className={cn(
+              'absolute -top-2 h-4 w-4 text-xs',
+              count > 9 ? '-right-3.5 px-3' : '-right-2 p-0',
+            )}
+          >
+            {count > 9 ? '9+' : count}
+          </Badge>
+        )}
       </>
     ),
     [count],
@@ -242,22 +246,28 @@ function CartBadge({count, openCart}: {count: number; openCart: () => void}) {
   return isHydrated ? (
     <Button
       size="sm"
-      variant="ghost"
+      variant="outline"
       onClick={openCart}
-      className="relative flex w-9 px-0"
+      className={cn(
+        pathname === '/cart'
+          ? 'bg-accent text-foreground'
+          : 'text-foreground/60',
+        'relative flex h-9 w-9 px-0 hover:text-foreground/80',
+      )}
     >
       {BadgeCounter}
     </Button>
   ) : (
     <Link
       to="/cart"
-      className={cn(
-        buttonVariants({
-          size: 'sm',
-          variant: 'ghost',
-        }),
-        'relative flex w-9 px-0',
-      )}
+      prefetch="intent"
+      className={({isActive}) =>
+        cn(
+          buttonVariants({variant: 'outline'}),
+          isActive ? 'bg-accent text-foreground' : 'text-foreground/60',
+          'relative flex h-9 w-9 px-0 hover:text-foreground/80',
+        )
+      }
     >
       {BadgeCounter}
     </Link>

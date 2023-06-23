@@ -99,7 +99,7 @@ export function CountrySelector() {
                       value={locale}
                       className={({active}) =>
                         clsx(
-                          active ? 'bg-primary text-contrast' : 'text-primary',
+                          active ? 'text-contrast bg-primary' : 'text-primary',
                           'relative cursor-default select-none py-2 pl-3 pr-9',
                         )
                       }

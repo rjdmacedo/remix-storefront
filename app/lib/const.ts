@@ -39,3 +39,17 @@ export const Sizes: Record<TwSize, string> = {
   '3xl': '40',
   '4xl': '44',
 };
+
+export const Colors = [
+  'default',
+  'primary',
+  'primary-foreground',
+  'secondary',
+  'secondary-foreground',
+  'destructive',
+  'destructive-foreground',
+  'muted',
+  'muted-foreground',
+  'accent',
+  'accent-foreground',
+] as const;

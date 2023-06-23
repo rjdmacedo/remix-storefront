@@ -271,11 +271,11 @@ function collectionsJsonLd({
 }
 
 function listCollections({
-  collections,
   url,
+  collections,
 }: {
-  collections: CollectionConnection;
   url: Request['url'];
+  collections: CollectionConnection;
 }): SeoConfig<CollectionPage> {
   return {
     title: 'Collections',

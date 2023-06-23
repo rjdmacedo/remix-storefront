@@ -1,7 +1,8 @@
 import clsx from 'clsx';
 import React from 'react';
 
-import {missingClass, formatText} from '~/lib/utils';
+import {formatText, cn} from '~/lib/utils';
+import type {Colors} from '~/lib/const';
 
 export function Text({
   children,
@@ -16,18 +17,24 @@ export function Text({
   children: React.ReactNode;
   as?: React.ElementType;
   size?: 'lead' | 'copy' | 'fine';
-  color?: 'default' | 'primary' | 'subtle' | 'notice' | 'contrast';
+  color?: (typeof Colors)[number];
   width?: 'default' | 'narrow' | 'wide';
   format?: boolean;
   className?: string;
   [key: string]: any;
 }) {
-  const colors: Record<string, string> = {
+  const colors: Record<(typeof Colors)[number], string> = {
     default: 'inherit',
-    primary: 'text-primary/90',
-    subtle: 'text-primary/50',
-    notice: 'text-notice',
-    contrast: 'text-contrast/90',
+    primary: 'text-primary',
+    'primary-foreground': 'text-primary-foreground',
+    secondary: 'text-secondary',
+    'secondary-foreground': 'text-secondary-foreground',
+    destructive: 'text-destructive',
+    'destructive-foreground': 'text-destructive-foreground',
+    muted: 'text-muted',
+    'muted-foreground': 'text-muted-foreground',
+    accent: 'text-accent',
+    'accent-foreground': 'text-accent-foreground',
   };
 
   const sizes: Record<string, string> = {
@@ -42,16 +49,17 @@ export function Text({
     wide: 'max-w-prose-wide',
   };
 
-  const styles = clsx(
-    missingClass(className, 'max-w-') && widths[width],
-    missingClass(className, 'whitespace-') && 'whitespace-pre-wrap',
-    missingClass(className, 'text-') && colors[color],
-    sizes[size],
-    className,
-  );
-
   return (
-    <Component {...props} className={styles}>
+    <Component
+      className={cn(
+        'whitespace-pre-wrap',
+        widths[width],
+        colors[color],
+        sizes[size],
+        className,
+      )}
+      {...props}
+    >
       {format ? formatText(children) : children}
     </Component>
   );
@@ -86,15 +94,12 @@ export const Heading = React.forwardRef<
       wide: 'max-w-prose-wide',
     };
 
-    const styles = clsx(
-      missingClass(className, 'whitespace-') && 'whitespace-pre-wrap',
-      missingClass(className, 'max-w-') && widths[width],
-      missingClass(className, 'font-') && sizes[size],
-      className,
-    );
-
     return (
-      <Component {...props} className={styles}>
+      <Component
+        ref={ref}
+        {...props}
+        className={cn(sizes[size], widths[width], className)}
+      >
         {format ? formatText(children) : children}
       </Component>
     );
@@ -139,11 +144,11 @@ export function Section({
     grid: 'grid',
   };
 
-  const styles = clsx(
+  const styles = cn(
     'w-full gap-4 md:gap-8',
     displays[display],
-    missingClass(className, '\\mp[xy]?-') && paddings[padding],
     dividers[divider],
+    paddings[padding],
     className,
   );
 

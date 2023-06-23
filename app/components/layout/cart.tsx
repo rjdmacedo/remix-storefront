@@ -100,7 +100,7 @@ function CartDiscounts({
         <div
           className={clsx(
             codes ? 'hidden' : 'flex',
-            'items-center justify-between gap-4 text-copy',
+            'text-copy items-center justify-between gap-4',
           )}
         >
           <input
@@ -259,7 +259,7 @@ function CartLineItem({line}: {line: CartLine}) {
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="flex justify-start text-copy">
+            <div className="text-copy flex justify-start">
               <CartLineQuantityAdjust line={line} />
             </div>
             <ItemRemoveButton lineIds={[id]} />

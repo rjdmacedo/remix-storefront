@@ -5,30 +5,33 @@ import {
   type AppLoadContext,
 } from '@shopify/remix-oxygen';
 import {
-  Links,
   Meta,
+  Links,
   Outlet,
   Scripts,
   useLoaderData,
   ScrollRestoration,
 } from '@remix-run/react';
+import React from 'react';
+import invariant from 'tiny-invariant';
+import type {Shop, Cart} from '@shopify/hydrogen/storefront-api-types';
 import {ShopifySalesChannel, Seo} from '@shopify/hydrogen';
-import styles from './styles/tailwind.css';
-import favicon from '../public/favicon.ico';
+import {PreventFlashOnWrongTheme, ThemeProvider, useTheme} from 'remix-themes';
+
+import {Layout} from '~/components';
 import {seoPayload} from '~/lib/seo.server';
+import {useAnalytics} from '~/hooks';
+import {themeSessionResolver} from '~/lib/session.server';
+
+import favicon from '../public/favicon.ico';
+
 import {
   parseMenu,
   getCartId,
   DEFAULT_LOCALE,
   type EnhancedMenu,
 } from './lib/utils';
-import invariant from 'tiny-invariant';
-import {Shop, Cart} from '@shopify/hydrogen/storefront-api-types';
-import {useAnalytics} from '~/hooks';
-import React from 'react';
-import {Layout} from '~/components';
-import {PreventFlashOnWrongTheme, ThemeProvider, useTheme} from 'remix-themes';
-import {themeSessionResolver} from '~/lib/session.server';
+import styles from './tailwind.css';
 
 export const links: LinksFunction = () => {
   return [
@@ -111,7 +114,6 @@ function App() {
   const locale = data.selectedLocale ?? DEFAULT_LOCALE;
   const hasUserConsent = true;
 
-  // eslint-disable-next-line @typescript-eslint/ban-ts-comment
   // @ts-ignore
   useAnalytics(hasUserConsent, locale);
 

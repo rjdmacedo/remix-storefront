@@ -4,15 +4,15 @@ import type {
 } from '@shopify/hydrogen/storefront-api-types';
 import React from 'react';
 import {defer, type LoaderArgs} from '@shopify/remix-oxygen';
-import {V2_MetaFunction} from '@remix-run/react';
+import type {V2_MetaFunction} from '@remix-run/react';
+import {AnalyticsPageType} from '@shopify/hydrogen';
+import {Loader2, Mail} from 'lucide-react';
 
 import {seoPayload} from '~/lib/seo.server';
-import {AnalyticsPageType} from '@shopify/hydrogen';
 import {CACHE_SHORT, routeHeaders} from '~/data/cache';
 import {Heading, type CollectionHero} from '~/components';
 import {MEDIA_FRAGMENT, PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
 import {Button} from '~/components/ui/button';
-import {Loader2, Mail} from 'lucide-react';
 
 interface HomeSeoData {
   shop: {

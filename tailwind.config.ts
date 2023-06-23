@@ -1,7 +1,11 @@
-const {fontFamily} = require('tailwindcss/defaultTheme');
+// @ts-ignore
+import animatePlugin from 'tailwindcss-animate';
+import formsPlugin from '@tailwindcss/forms';
+import {fontFamily} from 'tailwindcss/defaultTheme';
+import typographyPlugin from '@tailwindcss/typography';
+import type {Config} from 'tailwindcss';
 
-/** @type {import('tailwindcss').Config} */
-module.exports = {
+export default {
   mode: 'jit',
   darkMode: ['class', '[data-theme="dark"]'],
   content: ['app/**/*.{ts,tsx}', 'components/**/*.{ts,tsx}'],
@@ -59,12 +63,12 @@ module.exports = {
       },
       keyframes: {
         'accordion-down': {
-          from: {height: '0'},
           to: {height: 'var(--radix-accordion-content-height)'},
+          from: {height: '0'},
         },
         'accordion-up': {
-          from: {height: 'var(--radix-accordion-content-height)'},
           to: {height: '0'},
+          from: {height: 'var(--radix-accordion-content-height)'},
         },
       },
       animation: {
@@ -73,5 +77,5 @@ module.exports = {
       },
     },
   },
-  plugins: [require('tailwindcss-animate'), require('@tailwindcss/forms')],
-};
+  plugins: [formsPlugin, animatePlugin, typographyPlugin],
+} satisfies Config;

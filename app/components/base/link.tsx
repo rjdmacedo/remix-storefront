@@ -1,7 +1,7 @@
 import {
+  useMatches,
   Link as RemixLink,
   NavLink as RemixNavLink,
-  useMatches,
   type NavLinkProps as RemixNavLinkProps,
   type LinkProps as RemixLinkProps,
 } from '@remix-run/react';

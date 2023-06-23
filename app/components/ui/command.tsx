@@ -1,12 +1,10 @@
 import * as React from 'react';
 import {Command as CommandPrimitive} from 'cmdk';
-import {DialogProps} from '@radix-ui/react-dialog';
+import type {DialogProps} from '@radix-ui/react-dialog';
 
 import {cn} from '~/lib/utils';
 import {Dialog, DialogContent} from '~/components/ui/dialog';
 import {Icons} from '~/components';
-import {useFetcher} from '@remix-run/react';
-import {loader} from '~/routes/($locale)+/api+/search';
 
 const Command = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive>,
@@ -29,7 +27,10 @@ const CommandDialog = ({children, ...props}: CommandDialogProps) => {
   return (
     <Dialog {...props}>
       <DialogContent className="overflow-hidden p-0 shadow-2xl">
-        <Command className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5">
+        <Command
+          label="Search Dialog"
+          className="[&_[cmdk-group-heading]]:px-2 [&_[cmdk-group-heading]]:font-medium [&_[cmdk-group-heading]]:text-muted-foreground [&_[cmdk-group]:not([hidden])_~[cmdk-group]]:pt-0 [&_[cmdk-group]]:px-2 [&_[cmdk-input-wrapper]_svg]:h-5 [&_[cmdk-input-wrapper]_svg]:w-5 [&_[cmdk-input]]:h-12 [&_[cmdk-item]]:px-2 [&_[cmdk-item]]:py-3 [&_[cmdk-item]_svg]:h-5 [&_[cmdk-item]_svg]:w-5"
+        >
           {children}
         </Command>
       </DialogContent>
@@ -63,11 +64,17 @@ const CommandList = React.forwardRef<
 >(({className, ...props}, ref) => (
   <CommandPrimitive.List
     ref={ref}
-    className={cn('max-h-[85vh] overflow-y-auto overflow-x-hidden', className)}
+    className={cn('overflow-y-auto overflow-x-hidden', className)}
     {...props}
   />
 ));
 CommandList.displayName = CommandPrimitive.List.displayName;
+
+const CommandLoading = React.forwardRef<
+  React.ElementRef<typeof CommandPrimitive.Loading>,
+  React.ComponentPropsWithoutRef<typeof CommandPrimitive.Loading>
+>((props, ref) => <CommandPrimitive.Loading ref={ref} {...props} />);
+CommandLoading.displayName = CommandPrimitive.Loading.displayName;
 
 const CommandEmpty = React.forwardRef<
   React.ElementRef<typeof CommandPrimitive.Empty>,
@@ -144,6 +151,7 @@ export {
   CommandDialog,
   CommandInput,
   CommandList,
+  CommandLoading,
   CommandEmpty,
   CommandGroup,
   CommandItem,
