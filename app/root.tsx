@@ -14,24 +14,18 @@ import {
 } from '@remix-run/react';
 import React from 'react';
 import invariant from 'tiny-invariant';
-import type {Shop, Cart} from '@shopify/hydrogen/storefront-api-types';
 import {ShopifySalesChannel, Seo} from '@shopify/hydrogen';
 import {PreventFlashOnWrongTheme, ThemeProvider, useTheme} from 'remix-themes';
 
+import styles from '~/tailwind.css';
 import {Layout} from '~/components';
 import {seoPayload} from '~/lib/seo.server';
 import {useAnalytics} from '~/hooks';
 import {themeSessionResolver} from '~/lib/session.server';
+import {parseMenu, getCartId, DEFAULT_LOCALE} from '~/lib/utils';
 
 import favicon from '../public/favicon.ico';
-
-import {
-  parseMenu,
-  getCartId,
-  DEFAULT_LOCALE,
-  type EnhancedMenu,
-} from './lib/utils';
-import styles from './tailwind.css';
+import type {LayoutQuery} from '../storefrontapi.generated';
 
 export const links: LinksFunction = () => {
   return [
@@ -109,12 +103,11 @@ export default function AppWithProviders() {
 // the browser theme before hydration and will prevent a flash in the browser.
 // The client code runs conditionally, it won't be rendered if we have a theme in session storage.
 function App() {
-  const data = useLoaderData();
+  const data = useLoaderData<typeof loader>();
   const [theme] = useTheme();
   const locale = data.selectedLocale ?? DEFAULT_LOCALE;
   const hasUserConsent = true;
 
-  // @ts-ignore
   useAnalytics(hasUserConsent, locale);
 
   return (
@@ -129,8 +122,8 @@ function App() {
       </head>
       <body>
         <Layout
-          layout={data.layout as LayoutData}
           key={`${locale.language}-${locale.country}`}
+          layout={data.layout}
         >
           <Outlet />
         </Layout>
@@ -142,73 +135,71 @@ function App() {
 }
 
 const LAYOUT_QUERY = `#graphql
-query layoutMenus(
+  query layout(
     $language: LanguageCode
     $headerMenuHandle: String!
     $footerMenuHandle: String!
-) @inContext(language: $language) {
+  ) @inContext(language: $language) {
     shop {
-        id
-        name
-        description
-        primaryDomain {
-            url
-        }
-        brand {
-            logo {
-                image {
-                    url
-                }
-            }
-        }
+      ...Shop
     }
-    headerMenu: menu(handle: $headerMenuHandle) {
-        id
-        items {
-            ...MenuItem
-            items {
-                ...MenuItem
-            }
-        }
+    header: menu(handle: $headerMenuHandle) {
+      ...Menu
     }
-    footerMenu: menu(handle: $footerMenuHandle) {
-        id
-        items {
-            ...MenuItem
-            items {
-                ...MenuItem
-            }
-        }
+    footer: menu(handle: $footerMenuHandle) {
+      ...Menu
     }
-}
-fragment MenuItem on MenuItem {
+  }
+  fragment Shop on Shop {
     id
-    resourceId
-    tags
-    title
-    type
+    name
+    description
+    primaryDomain {
+      url
+    }
+    brand {
+      logo {
+        image {
+          url
+        }
+      }
+    }
+  }
+  fragment Menu on Menu {
+    id
+    items {
+      ...ParentMenuItem
+    }
+  }
+  fragment MenuItem on MenuItem {
+    id
     url
-}
-`;
-
-export interface LayoutData {
-  headerMenu: EnhancedMenu;
-  footerMenu: EnhancedMenu;
-  shop: Shop;
-  cart?: Promise<Cart>;
-}
+    tags
+    type
+    title
+    resourceId
+  }
+  fragment ChildMenuItem on MenuItem {
+    ...MenuItem
+  }
+  fragment ParentMenuItem on MenuItem {
+    ...MenuItem
+    items {
+      ...ChildMenuItem
+    }
+  }
+` as const;
 
 async function getLayoutData({storefront}: AppLoadContext) {
-  const HEADER_MENU_HANDLE = 'main-menu';
-  const FOOTER_MENU_HANDLE = 'footer';
-
-  const data = await storefront.query<LayoutData>(LAYOUT_QUERY, {
+  const data = await storefront.query(LAYOUT_QUERY, {
     variables: {
-      headerMenuHandle: HEADER_MENU_HANDLE,
-      footerMenuHandle: FOOTER_MENU_HANDLE,
+      headerMenuHandle: 'main-menu',
+      footerMenuHandle: 'footer',
       language: storefront.i18n.language,
     },
   });
+
+  console.log(data.header?.items);
 
   invariant(data, 'No data returned from Shopify API');
 
@@ -222,135 +213,134 @@ async function getLayoutData({storefront}: AppLoadContext) {
   */
   const customPrefixes = {BLOG: '', CATALOG: 'products'};
 
-  const headerMenu = data?.headerMenu
-    ? parseMenu(data.headerMenu, customPrefixes)
+  const header = data?.header
+    ? parseMenu(data.header, customPrefixes)
     : undefined;
 
-  const footerMenu = data?.footerMenu
-    ? parseMenu(data.footerMenu, customPrefixes)
+  const footer = data?.footer
+    ? parseMenu(data.footer, customPrefixes)
     : undefined;
 
-  return {shop: data.shop, headerMenu, footerMenu};
+  return {shop: data.shop, header, footer};
 }
 
 const CART_QUERY = `#graphql
-query CartQuery($cartId: ID!, $country: CountryCode, $language: LanguageCode)
-@inContext(country: $country, language: $language) {
+  query cartQuery($cartId: ID!, $country: CountryCode, $language: LanguageCode)
+    @inContext(country: $country, language: $language) {
     cart(id: $cartId) {
-        ...CartFragment
+      ...CartFragment
     }
-}
-
-fragment CartFragment on Cart {
+  }
+  fragment CartFragment on Cart {
     id
     checkoutUrl
     totalQuantity
     buyerIdentity {
-        countryCode
-        customer {
-            id
-            email
-            firstName
-            lastName
-            displayName
-        }
+      countryCode
+      customer {
+        id
         email
-        phone
+        firstName
+        lastName
+        displayName
+      }
+      email
+      phone
     }
     lines(first: 100) {
-        edges {
-            node {
-                id
-                quantity
-                attributes {
-                    key
-                    value
-                }
-                cost {
-                    totalAmount {
-                        amount
-                        currencyCode
-                    }
-                    amountPerQuantity {
-                        amount
-                        currencyCode
-                    }
-                    compareAtAmountPerQuantity {
-                        amount
-                        currencyCode
-                    }
-                }
-                merchandise {
-                    ... on ProductVariant {
-                        id
-                        availableForSale
-                        compareAtPrice {
-                            ...MoneyFragment
-                        }
-                        price {
-                            ...MoneyFragment
-                        }
-                        requiresShipping
-                        title
-                        image {
-                            ...ImageFragment
-                        }
-                        product {
-                            handle
-                            title
-                            id
-                        }
-                        selectedOptions {
-                            name
-                            value
-                        }
-                    }
-                }
+      edges {
+        node {
+          id
+          quantity
+          attributes {
+            key
+            value
+          }
+          cost {
+            totalAmount {
+              amount
+              currencyCode
             }
+            amountPerQuantity {
+              amount
+              currencyCode
+            }
+            compareAtAmountPerQuantity {
+              amount
+              currencyCode
+            }
+          }
+          merchandise {
+            ... on ProductVariant {
+              id
+              availableForSale
+              compareAtPrice {
+                ...MoneyFragment
+              }
+              price {
+                ...MoneyFragment
+              }
+              requiresShipping
+              title
+              image {
+                ...ImageFragment
+              }
+              product {
+                handle
+                title
+                id
+              }
+              selectedOptions {
+                name
+                value
+              }
+            }
+          }
         }
+      }
     }
     cost {
-        subtotalAmount {
-            ...MoneyFragment
-        }
-        totalAmount {
-            ...MoneyFragment
-        }
-        totalDutyAmount {
-            ...MoneyFragment
-        }
-        totalTaxAmount {
-            ...MoneyFragment
-        }
+      subtotalAmount {
+        ...MoneyFragment
+      }
+      totalAmount {
+        ...MoneyFragment
+      }
+      totalDutyAmount {
+        ...MoneyFragment
+      }
+      totalTaxAmount {
+        ...MoneyFragment
+      }
     }
     note
     attributes {
-        key
-        value
+      key
+      value
     }
     discountCodes {
-        code
+      code
     }
-}
+  }
 
-fragment MoneyFragment on MoneyV2 {
+  fragment MoneyFragment on MoneyV2 {
     currencyCode
     amount
-}
+  }
 
-fragment ImageFragment on Image {
+  fragment ImageFragment on Image {
     id
     url
     altText
     width
     height
-}
-`;
+  }
+` as const;
 
 export async function getCart({storefront}: AppLoadContext, cartId: string) {
   invariant(storefront, 'missing storefront client in cart query');
 
-  const {cart} = await storefront.query<{cart?: Cart}>(CART_QUERY, {
+  const {cart} = await storefront.query(CART_QUERY, {
     variables: {
       cartId,
       country: storefront.i18n.country,

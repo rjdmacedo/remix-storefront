@@ -7,8 +7,8 @@ import type {Config} from 'tailwindcss';
 
 export default {
   mode: 'jit',
-  darkMode: ['class', '[data-theme="dark"]'],
   content: ['app/**/*.{ts,tsx}', 'components/**/*.{ts,tsx}'],
+  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     container: {
       center: true,
@@ -54,8 +54,8 @@ export default {
         },
       },
       borderRadius: {
-        lg: `var(--radius)`,
-        md: `calc(var(--radius) - 2px)`,
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
