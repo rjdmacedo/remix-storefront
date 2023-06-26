@@ -1,33 +1,38 @@
 import {useLocation, useMatches} from '@remix-run/react';
 import {parse as parseCookie} from 'worktop/cookie';
-import type {
-  MenuItem,
-  Menu,
-  MoneyV2,
-} from '@shopify/hydrogen/storefront-api-types';
-
-// @ts-expect-error types not available
+import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import typographicBase from 'typographic-base';
-import {countries} from '~/data/countries';
-import {I18nLocale, Locale} from './type';
-import React from 'react';
+import type React from 'react';
+import type {ClassValue} from 'clsx';
+import clsx from 'clsx';
 import {twMerge} from 'tailwind-merge';
-import clsx, {ClassValue} from 'clsx';
 
-export interface EnhancedMenuItem extends MenuItem {
+import type {
+  ChildMenuItemFragment,
+  MenuFragment,
+  ParentMenuItemFragment,
+} from 'storefrontapi.generated';
+import {countries} from '~/data/countries';
+
+import type {I18nLocale} from './type';
+
+type EnhancedMenuItemProps = {
   to: string;
   target: string;
   isExternal?: boolean;
-  items: EnhancedMenuItem[];
-}
+};
 
-export interface EnhancedMenu extends Menu {
-  items: EnhancedMenuItem[];
-}
+export type ChildEnhancedMenuItem = ChildMenuItemFragment &
+  EnhancedMenuItemProps;
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+export type ParentEnhancedMenuItem = (ParentMenuItemFragment &
+  EnhancedMenuItemProps) & {
+  items: ChildEnhancedMenuItem[];
+};
+
+export type EnhancedMenu = Pick<MenuFragment, 'id'> & {
+  items: ParentEnhancedMenuItem[];
+};
 
 export function missingClass(string?: string, prefix?: string) {
   if (!string) {
@@ -67,21 +72,18 @@ export function isNewArrival(date: string, daysOld = 30) {
 }
 
 export function isDiscounted(price: MoneyV2, compareAtPrice: MoneyV2) {
-  if (compareAtPrice?.amount > price?.amount) {
-    return true;
-  }
-  return false;
+  return compareAtPrice?.amount > price?.amount;
 }
 
 function resolveToFromType(
   {
-    customPrefixes,
-    pathname,
     type,
+    pathname,
+    customPrefixes,
   }: {
-    customPrefixes: Record<string, string>;
-    pathname?: string;
     type?: string;
+    pathname?: string;
+    customPrefixes: Record<string, string>;
   } = {
     customPrefixes: {},
   },
@@ -103,7 +105,7 @@ function resolveToFromType(
     PRODUCT: 'products',
     SEARCH: 'search',
     SHOP_POLICY: 'policies',
-  };
+  } as const;
 
   const pathParts = pathname.split('/');
   const handle = pathParts.pop() || '';
@@ -145,12 +147,18 @@ function resolveToFromType(
   Parse each menu link and adding, isExternal, to and target
 */
 function parseItem(customPrefixes = {}) {
-  return function (item: MenuItem): EnhancedMenuItem {
+  return function (
+    item:
+      | MenuFragment['items'][number]
+      | MenuFragment['items'][number]['items'][number],
+  ):
+    | EnhancedMenu['items'][number]
+    | EnhancedMenu['items'][number]['items'][number]
+    | null {
     if (!item?.url || !item?.type) {
       // eslint-disable-next-line no-console
-      console.warn('Invalid menu item.  Must include a url and type.');
-      // @ts-ignore
-      return;
+      console.warn('Invalid menu item. Must include a url and type.');
+      return null;
     }
 
     // extract path from url because we don't need the origin on internal to attributes
@@ -178,10 +186,14 @@ function parseItem(customPrefixes = {}) {
           to: item.url,
         };
 
-    return {
-      ...parsedItem,
-      items: item.items?.map(parseItem(customPrefixes)),
-    };
+    if ('items' in item) {
+      return {
+        ...parsedItem,
+        items: item.items.map(parseItem(customPrefixes)).filter(Boolean),
+      } as EnhancedMenu['items'][number];
+    } else {
+      return parsedItem as EnhancedMenu['items'][number]['items'][number];
+    }
   };
 }
 
@@ -190,18 +202,22 @@ function parseItem(customPrefixes = {}) {
   and resource type.
   It optionally overwrites url paths based on item.type
 */
-export function parseMenu(menu: Menu, customPrefixes = {}): EnhancedMenu {
+export function parseMenu(
+  menu: MenuFragment,
+  customPrefixes = {},
+): EnhancedMenu | null {
   if (!menu?.items) {
     // eslint-disable-next-line no-console
     console.warn('Invalid menu passed to parseMenu');
-    // @ts-ignore
-    return menu;
+    return null;
   }
+
+  const parser = parseItem(customPrefixes);
 
   return {
     ...menu,
-    items: menu.items.map(parseItem(customPrefixes)),
-  };
+    items: menu.items.map(parser).filter(Boolean),
+  } as EnhancedMenu;
 }
 
 export const INPUT_STYLE_CLASSES =
@@ -323,4 +339,8 @@ export function isLocalPath(url: string) {
 export function getCartId(request: Request) {
   const cookies = parseCookie(request.headers.get('Cookie') || '');
   return cookies.cart ? `gid://shopify/Cart/${cookies.cart}` : undefined;
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }
