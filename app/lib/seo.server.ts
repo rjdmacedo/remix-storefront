@@ -3,13 +3,12 @@ import type {
   Article,
   Blog,
   Collection,
-  CollectionConnection,
   Page,
   Product,
   ProductVariant,
   ShopPolicy,
-  Shop,
-} from '@shopify/hydrogen-react/storefront-api-types';
+  Image,
+} from '@shopify/hydrogen/storefront-api-types';
 import type {
   Article as SeoArticle,
   BreadcrumbList,
@@ -21,18 +20,20 @@ import type {
   WebPage,
 } from 'schema-dts';
 
+import type {ShopFragment} from 'storefrontapi.generated';
+
 function root({
   shop,
   url,
 }: {
-  shop: Shop;
+  shop: ShopFragment;
   url: Request['url'];
 }): SeoConfig<Organization> {
   return {
     title: shop?.name,
-    titleTemplate: '%s',
+    titleTemplate: '%s | Hydrogen Demo Store',
     description: truncate(shop?.description ?? ''),
-    handle: '@wine-and-vine',
+    handle: '@shopify',
     url,
     robots: {
       noIndex: false,
@@ -44,11 +45,11 @@ function root({
       name: shop.name,
       logo: shop.brand?.logo?.image?.url,
       sameAs: [
-        'https://twitter.com/wine-and-vine',
-        'https://facebook.com/wine-and-vine',
-        'https://instagram.com/wine-and-vine',
-        'https://youtube.com/wine-and-vine',
-        'https://tiktok.com/@wine-and-vine',
+        'https://twitter.com/shopify',
+        'https://facebook.com/shopify',
+        'https://instagram.com/shopify',
+        'https://youtube.com/shopify',
+        'https://tiktok.com/@shopify',
       ],
       url,
       potentialAction: {
@@ -77,13 +78,31 @@ function home(): SeoConfig<WebPage> {
   };
 }
 
+type SelectedVariantRequiredFields = Pick<ProductVariant, 'sku'> & {
+  image?: null | Partial<Image>;
+};
+
+type ProductRequiredFields = Pick<
+  Product,
+  'title' | 'description' | 'vendor' | 'seo'
+> & {
+  variants: {
+    nodes: Array<
+      Pick<
+        ProductVariant,
+        'sku' | 'price' | 'selectedOptions' | 'availableForSale'
+      >
+    >;
+  };
+};
+
 function productJsonLd({
   product,
   selectedVariant,
   url,
 }: {
-  product: Product;
-  selectedVariant: ProductVariant;
+  product: ProductRequiredFields;
+  selectedVariant: SelectedVariantRequiredFields;
   url: Request['url'];
 }): SeoConfig<SeoProduct | BreadcrumbList>['jsonLd'] {
   const origin = new URL(url).origin;
@@ -145,13 +164,13 @@ function productJsonLd({
 }
 
 function product({
-  product,
   url,
+  product,
   selectedVariant,
 }: {
-  product: Product;
-  selectedVariant: ProductVariant;
   url: Request['url'];
+  product: ProductRequiredFields;
+  selectedVariant: SelectedVariantRequiredFields;
 }): SeoConfig<SeoProduct | BreadcrumbList> {
   const description = truncate(
     product?.seo?.description ?? product?.description ?? '',
@@ -164,12 +183,23 @@ function product({
   };
 }
 
+type CollectionRequiredFields = Omit<
+  Collection,
+  'products' | 'descriptionHtml' | 'metafields' | 'image' | 'updatedAt'
+> & {
+  products: {nodes: Pick<Product, 'handle'>[]};
+  image?: null | Pick<Image, 'url' | 'height' | 'width' | 'altText'>;
+  descriptionHtml?: null | Collection['descriptionHtml'];
+  updatedAt?: null | Collection['updatedAt'];
+  metafields?: null | Collection['metafields'];
+};
+
 function collectionJsonLd({
   url,
   collection,
 }: {
   url: Request['url'];
-  collection: Collection;
+  collection: CollectionRequiredFields;
 }): SeoConfig<CollectionPage | BreadcrumbList>['jsonLd'] {
   const siteUrl = new URL(url);
   const itemListElement: CollectionPage['mainEntity'] =
@@ -177,7 +207,7 @@ function collectionJsonLd({
       return {
         '@type': 'ListItem',
         position: index + 1,
-        url: `/product/${product.handle}`,
+        url: `/products/${product.handle}`,
       };
     });
 
@@ -220,7 +250,7 @@ function collection({
   collection,
   url,
 }: {
-  collection: Collection;
+  collection: CollectionRequiredFields;
   url: Request['url'];
 }): SeoConfig<CollectionPage | BreadcrumbList> {
   return {
@@ -240,12 +270,16 @@ function collection({
   };
 }
 
+type CollectionListRequiredFields = {
+  nodes: Omit<CollectionRequiredFields, 'products'>[];
+};
+
 function collectionsJsonLd({
   url,
   collections,
 }: {
   url: Request['url'];
-  collections: CollectionConnection;
+  collections: CollectionListRequiredFields;
 }): SeoConfig<CollectionPage>['jsonLd'] {
   const itemListElement: CollectionPage['mainEntity'] = collections.nodes.map(
     (collection, index) => {
@@ -275,7 +309,7 @@ function listCollections({
   collections,
 }: {
   url: Request['url'];
-  collections: CollectionConnection;
+  collections: CollectionListRequiredFields;
 }): SeoConfig<CollectionPage> {
   return {
     title: 'Collections',
@@ -290,7 +324,15 @@ function article({
   article,
   url,
 }: {
-  article: Article;
+  article: Pick<
+    Article,
+    'title' | 'contentHtml' | 'seo' | 'publishedAt' | 'excerpt'
+  > & {
+    image?: null | Pick<
+      NonNullable<Article['image']>,
+      'url' | 'height' | 'width' | 'altText'
+    >;
+  };
   url: Request['url'];
 }): SeoConfig<SeoArticle> {
   return {
@@ -325,7 +367,7 @@ function blog({
   blog,
   url,
 }: {
-  blog: Blog;
+  blog: Pick<Blog, 'seo' | 'title'>;
   url: Request['url'];
 }): SeoConfig<SeoBlog> {
   return {
@@ -347,12 +389,12 @@ function page({
   page,
   url,
 }: {
-  page: Page;
+  page: Pick<Page, 'title' | 'seo'>;
   url: Request['url'];
 }): SeoConfig<WebPage> {
   return {
     description: truncate(page?.seo?.description || ''),
-    title: page?.seo?.title,
+    title: page?.seo?.title ?? page?.title,
     titleTemplate: '%s | Page',
     url,
     jsonLd: {
@@ -367,7 +409,7 @@ function policy({
   policy,
   url,
 }: {
-  policy: ShopPolicy;
+  policy: Pick<ShopPolicy, 'title' | 'body'>;
   url: Request['url'];
 }): SeoConfig<WebPage> {
   return {
@@ -382,7 +424,7 @@ function policies({
   policies,
   url,
 }: {
-  policies: ShopPolicy[];
+  policies: Array<Pick<ShopPolicy, 'title' | 'handle'>>;
   url: Request['url'];
 }): SeoConfig<WebPage | BreadcrumbList> {
   const origin = new URL(url).origin;

@@ -1,10 +1,4 @@
 import {
-  defer,
-  type LoaderArgs,
-  type LinksFunction,
-  type AppLoadContext,
-} from '@shopify/remix-oxygen';
-import {
   Meta,
   Links,
   Outlet,
@@ -12,20 +6,27 @@ import {
   useLoaderData,
   ScrollRestoration,
 } from '@remix-run/react';
+import {
+  defer,
+  type LoaderArgs,
+  type LinksFunction,
+  type AppLoadContext,
+} from '@shopify/remix-oxygen';
 import React from 'react';
 import invariant from 'tiny-invariant';
 import {ShopifySalesChannel, Seo} from '@shopify/hydrogen';
 import {PreventFlashOnWrongTheme, ThemeProvider, useTheme} from 'remix-themes';
 
-import styles from '~/tailwind.css';
+import styles from '~/styles/tailwind.css';
 import {Layout} from '~/components';
 import {seoPayload} from '~/lib/seo.server';
 import {useAnalytics} from '~/hooks';
 import {themeSessionResolver} from '~/lib/session.server';
 import {parseMenu, getCartId, DEFAULT_LOCALE} from '~/lib/utils';
+import {Toaster} from '~/components/ui';
+import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
 
 import favicon from '../public/favicon.ico';
-import type {LayoutQuery} from '../storefrontapi.generated';
 
 export const links: LinksFunction = () => {
   return [
@@ -63,7 +64,7 @@ export async function loader({request, context}: LoaderArgs) {
   const [theme, layout, customerAccessToken] = await Promise.all([
     themeSessionResolver(request).then(({getTheme}) => getTheme()),
     getLayoutData(context),
-    context.session.get('customerAccessToken'),
+    context.session.get(CUSTOMER_ACCESS_TOKEN),
   ]);
 
   const seo = seoPayload.root({shop: layout.shop, url: request.url});
@@ -98,10 +99,12 @@ export default function AppWithProviders() {
   );
 }
 
-// Use the theme in your app.
-// If the theme is missing in session storage, PreventFlashOnWrongTheme will get
-// the browser theme before hydration and will prevent a flash in the browser.
-// The client code runs conditionally, it won't be rendered if we have a theme in session storage.
+/**
+ * Use the theme in your app.
+ * If the theme is missing in session storage, PreventFlashOnWrongTheme will get
+ * the browser theme before hydration and will prevent a flash in the browser.
+ * The client code runs conditionally, it won't be rendered if we have a theme in session storage.
+ */
 function App() {
   const data = useLoaderData<typeof loader>();
   const [theme] = useTheme();
@@ -127,6 +130,7 @@ function App() {
         >
           <Outlet />
         </Layout>
+        <Toaster />
         <ScrollRestoration getKey={(location) => location.pathname} />
         <Scripts />
       </body>
@@ -190,7 +194,7 @@ const LAYOUT_QUERY = `#graphql
   }
 ` as const;
 
-async function getLayoutData({storefront}: AppLoadContext) {
+async function getLayoutData({storefront, env}: AppLoadContext) {
   const data = await storefront.query(LAYOUT_QUERY, {
     variables: {
       headerMenuHandle: 'main-menu',
@@ -198,8 +202,6 @@ async function getLayoutData({storefront}: AppLoadContext) {
       language: storefront.i18n.language,
     },
   });
-
-  console.log(data.header?.items);
 
   invariant(data, 'No data returned from Shopify API');
 
@@ -214,11 +216,11 @@ async function getLayoutData({storefront}: AppLoadContext) {
   const customPrefixes = {BLOG: '', CATALOG: 'products'};
 
   const header = data?.header
-    ? parseMenu(data.header, customPrefixes)
+    ? parseMenu(data.header, data.shop.primaryDomain.url, env, customPrefixes)
     : undefined;
 
   const footer = data?.footer
-    ? parseMenu(data.footer, customPrefixes)
+    ? parseMenu(data.footer, data.shop.primaryDomain.url, env, customPrefixes)
     : undefined;
 
   return {shop: data.shop, header, footer};

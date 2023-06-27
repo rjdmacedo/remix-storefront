@@ -53,6 +53,10 @@ export default {
           foreground: 'hsl(var(--card-foreground))',
         },
       },
+      spacing: {
+        nav: 'var(--height-nav)',
+        screen: 'var(--screen-height, 100vh)',
+      },
       borderRadius: {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',

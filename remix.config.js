@@ -1,10 +1,8 @@
-const {flatRoutes} = require('remix-flat-routes');
-
 /** @type {import('@remix-run/dev').AppConfig} */
 module.exports = {
   appDirectory: 'app',
   ignoredRouteFiles: ['**/.*'],
-  watchPaths: ['./public'],
+  watchPaths: ['./public', './.env'],
   server: './server.ts',
   /**
    * The following settings are required to deploy Hydrogen apps to Oxygen:
@@ -26,15 +24,5 @@ module.exports = {
     v2_errorBoundary: true,
     v2_routeConvention: true,
     v2_normalizeFormMethod: true,
-  },
-  routes: async (defineRoutes) => {
-    return flatRoutes('routes', defineRoutes, {
-      ignoredRouteFiles: [
-        '.*',
-        '**/*.css',
-        '**/*.test.{js,jsx,ts,tsx}',
-        '**/__*.*',
-      ],
-    });
   },
 };

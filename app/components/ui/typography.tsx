@@ -1,8 +1,8 @@
-import type {VariantProps} from 'class-variance-authority';
-import {cva} from 'class-variance-authority';
 import React from 'react';
+import {cva} from 'class-variance-authority';
+import type {VariantProps} from 'class-variance-authority';
 
-import {cn} from '~/lib/utils';
+import {cn, formatText} from '~/lib/utils';
 
 const typographyVariants = cva('font-sans font-normal leading-normal', {
   variants: {
@@ -101,13 +101,22 @@ export interface TypographyProps
   className?: string;
 }
 
-const Text = React.forwardRef<HTMLSpanElement, TypographyProps>(
+const Text = React.forwardRef<
+  HTMLSpanElement,
+  React.HTMLAttributes<HTMLSpanElement> &
+    TypographyProps & {
+      as?: React.ElementType;
+      format?: boolean;
+    }
+>(
   (
     {
+      as: Component = 'span',
       size,
       align,
       color,
       weight,
+      format,
       leading,
       spacing,
       children,
@@ -119,7 +128,7 @@ const Text = React.forwardRef<HTMLSpanElement, TypographyProps>(
     ref,
   ) => {
     return (
-      <span
+      <Component
         ref={ref}
         className={cn(
           typographyVariants({
@@ -136,13 +145,64 @@ const Text = React.forwardRef<HTMLSpanElement, TypographyProps>(
         )}
         {...props}
       >
-        {children}
-      </span>
+        {format ? formatText(children) : children}
+      </Component>
     );
   },
 );
 Text.displayName = 'Text';
 
+const Title = React.forwardRef<
+  HTMLHeadingElement,
+  React.HTMLAttributes<HTMLHeadingElement> &
+    TypographyProps & {
+      as?: React.ElementType;
+      format?: boolean;
+    }
+>(
+  (
+    {
+      as: Component = 'h2',
+      size = 'xl',
+      align,
+      color,
+      weight,
+      format,
+      leading,
+      spacing,
+      children,
+      transform,
+      className,
+      decoration,
+      ...props
+    },
+    ref,
+  ) => {
+    return (
+      <Component
+        ref={ref}
+        className={cn(
+          typographyVariants({
+            size,
+            align,
+            color,
+            weight,
+            leading,
+            spacing,
+            transform,
+            className,
+            decoration,
+          }),
+        )}
+        {...props}
+      >
+        {format ? formatText(children) : children}
+      </Component>
+    );
+  },
+);
+
 export const Typography = Object.assign(Text, {
   Text,
+  Title,
 });

@@ -1,11 +1,9 @@
-import {useLocation, useMatches} from '@remix-run/react';
-import {parse as parseCookie} from 'worktop/cookie';
+import {twMerge} from 'tailwind-merge';
 import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import typographicBase from 'typographic-base';
-import type React from 'react';
-import type {ClassValue} from 'clsx';
-import clsx from 'clsx';
-import {twMerge} from 'tailwind-merge';
+import clsx, {ClassValue} from 'clsx';
+import {parse as parseCookie} from 'worktop/cookie';
+import {useLocation, useMatches} from '@remix-run/react';
 
 import type {
   ChildMenuItemFragment,
@@ -75,6 +73,16 @@ export function isDiscounted(price: MoneyV2, compareAtPrice: MoneyV2) {
   return compareAtPrice?.amount > price?.amount;
 }
 
+export async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function minDelay<T>(promise: Promise<T>, ms: number) {
+  const [p] = await Promise.all([promise, sleep(ms)]);
+
+  return p;
+}
+
 function resolveToFromType(
   {
     type,
@@ -105,7 +113,7 @@ function resolveToFromType(
     PRODUCT: 'products',
     SEARCH: 'search',
     SHOP_POLICY: 'policies',
-  } as const;
+  };
 
   const pathParts = pathname.split('/');
   const handle = pathParts.pop() || '';
@@ -146,7 +154,7 @@ function resolveToFromType(
 /*
   Parse each menu link and adding, isExternal, to and target
 */
-function parseItem(customPrefixes = {}) {
+function parseItem(primaryDomain: string, env: Env, customPrefixes = {}) {
   return function (
     item:
       | MenuFragment['items'][number]
@@ -162,13 +170,11 @@ function parseItem(customPrefixes = {}) {
     }
 
     // extract path from url because we don't need the origin on internal to attributes
-    const {pathname} = new URL(item.url);
+    const {host, pathname} = new URL(item.url);
 
-    /*
-      Currently the MenuAPI only returns online store urls e.g — xyz.myshopify.com/..
-      Note: update logic when API is updated to include the active qualified domain
-    */
-    const isInternalLink = /\.myshopify\.com/g.test(item.url);
+    console.log(primaryDomain, env.PUBLIC_STORE_DOMAIN, host);
+    const isInternalLink =
+      host === new URL(primaryDomain).host || host === env.PUBLIC_STORE_DOMAIN;
 
     const parsedItem = isInternalLink
       ? // internal links
@@ -189,7 +195,9 @@ function parseItem(customPrefixes = {}) {
     if ('items' in item) {
       return {
         ...parsedItem,
-        items: item.items.map(parseItem(customPrefixes)).filter(Boolean),
+        items: item.items
+          .map(parseItem(primaryDomain, env, customPrefixes))
+          .filter(Boolean),
       } as EnhancedMenu['items'][number];
     } else {
       return parsedItem as EnhancedMenu['items'][number]['items'][number];
@@ -204,6 +212,8 @@ function parseItem(customPrefixes = {}) {
 */
 export function parseMenu(
   menu: MenuFragment,
+  primaryDomain: string,
+  env: Env,
   customPrefixes = {},
 ): EnhancedMenu | null {
   if (!menu?.items) {
@@ -212,7 +222,7 @@ export function parseMenu(
     return null;
   }
 
-  const parser = parseItem(customPrefixes);
+  const parser = parseItem(primaryDomain, env, customPrefixes);
 
   return {
     ...menu,
