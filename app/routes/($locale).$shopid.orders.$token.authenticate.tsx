@@ -32,7 +32,7 @@ export function ErrorBoundary() {
   return (
     <PageHeader
       heading="Error redirecting to the order status URL"
-      className="text-red-600"
+      className="text-destructive"
     >
       <div className="flex w-full items-baseline justify-between">
         <Button type="button" onClick={() => window.location.reload()}>

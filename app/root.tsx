@@ -3,6 +3,7 @@ import {
   Links,
   Outlet,
   Scripts,
+  LiveReload,
   useLoaderData,
   ScrollRestoration,
 } from '@remix-run/react';
@@ -133,6 +134,7 @@ function App() {
         <Toaster />
         <ScrollRestoration getKey={(location) => location.pathname} />
         <Scripts />
+        <LiveReload />
       </body>
     </html>
   );
