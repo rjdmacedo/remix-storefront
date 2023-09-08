@@ -12,7 +12,7 @@ export const headers = routeHeaders;
 export async function loader({request, context: {storefront}}: LoaderArgs) {
   const data = await storefront.query(POLICIES_QUERY);
 
-  invariant(data, 'No data returned from Shopify API');
+  invariant(data, 'No data returned from the API');
   const policies = Object.values(
     data.shop as NonNullableFields<typeof data.shop>,
   ).filter(Boolean);

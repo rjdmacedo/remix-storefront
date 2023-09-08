@@ -30,7 +30,7 @@ export async function loader({request, params, context}: LoaderArgs) {
     },
   });
 
-  invariant(data, 'No data returned from Shopify API');
+  invariant(data, 'No data returned from the API');
   const policy = data.shop?.[policyName];
 
   if (!policy) {

@@ -247,11 +247,11 @@ function collectionJsonLd({
 }
 
 function collection({
-  collection,
   url,
+  collection,
 }: {
-  collection: CollectionRequiredFields;
   url: Request['url'];
+  collection: CollectionRequiredFields;
 }): SeoConfig<CollectionPage | BreadcrumbList> {
   return {
     title: collection?.seo?.title,

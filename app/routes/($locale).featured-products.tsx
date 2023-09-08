@@ -23,7 +23,7 @@ export async function getFeaturedData(
     },
   });
 
-  invariant(data, 'No featured items data returned from Shopify API');
+  invariant(data, 'No featured items data returned from the API');
 
   return data;
 }

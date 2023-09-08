@@ -207,7 +207,7 @@ async function getLayoutData({storefront, env}: AppLoadContext) {
     },
   });
 
-  invariant(data, 'No data returned from Shopify API');
+  invariant(data, 'No data returned from the API');
 
   /*
     Modify specific links/routes (optional)

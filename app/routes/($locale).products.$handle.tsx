@@ -569,7 +569,7 @@ async function getRecommendedProducts(
     },
   );
 
-  invariant(products, 'No data returned from Shopify API');
+  invariant(products, 'No data returned from the API');
 
   const mergedProducts = (products.recommended ?? [])
     .concat(products.additional.nodes)
