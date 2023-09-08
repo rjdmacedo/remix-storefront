@@ -15,7 +15,7 @@ import {
 } from '@shopify/remix-oxygen';
 import React from 'react';
 import invariant from 'tiny-invariant';
-import {ShopifySalesChannel, Seo} from '@shopify/hydrogen';
+import {ShopifySalesChannel, Seo, useNonce} from '@shopify/hydrogen';
 import {PreventFlashOnWrongTheme, ThemeProvider, useTheme} from 'remix-themes';
 
 import styles from '~/styles/tailwind.css';
@@ -107,6 +107,7 @@ export default function AppWithProviders() {
  * The client code runs conditionally, it won't be rendered if we have a theme in session storage.
  */
 function App() {
+  const nonce = useNonce();
   const data = useLoaderData<typeof loader>();
   const [theme] = useTheme();
   const locale = data.selectedLocale ?? DEFAULT_LOCALE;
@@ -132,9 +133,10 @@ function App() {
           <Outlet />
         </Layout>
         <Toaster />
-        <ScrollRestoration getKey={(location) => location.pathname} />
-        <Scripts />
-        <LiveReload />
+        {/** Pass the nonce to all components that generate a script **/}
+        <ScrollRestoration nonce={nonce} />
+        <Scripts nonce={nonce} />
+        <LiveReload nonce={nonce} />
       </body>
     </html>
   );

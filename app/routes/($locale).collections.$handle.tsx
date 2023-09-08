@@ -254,6 +254,7 @@ const COLLECTION_QUERY = `#graphql
           }
         }
         pageInfo {
+          startCursor
           endCursor
           hasNextPage
           hasPreviousPage
