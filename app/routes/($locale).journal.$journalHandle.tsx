@@ -20,8 +20,6 @@ export const links: LinksFunction = () => {
 export async function loader({request, params, context}: LoaderArgs) {
   const {language, country} = context.storefront.i18n;
 
-  console.log(context.storefront.i18n);
-
   invariant(params.journalHandle, 'Missing journal handle');
 
   const {blog} = await context.storefront.query(ARTICLE_QUERY, {

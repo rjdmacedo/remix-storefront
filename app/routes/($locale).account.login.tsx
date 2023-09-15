@@ -11,8 +11,9 @@ import {
   type DataFunctionArgs,
 } from '@shopify/remix-oxygen';
 import * as z from 'zod';
-import React from 'react';
+import React, {useState} from 'react';
 import {ExclamationTriangleIcon} from '@radix-ui/react-icons';
+import {EyeIcon, EyeSlashIcon} from '@heroicons/react/24/outline';
 
 import {
   Input,
@@ -22,11 +23,13 @@ import {
   AlertTitle,
   Typography,
   AlertDescription,
+  useToast,
 } from '~/components/ui';
 import {Link} from '~/components';
 import {preprocessFormData} from '~/lib/forms';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
 import {emailSchema, passwordSchema} from '~/lib/validation/user';
+import {useFlashMessages} from '~/hooks';
 
 import type {CustomerAccessTokenCreateMutation} from '../../storefrontapi.generated';
 
@@ -114,10 +117,36 @@ export async function action({request, context, params}: DataFunctionArgs) {
 }
 
 export default function Login() {
+  const {toast} = useToast();
   const actionData = useActionData<typeof action>();
   const {shopName} = useLoaderData<typeof loader>();
+  const flashMessages = useFlashMessages();
+  const [eyeOpen, setEyeOpen] = useState(false);
 
   const formHasError = actionData?.status === 'error';
+
+  if (Object.keys(flashMessages).length > 0) {
+    Object.entries(flashMessages).forEach(([type, message]) => {
+      let title = '';
+      switch (type) {
+        case 'info':
+          title = 'Info';
+          break;
+        case 'error':
+          title = 'Error';
+          break;
+        case 'success':
+          title = 'Success';
+          break;
+        default:
+          break;
+      }
+      toast({
+        title,
+        description: message,
+      });
+    });
+  }
 
   return (
     <div className="my-24 flex justify-center px-4">
@@ -163,9 +192,24 @@ export default function Login() {
             <Input
               id="password"
               name="password"
-              type="password"
+              type={eyeOpen ? 'text' : 'password'}
               required
               autoComplete="current-password"
+              suffix={
+                <Button
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setEyeOpen(!eyeOpen)}
+                  className="h-6 w-6"
+                >
+                  {eyeOpen ? (
+                    <EyeIcon className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <EyeSlashIcon className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </Button>
+              }
             />
             {actionData?.errors.fieldErrors.password && (
               <Typography.Text color="destructive" size="xs">

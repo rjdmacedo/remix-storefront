@@ -32,7 +32,7 @@ const typographyVariants = cva('font-sans font-normal leading-normal', {
       thin: 'font-thin',
     },
     color: {
-      default: 'text-primary',
+      default: '',
       primary: 'text-primary',
       'primary-foreground': 'text-primary-foreground',
       secondary: 'text-secondary',

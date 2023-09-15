@@ -4,7 +4,7 @@ import {flattenConnection, Image} from '@shopify/hydrogen';
 
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
-import type { ArticleFragment, BlogQuery } from "storefrontapi.generated";
+import type {ArticleFragment, BlogQuery} from 'storefrontapi.generated';
 import {Grid, PageHeader, Section, Link} from '~/components';
 import {getImageLoadingPriority, PAGINATION_SIZE} from '~/lib/const';
 
@@ -18,7 +18,7 @@ export const loader = async ({request, context: {storefront}}: LoaderArgs) => {
   const {blog} = await storefront.query<BlogQuery>(BLOGS_QUERY, {
     variables: {
       pageBy: PAGINATION_SIZE,
-      language: language,
+      language,
       blogHandle: BLOG_HANDLE,
     },
   });
@@ -42,7 +42,7 @@ export const loader = async ({request, context: {storefront}}: LoaderArgs) => {
 
   const seo = seoPayload.blog({
     url: request.url,
-    blog: blog,
+    blog,
   });
 
   return json({

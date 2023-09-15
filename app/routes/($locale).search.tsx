@@ -2,11 +2,8 @@ import {Suspense} from 'react';
 import {defer, type LoaderArgs} from '@shopify/remix-oxygen';
 import {Await, Form, useLoaderData} from '@remix-run/react';
 import {Pagination, getPaginationVariables} from '@shopify/hydrogen';
+import {MagnifyingGlassIcon} from '@radix-ui/react-icons';
 
-import {
-  getFeaturedData,
-  type FeaturedData,
-} from './($locale).featured-products';
 import {
   Grid,
   Section,
@@ -16,13 +13,20 @@ import {
   FeaturedCollections,
 } from '~/components';
 import {seoPayload} from '~/lib/seo.server';
-import {MagnifyingGlassIcon} from '@radix-ui/react-icons';
 import {PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
-import {getImageLoadingPriority} from '~/lib/const';
+import {
+  getImageLoadingPriority,
+  MAX_AMOUNT_SIZE,
+  PAGINATION_SIZE,
+} from '~/lib/const';
 import {Button, Input, Typography} from '~/components/ui';
-import {MAX_AMOUNT_SIZE, PAGINATION_SIZE} from '~/lib/const';
 
-import {PaginatedProductsSearchQuery} from '../../storefrontapi.generated';
+import type {PaginatedProductsSearchQuery} from '../../storefrontapi.generated';
+
+import {
+  getFeaturedData,
+  type FeaturedData,
+} from './($locale).featured-products';
 
 export async function loader({request, context: {storefront}}: LoaderArgs) {
   const searchParams = new URL(request.url).searchParams;

@@ -1,10 +1,4 @@
-import {
-  Form,
-  useParams,
-  useActionData,
-  useNavigation,
-  useOutletContext,
-} from '@remix-run/react';
+import {Form, useParams, useActionData, useNavigation} from '@remix-run/react';
 import invariant from 'tiny-invariant';
 import {flattenConnection} from '@shopify/hydrogen';
 import type {MailingAddressInput} from '@shopify/hydrogen/storefront-api-types';
@@ -20,8 +14,11 @@ import {
 import {Link} from '~/components';
 import {cn, assertApiErrors} from '~/lib/utils';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
+import {useAccount} from '~/routes/($locale).account';
 
-import type {AccountOutletContext} from './($locale).account.edit';
+export const handle = {
+  renderInModal: true,
+};
 
 export async function action({context, request, params}: DataFunctionArgs) {
   const {storefront, session} = context;
@@ -126,14 +123,14 @@ export async function action({context, request, params}: DataFunctionArgs) {
 
 export default function EditAddress() {
   const {state} = useNavigation();
+  const {customer} = useAccount();
   const actionData = useActionData<ActionData>();
-  const {customer} = useOutletContext<AccountOutletContext>();
   const {id: addressId} = useParams();
 
   const isNewAddress = addressId === 'add';
-  const defaultAddress = customer.defaultAddress;
+  const defaultAddress = customer?.defaultAddress;
 
-  const addresses = flattenConnection(customer.addresses);
+  const addresses = flattenConnection(customer?.addresses);
 
   /**
    * When a refresh happens (or a user visits this link directly), the URL
@@ -313,10 +310,6 @@ interface ActionData {
 }
 
 const badRequest = (data: ActionData) => json(data, {status: 400});
-
-export const handle = {
-  renderInModal: true,
-};
 
 const UPDATE_ADDRESS_MUTATION = `#graphql
   mutation customerAddressUpdate(

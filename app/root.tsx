@@ -24,7 +24,7 @@ import {seoPayload} from '~/lib/seo.server';
 import {useAnalytics} from '~/hooks';
 import {themeSessionResolver} from '~/lib/session.server';
 import {parseMenu, getCartId, DEFAULT_LOCALE} from '~/lib/utils';
-import {Toaster} from '~/components/ui';
+import {Toaster, TooltipProvider} from '~/components/ui';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
 
 import favicon from '../public/favicon.ico';
@@ -73,18 +73,36 @@ export async function loader({request, context}: LoaderArgs) {
   const isLoggedIn = Boolean(customerAccessToken);
   const selectedLocale = context.storefront.i18n;
 
-  return defer({
-    seo,
-    cart,
-    theme,
-    layout,
-    isLoggedIn,
-    selectedLocale,
-    analytics: {
-      shopId: layout.shop.id,
-      shopifySalesChannel: ShopifySalesChannel.hydrogen,
+  return defer(
+    {
+      seo,
+      cart,
+      theme,
+      /*
+      flash: {
+        ...(context.session.has('info') && {info: context.session.get('info')}),
+        ...(context.session.has('error') && {
+          error: context.session.get('error'),
+        }),
+        ...(context.session.has('success') && {
+          success: context.session.get('success'),
+        }),
+      },
+      */
+      layout,
+      isLoggedIn,
+      selectedLocale,
+      analytics: {
+        shopId: layout.shop.id,
+        shopifySalesChannel: ShopifySalesChannel.hydrogen,
+      },
     },
-  });
+    {
+      headers: {
+        'Set-Cookie': await context.session.commit(),
+      },
+    },
+  );
 }
 
 // Wrap your app with ThemeProvider.
@@ -95,7 +113,9 @@ export default function AppWithProviders() {
 
   return (
     <ThemeProvider specifiedTheme={theme} themeAction="/api/theme">
-      <App />
+      <TooltipProvider>
+        <App />
+      </TooltipProvider>
     </ThemeProvider>
   );
 }
@@ -107,8 +127,8 @@ export default function AppWithProviders() {
  * The client code runs conditionally, it won't be rendered if we have a theme in session storage.
  */
 function App() {
-  const nonce = useNonce();
   const data = useLoaderData<typeof loader>();
+  const nonce = useNonce();
   const [theme] = useTheme();
   const locale = data.selectedLocale ?? DEFAULT_LOCALE;
   const hasUserConsent = true;

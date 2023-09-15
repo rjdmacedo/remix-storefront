@@ -5,7 +5,8 @@ import {json, type LoaderArgs} from '@shopify/remix-oxygen';
 import {PageHeader} from '~/components';
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
-import type { PageDetailsQuery } from "../../storefrontapi.generated";
+
+import type {PageDetailsQuery} from '../../storefrontapi.generated';
 
 export const headers = routeHeaders;
 

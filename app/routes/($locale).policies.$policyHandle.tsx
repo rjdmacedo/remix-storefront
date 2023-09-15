@@ -4,10 +4,11 @@ import {json, type LoaderArgs} from '@shopify/remix-oxygen';
 
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
-import type { PoliciesHandleQuery } from "../../storefrontapi.generated";
-import { Link, PageHeader, Section } from "~/components";
-import { Button, buttonVariants } from "~/components/ui";
-import { cn } from "~/lib/utils";
+import {Link, PageHeader, Section} from '~/components';
+import {buttonVariants} from '~/components/ui';
+import {cn} from '~/lib/utils';
+
+import type {PoliciesHandleQuery} from '../../storefrontapi.generated';
 
 export const headers = routeHeaders;
 
@@ -19,16 +20,19 @@ export async function loader({request, params, context}: LoaderArgs) {
     (_: unknown, m1: string) => m1.toUpperCase(),
   ) as 'privacyPolicy' | 'shippingPolicy' | 'termsOfService' | 'refundPolicy';
 
-  const data = await context.storefront.query<PoliciesHandleQuery>(POLICY_CONTENT_QUERY, {
-    variables: {
-      [policyName]: true,
-      refundPolicy: false,
-      privacyPolicy: false,
-      shippingPolicy: false,
-      termsOfService: false,
-      language: context.storefront.i18n.language,
+  const data = await context.storefront.query<PoliciesHandleQuery>(
+    POLICY_CONTENT_QUERY,
+    {
+      variables: {
+        [policyName]: true,
+        refundPolicy: false,
+        privacyPolicy: false,
+        shippingPolicy: false,
+        termsOfService: false,
+        language: context.storefront.i18n.language,
+      },
     },
-  });
+  );
 
   invariant(data, 'No data returned from the API');
   const policy = data.shop?.[policyName];
@@ -39,7 +43,7 @@ export async function loader({request, params, context}: LoaderArgs) {
 
   const seo = seoPayload.policy({
     url: request.url,
-    policy: policy,
+    policy,
   });
 
   return json({
@@ -63,7 +67,10 @@ export default function Policies() {
       >
         <Link
           to="/policies"
-          className={cn(buttonVariants({variant: 'default'}), 'justify-self-start')}
+          className={cn(
+            buttonVariants({variant: 'default'}),
+            'justify-self-start',
+          )}
         >
           &larr; Back to Policies
         </Link>

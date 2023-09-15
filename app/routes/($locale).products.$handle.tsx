@@ -264,7 +264,11 @@ function ProductForm() {
                 onSuccess={() => {
                   const {dismiss} = toast({
                     title: 'Added to cart',
-                    description: 'You can view your cart by clicking here.',
+                    description: (
+                      <Typography.Text>
+                        You can view your cart by clicking here.
+                      </Typography.Text>
+                    ),
                     action: (
                       <ToastAction
                         altText="Go to Cart"

@@ -69,9 +69,9 @@ export function Layout({children, layout}: LayoutProps) {
 
         {header && <Header title={shop.name} menu={header} />}
 
-        <main role="main" id="main-content" className="container">
+        <div role="main" id="main-content" className="container">
           {children}
-        </main>
+        </div>
       </div>
 
       {footer && <Footer menu={footer} />}
@@ -92,7 +92,7 @@ function Header({title, menu}: {title: string; menu?: EnhancedMenu}) {
 
   return (
     <header className="supports-backdrop-blur:bg-background/60 sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
-      <div className="container flex h-14 h-nav items-center">
+      <div className="container flex h-nav items-center">
         <MainNav title={title} menu={menu} />
         <MobileNav title={title} menu={menu} />
         <div className="flex flex-1 items-center justify-between space-x-2 md:justify-end">

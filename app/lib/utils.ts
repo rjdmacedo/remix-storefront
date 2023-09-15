@@ -1,7 +1,8 @@
 import {twMerge} from 'tailwind-merge';
 import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import typographicBase from 'typographic-base';
-import clsx, {ClassValue} from 'clsx';
+import type {ClassValue} from 'clsx';
+import clsx from 'clsx';
 import {parse as parseCookie} from 'worktop/cookie';
 import {useLocation, useMatches} from '@remix-run/react';
 
@@ -172,7 +173,6 @@ function parseItem(primaryDomain: string, env: Env, customPrefixes = {}) {
     // extract path from url because we don't need the origin on internal to attributes
     const {host, pathname} = new URL(item.url);
 
-    console.log(primaryDomain, env.PUBLIC_STORE_DOMAIN, host);
     const isInternalLink =
       host === new URL(primaryDomain).host || host === env.PUBLIC_STORE_DOMAIN;
 

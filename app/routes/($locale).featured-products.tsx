@@ -6,6 +6,8 @@ import {
   FEATURED_COLLECTION_FRAGMENT,
 } from '~/data/fragments';
 
+import type {FeaturedItemsQuery} from '../../storefrontapi.generated';
+
 export async function loader({context: {storefront}}: LoaderArgs) {
   return json(await getFeaturedData(storefront));
 }
@@ -14,14 +16,17 @@ export async function getFeaturedData(
   storefront: LoaderArgs['context']['storefront'],
   variables: {pageBy?: number} = {},
 ) {
-  const data = await storefront.query(FEATURED_ITEMS_QUERY, {
-    variables: {
-      pageBy: 12,
-      country: storefront.i18n.country,
-      language: storefront.i18n.language,
-      ...variables,
+  const data = await storefront.query<FeaturedItemsQuery>(
+    FEATURED_ITEMS_QUERY,
+    {
+      variables: {
+        pageBy: 12,
+        country: storefront.i18n.country,
+        language: storefront.i18n.language,
+        ...variables,
+      },
     },
-  });
+  );
 
   invariant(data, 'No featured items data returned from the API');
 

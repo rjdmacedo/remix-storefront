@@ -80,6 +80,7 @@ export function CountrySelector() {
 
               return (
                 <Country
+                  key={countryLocale.country}
                   isSelected={isSelected}
                   countryLocale={countryLocale}
                   countryUrlPath={countryUrlPath}

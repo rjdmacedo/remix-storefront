@@ -1,7 +1,8 @@
 // Inspired by react-hot-toast library
 import * as React from 'react';
 
-import type {ToastActionElement, ToastProps} from '~/components/ui/toast';
+import {Typography} from '~/components/ui';
+import type {ToastActionElement, ToastProps} from '~/components/ui';
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
@@ -143,7 +144,11 @@ function toast({...props}: Toast) {
   const update = (props: ToasterToast) =>
     dispatch({
       type: 'UPDATE_TOAST',
-      toast: {...props, id},
+      toast: {
+        ...props,
+        id,
+        description: <Typography.Text>{props.description}</Typography.Text>,
+      },
     });
   const dismiss = () => dispatch({type: 'DISMISS_TOAST', toastId: id});
 

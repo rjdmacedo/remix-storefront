@@ -1,9 +1,6 @@
-import {
-  type Session,
-  type SessionStorage,
-  createCookieSessionStorage,
-} from '@shopify/remix-oxygen';
 import {createThemeSessionResolver} from 'remix-themes';
+import {createCookieSessionStorage} from '@shopify/remix-oxygen';
+import type {Session, SessionStorage} from '@shopify/remix-oxygen';
 
 const themeStorage = createCookieSessionStorage({
   cookie: {
@@ -25,6 +22,7 @@ export const themeSessionResolver = createThemeSessionResolver(themeStorage);
  * swap out the cookie-based implementation with something else!
  */
 export class HydrogenSession {
+  // eslint-disable-next-line no-useless-constructor
   constructor(
     private sessionStorage: SessionStorage,
     private session: Session,
@@ -44,6 +42,10 @@ export class HydrogenSession {
     const session = await storage.getSession(request.headers.get('Cookie'));
 
     return new this(storage, session);
+  }
+
+  has(key: string) {
+    return this.session.has(key);
   }
 
   get(key: string) {

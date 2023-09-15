@@ -23,7 +23,7 @@ export async function loader({request, context: {storefront}}: LoaderArgs) {
 
   const seo = seoPayload.policies({
     url: request.url,
-    policies: policies,
+    policies,
   });
 
   return json({

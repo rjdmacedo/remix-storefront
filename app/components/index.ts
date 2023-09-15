@@ -1,3 +1,5 @@
+export {AccountAside} from './account-aside';
+export {AccountMain} from './account-main';
 export {SiteSearch} from './site-search';
 export {Layout} from './layout';
 export {Drawer, useDrawer} from './Drawer';

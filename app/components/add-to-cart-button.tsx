@@ -35,7 +35,6 @@ export function AddToCartButton({
           if (fetcher.state === 'loading' && fetcher.type === 'actionReload') {
             onSuccess?.();
           }
-          // eslint-disable-next-line react-hooks/exhaustive-deps
         }, [fetcher]);
 
         return (

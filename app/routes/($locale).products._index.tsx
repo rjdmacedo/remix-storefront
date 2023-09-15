@@ -3,14 +3,15 @@ import {useLoaderData} from '@remix-run/react';
 import {json, type LoaderArgs} from '@shopify/remix-oxygen';
 import {Pagination, getPaginationVariables} from '@shopify/hydrogen';
 
-import { cn } from "~/lib/utils";
+import {cn} from '~/lib/utils';
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
-import { buttonVariants } from "~/components/ui";
+import {buttonVariants} from '~/components/ui';
 import {PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
 import {getImageLoadingPriority} from '~/lib/const';
-import type { AllProductsQuery } from "../../storefrontapi.generated";
 import {PageHeader, Section, ProductCard, Grid} from '~/components';
+
+import type {AllProductsQuery} from '../../storefrontapi.generated';
 
 const PAGE_BY = 8;
 
@@ -48,7 +49,7 @@ export async function loader({request, context: {storefront}}: LoaderArgs) {
   });
 
   return json({
-    seo: seo,
+    seo,
     products: data.products,
   });
 }
@@ -73,7 +74,9 @@ export default function AllProducts() {
             return (
               <>
                 <div className="mb-6 flex items-center justify-center">
-                  <PreviousLink className={cn(buttonVariants(), 'block w-full')}>
+                  <PreviousLink
+                    className={cn(buttonVariants(), 'block w-full')}
+                  >
                     {isLoading ? 'Loading...' : 'Previous'}
                   </PreviousLink>
                 </div>

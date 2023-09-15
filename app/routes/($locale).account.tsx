@@ -1,12 +1,13 @@
+import {z} from 'zod';
+import validator from 'validator';
 import {
-  Await,
-  Form,
+  Form as RemixForm,
   Outlet,
   useLoaderData,
   useMatches,
   useOutlet,
+  useOutletContext,
 } from '@remix-run/react';
-import {Suspense} from 'react';
 import {
   json,
   defer,
@@ -14,27 +15,30 @@ import {
   type LoaderArgs,
   type AppLoadContext,
 } from '@shopify/remix-oxygen';
-import {flattenConnection} from '@shopify/hydrogen';
+import React from 'react';
+import {zodResolver} from '@hookform/resolvers/zod';
+import {useForm} from 'react-hook-form';
 
 import type {
-  CustomerDetailsFragment, CustomerDetailsQuery,
-  OrderCardFragment
-} from "storefrontapi.generated";
-import {
-  Button,
-  OrderCard,
-  PageHeader,
-  Text,
-  AccountDetails,
-  AccountAddressBook,
-  Modal,
-  ProductSwimlane,
-} from '~/components';
-import {FeaturedCollections} from '~/components/featured-collections';
+  CustomerDetailsQuery,
+  CustomerDetailsFragment,
+} from 'storefrontapi.generated';
+import {PageHeader, Modal, AccountAside} from '~/components';
 import {usePrefixPathWithLocale} from '~/lib/utils';
 import {CACHE_NONE, routeHeaders} from '~/data/cache';
 import {ORDER_CARD_FRAGMENT} from '~/components/OrderCard';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
+import {
+  toast,
+  Input,
+  Form,
+  Button,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from '~/components/ui';
 
 import {
   getFeaturedData,
@@ -46,7 +50,34 @@ import {doLogout} from './($locale).account.logout';
 // types returned by useLoaderData. This is a temporary fix.
 type TmpRemixFix = ReturnType<typeof defer<{isAuthenticated: false}>>;
 
-type ContextType = { user: CustomerDetailsQuery['customer'] };
+type ContextType = {customer: CustomerDetailsQuery['customer']};
+
+const ProfileFormSchema = z.object({
+  firstName: z
+    .string()
+    .min(2, {
+      message: 'First name must be at least 2 characters.',
+    })
+    .max(30, {
+      message: 'First name must not be longer than 30 characters.',
+    }),
+  lastName: z
+    .string()
+    .min(2, {
+      message: 'Last name must be at least 2 characters.',
+    })
+    .max(30, {
+      message: 'Last name must not be longer than 30 characters.',
+    }),
+  email: z
+    .string({
+      required_error: 'Please select an email to display.',
+    })
+    .email(),
+  contact: z.string().refine(validator.isMobilePhone),
+});
+
+type FormData = z.infer<typeof ProfileFormSchema>;
 
 export const headers = routeHeaders;
 
@@ -72,8 +103,8 @@ export async function loader({request, context, params}: LoaderArgs) {
 
   const heading = customer
     ? customer.firstName
-      ? `Welcome, ${customer.firstName}.`
-      : `Welcome to your account.`
+      ? `Welcome back, ${customer.firstName}`
+      : `Welcome to your account`
     : 'Account Details';
 
   return defer(
@@ -97,9 +128,13 @@ export default function Authenticated() {
   const matches = useMatches();
 
   // routes that export handle { renderInModal: true }
-  const renderOutletInModal = matches.some((match) => {
-    return match?.handle?.renderInModal;
-  });
+  const renderOutletInModal = matches.some(
+    (match) => match?.handle?.renderInModal,
+  );
+  // routes that export handle { accountChild: true }
+  const routeIsAccountChild = matches.some(
+    (match) => match?.handle?.accountChild,
+  );
 
   // Public routes
   if (!data.isAuthenticated) {
@@ -112,105 +147,151 @@ export default function Authenticated() {
       return (
         <>
           <Modal cancelLink="/account">
-            <Outlet context={{customer: data.customer}} />
+            <Outlet context={{customer: data.customer} satisfies ContextType} />
           </Modal>
-          <Account {...data} />
+          <Account {...data}>lorem</Account>
         </>
+      );
+    } else if (routeIsAccountChild) {
+      return (
+        <Account {...data}>
+          <Outlet context={{customer: data.customer}} />
+        </Account>
       );
     } else {
       return <Outlet context={{customer: data.customer}} />;
     }
   }
 
-  return <Account {...data} />;
+  return (
+    <Account {...data}>
+      <ProfileForm customer={data.customer} />
+    </Account>
+  );
 }
 
-interface AccountType {
+type AccountT = {
+  heading: string;
+  children: React.ReactNode;
   customer: CustomerDetailsFragment;
   featuredData: Promise<FeaturedData>;
-  heading: string;
-}
+};
 
-function Account({customer, heading, featuredData}: AccountType) {
-  const orders = flattenConnection(customer.orders);
-  const addresses = flattenConnection(customer.addresses);
-
+function Account({children, heading}: AccountT) {
   return (
     <>
-      <PageHeader heading={heading}>
-        <Form method="post" action={usePrefixPathWithLocale('/account/logout')}>
-          <button type="submit" className="text-primary/50">
+      <PageHeader
+        heading={heading}
+        className="flex gap-x-2 justify-between items-center"
+      >
+        <RemixForm
+          method="post"
+          action={usePrefixPathWithLocale('/account/logout')}
+          className="hidden md:block"
+        >
+          <Button type="submit" variant="outline">
             Sign out
-          </button>
-        </Form>
+          </Button>
+        </RemixForm>
       </PageHeader>
-      {orders && <AccountOrderHistory orders={orders} />}
-      <AccountDetails customer={customer} />
-      <AccountAddressBook addresses={addresses} customer={customer} />
-      {!orders.length && (
-        <Suspense>
-          <Await
-            resolve={featuredData}
-            errorElement="There was a problem loading featured products."
-          >
-            {(data) => (
-              <>
-                <FeaturedCollections
-                  title="Popular Collections"
-                  collections={data.featuredCollections}
-                />
-                <ProductSwimlane products={data.featuredProducts} />
-              </>
-            )}
-          </Await>
-        </Suspense>
-      )}
+
+      <div className="mx-auto lg:flex lg:gap-x-16">
+        <AccountAside />
+        <main className="pt-8 lg:flex-auto lg:pt-0">{children}</main>
+      </div>
     </>
   );
 }
 
-type OrderCardsProps = {
-  orders: OrderCardFragment[];
-};
+function ProfileForm({customer}: {customer: CustomerDetailsFragment}) {
+  const defaultValues = {
+    email: customer.email || '',
+    contact: customer.phone || '',
+    lastName: customer.lastName || '',
+    firstName: customer.firstName || '',
+  };
 
-function AccountOrderHistory({orders}: OrderCardsProps) {
+  const form = useForm<FormData>({
+    resolver: zodResolver(ProfileFormSchema),
+    defaultValues,
+    mode: 'onChange',
+  });
+
+  function onSubmit(data: FormData) {
+    toast({
+      title: 'You submitted the following values:',
+      description: (
+        <pre className="mt-2 w-[340px] rounded-md bg-slate-950 p-4">
+          <code className="text-white">{JSON.stringify(data, null, 2)}</code>
+        </pre>
+      ),
+    });
+  }
+
   return (
-    <div className="mt-6">
-      <div className="grid w-full gap-4 p-4 py-6 md:gap-8 md:p-8 lg:p-12">
-        <h2 className="text-lead font-bold">Order History</h2>
-        {orders?.length ? <Orders orders={orders} /> : <EmptyOrders />}
-      </div>
-    </div>
+    <Form {...form}>
+      <RemixForm onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+        <FormField
+          control={form.control}
+          name="firstName"
+          render={({field}) => (
+            <FormItem>
+              <FormLabel>First Name</FormLabel>
+              <FormControl>
+                <Input placeholder={customer.firstName || ''} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="lastName"
+          render={({field}) => (
+            <FormItem>
+              <FormLabel>Last Name</FormLabel>
+              <FormControl>
+                <Input placeholder={customer.lastName || ''} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="email"
+          render={({field}) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input placeholder={customer.email || ''} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+        <FormField
+          control={form.control}
+          name="contact"
+          render={({field}) => (
+            <FormItem>
+              <FormLabel>Contact</FormLabel>
+              <FormControl>
+                <Input placeholder={customer.phone || ''} {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <Button type="submit">Update profile</Button>
+      </RemixForm>
+    </Form>
   );
 }
 
-function EmptyOrders() {
-  return (
-    <div>
-      <Text className="mb-1" size="fine" width="narrow" as="p">
-        You haven&apos;t placed any orders yet.
-      </Text>
-      <div className="w-48">
-        <Button
-          className="mt-2 w-full text-sm"
-          variant="secondary"
-          to={usePrefixPathWithLocale('/')}
-        >
-          Start Shopping
-        </Button>
-      </div>
-    </div>
-  );
-}
-
-function Orders({orders}: OrderCardsProps) {
-  return (
-    <ul className="false grid grid-flow-row grid-cols-1 gap-2 gap-y-6 sm:grid-cols-3 md:gap-4 lg:gap-6">
-      {orders.map((order) => (
-        <OrderCard order={order} key={order.id} />
-      ))}
-    </ul>
-  );
+export function useAccount() {
+  return useOutletContext<ContextType>();
 }
 
 const CUSTOMER_QUERY = `#graphql
@@ -226,26 +307,30 @@ const CUSTOMER_QUERY = `#graphql
 
   fragment AddressPartial on MailingAddress {
     id
-    formatted
-    firstName
-    lastName
+    zip
+    city
+    phone
     company
-    address1
-    address2
     country
     province
-    city
-    zip
-    phone
+    address1
+    address2
+    lastName
+    firstName
+    formatted
   }
 
   fragment CustomerDetails on Customer {
-    firstName
-    lastName
-    phone
     email
-    defaultAddress {
-      ...AddressPartial
+    phone
+    lastName
+    firstName
+    orders(first: 250, sortKey: PROCESSED_AT, reverse: true) {
+      edges {
+        node {
+          ...OrderCard
+        }
+      }
     }
     addresses(first: 6) {
       edges {
@@ -254,12 +339,8 @@ const CUSTOMER_QUERY = `#graphql
         }
       }
     }
-    orders(first: 250, sortKey: PROCESSED_AT, reverse: true) {
-      edges {
-        node {
-          ...OrderCard
-        }
-      }
+    defaultAddress {
+      ...AddressPartial
     }
   }
 

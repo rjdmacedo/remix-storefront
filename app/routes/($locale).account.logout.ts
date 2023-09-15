@@ -1,9 +1,5 @@
-import type {DataFunctionArgs} from '@shopify/remix-oxygen';
-import {
-  redirect,
-  type ActionFunction,
-  type AppLoadContext,
-} from '@shopify/remix-oxygen';
+import {redirect} from '@shopify/remix-oxygen';
+import type {AppLoadContext, DataFunctionArgs} from '@shopify/remix-oxygen';
 
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
 

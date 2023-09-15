@@ -1,10 +1,10 @@
 import {
   Toast,
   ToastClose,
-  ToastDescription,
-  ToastProvider,
   ToastTitle,
+  ToastProvider,
   ToastViewport,
+  ToastDescription,
 } from '~/components/ui/toast';
 import {useToast} from '~/components/ui/use-toast';
 
