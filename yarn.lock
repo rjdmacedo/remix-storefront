@@ -3873,7 +3873,7 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.3.3.tgz#16ab6c727d8c2020a5b6e4a176a243ecd88d8d69"
   integrity sha512-0xd7qez0AQ+MbHatZTlI1gu5vkG8r7MYRUJAHPAHJBmGLs16zpkrpAVLvjQKQOqaXPDUBwOiJzNc00znHSCVBw==
 
-"@shopify/cli-hydrogen@^5.4.0":
+"@shopify/cli-hydrogen@^5.4.1":
   version "5.5.1"
   resolved "https://registry.yarnpkg.com/@shopify/cli-hydrogen/-/cli-hydrogen-5.5.1.tgz#9cc09f3bf0fd49cafe6f23abc467faefd1ae7c8a"
   integrity sha512-TrrA4vGKcWKZpKrocRG0+0sKXZUlg7GCAa2Tp1E3Sppty4RpovMRZuVfXSgOV64I5rg75z20V7z7mbpWwgj2Jg==
@@ -4160,10 +4160,10 @@
     type-fest "^3.6.0"
     worktop "^0.7.3"
 
-"@shopify/hydrogen@2023.7.9":
-  version "2023.7.9"
-  resolved "https://registry.yarnpkg.com/@shopify/hydrogen/-/hydrogen-2023.7.9.tgz#6d19cd0c1a4a307fbca5282a465b8602b4f9ad65"
-  integrity sha512-vuimWh/qdSk2o1Esl8eVOdikeqNFMpZWrkEIgFqAiBnmNy/X+DrX91O4jIlPKpmXYxOZFeRRGIeHf20SkZh0HQ==
+"@shopify/hydrogen@2023.7.10":
+  version "2023.7.10"
+  resolved "https://registry.yarnpkg.com/@shopify/hydrogen/-/hydrogen-2023.7.10.tgz#5fe10c5383a16c96b8c5c8949121b0faf37d766a"
+  integrity sha512-NMtTn3LtVLWaKzOcrBnjWelgIr1NTnRV2uVDVvZdLJRpl5mKG6kpoC5aPEE12dguidBWRFm3QboGqzMItxOlBQ==
   dependencies:
     "@shopify/hydrogen-react" "2023.7.4"
     content-security-policy-builder "^2.1.1"
@@ -4220,10 +4220,10 @@
   resolved "https://registry.yarnpkg.com/@shopify/prettier-config/-/prettier-config-1.1.2.tgz#612f87c0cd1196e8b43c85425e587d0fa7f1172d"
   integrity sha512-5ugCL9sPGzmOaZjeRGaWUWhHgAbemrS6z+R7v6gwiD+BiqSeoFhIY+imLpfdFCVpuOGalpHeCv6o3gv++EHs0A==
 
-"@shopify/remix-oxygen@^1.1.4":
-  version "1.1.4"
-  resolved "https://registry.yarnpkg.com/@shopify/remix-oxygen/-/remix-oxygen-1.1.4.tgz#b825f089729d200a821d5e14f4fdb9c6aea77f62"
-  integrity sha512-6q22bAIlSYAgzgdrmM+ru3AkbtwSDr+vSVaEiFU+6wv/ZfA39/wa332EkcKyVlq9/QgUw+o2nI7CRXQw9AqZ7A==
+"@shopify/remix-oxygen@^1.1.5":
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/@shopify/remix-oxygen/-/remix-oxygen-1.1.8.tgz#2174511eda314ac668f5072fda3c280512fa8658"
+  integrity sha512-Ggs6Msx3JB7O2J3jKPHicPFYV6oVQiWmPGo26cmGB+9+G73AwptlNVezAkt2U9b+ZdkZQD22p08jqN5egVXcRA==
   dependencies:
     "@remix-run/server-runtime" "1.19.1"
 
