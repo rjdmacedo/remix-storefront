@@ -1,17 +1,22 @@
+import type {ShouldRevalidateFunction} from '@remix-run/react';
 import {
   Meta,
   Links,
   Outlet,
   Scripts,
+  useMatches,
   LiveReload,
   useLoaderData,
+  useRouteError,
   ScrollRestoration,
+  isRouteErrorResponse,
 } from '@remix-run/react';
-import {
-  defer,
-  type LoaderArgs,
-  type LinksFunction,
-  type AppLoadContext,
+import {defer} from '@shopify/remix-oxygen';
+import type {
+  LoaderArgs,
+  LinksFunction,
+  SerializeFrom,
+  AppLoadContext,
 } from '@shopify/remix-oxygen';
 import React from 'react';
 import invariant from 'tiny-invariant';
@@ -23,11 +28,27 @@ import {Layout} from '~/components';
 import {seoPayload} from '~/lib/seo.server';
 import {useAnalytics} from '~/hooks';
 import {themeSessionResolver} from '~/lib/session.server';
-import {parseMenu, getCartId, DEFAULT_LOCALE} from '~/lib/utils';
+import {parseMenu, DEFAULT_LOCALE} from '~/lib/utils';
 import {Toaster, TooltipProvider} from '~/components/ui';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
+import {GenericError} from '~/components/GenericError';
+import {NotFound} from '~/components/NotFound';
 
 import favicon from '../public/favicon.ico';
+
+// This is important to avoid re-fetching root queries on sub-navigations
+export const shouldRevalidate: ShouldRevalidateFunction = ({
+  nextUrl,
+  currentUrl,
+  formMethod,
+}) => {
+  // revalidate when a mutation is performed e.g add to cart, login...
+  if (formMethod && formMethod !== 'GET') {
+    return true;
+  }
+  // revalidate when manually revalidating via useRevalidator
+  return currentUrl.toString() === nextUrl.toString();
+};
 
 export const links: LinksFunction = () => {
   return [
@@ -60,38 +81,29 @@ export const links: LinksFunction = () => {
   ].filter(Boolean);
 };
 
+export const useRootLoaderData = () => {
+  const [root] = useMatches();
+  return root?.data as SerializeFrom<typeof loader>;
+};
+
 export async function loader({request, context}: LoaderArgs) {
-  const cartId = getCartId(request);
+  const {session, storefront, cart} = context;
   const [theme, layout, customerAccessToken] = await Promise.all([
     themeSessionResolver(request).then(({getTheme}) => getTheme()),
     getLayoutData(context),
-    context.session.get(CUSTOMER_ACCESS_TOKEN),
+    session.get(CUSTOMER_ACCESS_TOKEN),
   ]);
 
   const seo = seoPayload.root({shop: layout.shop, url: request.url});
-  const cart = cartId ? getCart(context, cartId) : undefined;
-  const isLoggedIn = Boolean(customerAccessToken);
-  const selectedLocale = context.storefront.i18n;
 
   return defer(
     {
       seo,
       cart,
       theme,
-      /*
-      flash: {
-        ...(context.session.has('info') && {info: context.session.get('info')}),
-        ...(context.session.has('error') && {
-          error: context.session.get('error'),
-        }),
-        ...(context.session.has('success') && {
-          success: context.session.get('success'),
-        }),
-      },
-      */
       layout,
-      isLoggedIn,
-      selectedLocale,
+      isLoggedIn: Boolean(customerAccessToken),
+      selectedLocale: storefront.i18n,
       analytics: {
         shopId: layout.shop.id,
         shopifySalesChannel: ShopifySalesChannel.hydrogen,
@@ -154,6 +166,57 @@ function App() {
         </Layout>
         <Toaster />
         {/** Pass the nonce to all components that generate a script **/}
+        <ScrollRestoration nonce={nonce} />
+        <Scripts nonce={nonce} />
+        <LiveReload nonce={nonce} />
+      </body>
+    </html>
+  );
+}
+
+export function ErrorBoundary({error}: {error: Error}) {
+  const nonce = useNonce();
+  const routeError = useRouteError();
+  const rootData = useRootLoaderData();
+  const locale = rootData?.selectedLocale ?? DEFAULT_LOCALE;
+  const isRouteError = isRouteErrorResponse(routeError);
+
+  let title = 'Error';
+  let pageType = 'page';
+
+  if (isRouteError) {
+    title = 'Not found';
+    if (routeError.status === 404) pageType = routeError.data || pageType;
+  }
+
+  return (
+    <html lang={locale.language}>
+      <head>
+        <meta charSet="utf-8" />
+        <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <title>{title}</title>
+        <Meta />
+        <Links />
+      </head>
+      <body>
+        <Layout
+          layout={rootData?.layout}
+          key={`${locale.language}-${locale.country}`}
+        >
+          {isRouteError ? (
+            <>
+              {routeError.status === 404 ? (
+                <NotFound type={pageType} />
+              ) : (
+                <GenericError
+                  error={{message: `${routeError.status} ${routeError.data}`}}
+                />
+              )}
+            </>
+          ) : (
+            <GenericError error={error instanceof Error ? error : undefined} />
+          )}
+        </Layout>
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
         <LiveReload nonce={nonce} />

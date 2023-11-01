@@ -3838,11 +3838,6 @@
     "@remix-run/router" "1.7.2"
     react-router-dom "6.14.2"
 
-"@remix-run/router@1.11.0":
-  version "1.11.0"
-  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.11.0.tgz#e0e45ac3fff9d8a126916f166809825537e9f955"
-  integrity sha512-BHdhcWgeiudl91HvVa2wxqZjSHbheSgIiDvxrF1VjFzBzpTtuDPkOdOi3Iqvc08kXtFkLjhbS+ML9aM8mJS+wQ==
-
 "@remix-run/router@1.7.2":
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.7.2.tgz#cba1cf0a04bc04cb66027c51fa600e9cbc388bc8"
@@ -3854,18 +3849,6 @@
   integrity sha512-sRTx/Ibl8HSLGhEr73YTZz3GzO5eZRCusfSJ8MBh1Kq0Mo571W9g4AJ/qJsF3G/wKTKxU2n75MVo0nIfTh4oZQ==
   dependencies:
     "@remix-run/router" "1.7.2"
-    "@types/cookie" "^0.4.1"
-    "@web3-storage/multipart-parser" "^1.0.0"
-    cookie "^0.4.1"
-    set-cookie-parser "^2.4.8"
-    source-map "^0.7.3"
-
-"@remix-run/server-runtime@^2.1.0":
-  version "2.2.0"
-  resolved "https://registry.yarnpkg.com/@remix-run/server-runtime/-/server-runtime-2.2.0.tgz#1c1b2ec4d6292b43987cef8edf38ea8785468308"
-  integrity sha512-+FiQy/Y6yqakkP2dRMhyf47fEvO2Pbu5aHCknUC9GKuzvDSbR5z65lB/rlRYUg1f8OBY46b7AMVG46qM+tRxeQ==
-  dependencies:
-    "@remix-run/router" "1.11.0"
     "@types/cookie" "^0.4.1"
     "@web3-storage/multipart-parser" "^1.0.0"
     cookie "^0.4.1"
@@ -3890,7 +3873,7 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.3.3.tgz#16ab6c727d8c2020a5b6e4a176a243ecd88d8d69"
   integrity sha512-0xd7qez0AQ+MbHatZTlI1gu5vkG8r7MYRUJAHPAHJBmGLs16zpkrpAVLvjQKQOqaXPDUBwOiJzNc00znHSCVBw==
 
-"@shopify/cli-hydrogen@^5.5.0":
+"@shopify/cli-hydrogen@^5.5.1":
   version "5.5.1"
   resolved "https://registry.yarnpkg.com/@shopify/cli-hydrogen/-/cli-hydrogen-5.5.1.tgz#9cc09f3bf0fd49cafe6f23abc467faefd1ae7c8a"
   integrity sha512-TrrA4vGKcWKZpKrocRG0+0sKXZUlg7GCAa2Tp1E3Sppty4RpovMRZuVfXSgOV64I5rg75z20V7z7mbpWwgj2Jg==
@@ -4165,25 +4148,26 @@
     "@graphql-codegen/typescript" "^3.0.1"
     "@graphql-codegen/typescript-operations" "^3.0.1"
 
-"@shopify/hydrogen-react@2023.7.5":
-  version "2023.7.5"
-  resolved "https://registry.yarnpkg.com/@shopify/hydrogen-react/-/hydrogen-react-2023.7.5.tgz#20d615210c586b09903867322c20863e5faea08a"
-  integrity sha512-2eR75mnZq5v1LLerp9WUFRSIay3OLWakqgI+zpz7ikur16chHfGepb2BnI5UYXkZNLPk9yMUKBOGb/62o1t7gA==
+"@shopify/hydrogen-react@2023.10.0":
+  version "2023.10.0"
+  resolved "https://registry.yarnpkg.com/@shopify/hydrogen-react/-/hydrogen-react-2023.10.0.tgz#e169632e40b2b8450e9744a422d1fc0b120cd674"
+  integrity sha512-fb9UHLF2nzzfHZMCPedT4kRHnCAcdrlCjsa8JUs3HFD0ESBq3VKCOxS5QLzVc5uT9X7ElRp1JnORa7q/qXUaxQ==
   dependencies:
     "@google/model-viewer" "^1.12.1"
     "@xstate/fsm" "^2.0.0"
     "@xstate/react" "^3.2.1"
     graphql "^16.6.0"
-    type-fest "^3.6.0"
+    type-fest "^4.5.0"
     worktop "^0.7.3"
 
-"@shopify/hydrogen@2023.7.12":
-  version "2023.7.12"
-  resolved "https://registry.yarnpkg.com/@shopify/hydrogen/-/hydrogen-2023.7.12.tgz#66823782e471589ac9871deaa02f75a5a0f9c5a7"
-  integrity sha512-8m0K0dlQljrG7get2evKhGBkV2fA95KsPbl3oSOHnnRrAczZZqM+Ae+QS2YK/VsUwIZLsuY8mEzY/fv+0wCDBg==
+"@shopify/hydrogen@2023.10.0":
+  version "2023.10.0"
+  resolved "https://registry.yarnpkg.com/@shopify/hydrogen/-/hydrogen-2023.10.0.tgz#d93e251a275c29d1803f3d5142f49328bcf1e94f"
+  integrity sha512-x+p+AngLHxF3Qg/2ma/0QLVhBoHJPgeRQ4CU7Ysjn6N1hXIwS0YxoyF9CUOXmORiq24U/ejIJ6Zkod5IU79Zbw==
   dependencies:
-    "@shopify/hydrogen-react" "2023.7.5"
+    "@shopify/hydrogen-react" "2023.10.0"
     content-security-policy-builder "^2.1.1"
+    type-fest "^4.5.0"
 
 "@shopify/mini-oxygen@^2.2.3":
   version "2.2.3"
@@ -4236,12 +4220,12 @@
   resolved "https://registry.yarnpkg.com/@shopify/prettier-config/-/prettier-config-1.1.2.tgz#612f87c0cd1196e8b43c85425e587d0fa7f1172d"
   integrity sha512-5ugCL9sPGzmOaZjeRGaWUWhHgAbemrS6z+R7v6gwiD+BiqSeoFhIY+imLpfdFCVpuOGalpHeCv6o3gv++EHs0A==
 
-"@shopify/remix-oxygen@^2.0.0":
-  version "2.0.0"
-  resolved "https://registry.yarnpkg.com/@shopify/remix-oxygen/-/remix-oxygen-2.0.0.tgz#2788f362f35e2200d857c8811fbadc201beae741"
-  integrity sha512-Ki5G7zCa1xBNp3q6Axl/kQgAgE1vuP3bfTPjNgD37l57uTGSPuANThM4mvJrgOslJKmWY2ew8MO12s7Kt88ukw==
+"@shopify/remix-oxygen@^1.1.8":
+  version "1.1.8"
+  resolved "https://registry.yarnpkg.com/@shopify/remix-oxygen/-/remix-oxygen-1.1.8.tgz#2174511eda314ac668f5072fda3c280512fa8658"
+  integrity sha512-Ggs6Msx3JB7O2J3jKPHicPFYV6oVQiWmPGo26cmGB+9+G73AwptlNVezAkt2U9b+ZdkZQD22p08jqN5egVXcRA==
   dependencies:
-    "@remix-run/server-runtime" "^2.1.0"
+    "@remix-run/server-runtime" "1.19.1"
 
 "@sigstore/bundle@^1.1.0":
   version "1.1.0"
@@ -14109,10 +14093,15 @@ type-fest@^2.11.2, type-fest@^2.12.2:
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-2.19.0.tgz#88068015bb33036a598b952e55e9311a60fd3a9b"
   integrity sha512-RAH822pAdBgcNMAfWnCBU3CFZcfZ/i1eZjwFU/dsLKumyuuP3niueg2UAukXYF0E2AAoc82ZSSf9J0WQBinzHA==
 
-type-fest@^3.0.0, type-fest@^3.6.0:
+type-fest@^3.0.0:
   version "3.13.1"
   resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-3.13.1.tgz#bb744c1f0678bea7543a2d1ec24e83e68e8c8706"
   integrity sha512-tLq3bSNx+xSpwvAJnzrK0Ep5CLNWjvFTOp71URMaAEWBfRb9nnJiBoUe0tF8bI4ZFO3omgBR6NvnbzVUT3Ly4g==
+
+type-fest@^4.5.0:
+  version "4.6.0"
+  resolved "https://registry.yarnpkg.com/type-fest/-/type-fest-4.6.0.tgz#9c575f7e20530defef4f9cdc5e2c85d6e4ea0fc9"
+  integrity sha512-rLjWJzQFOq4xw7MgJrCZ6T1jIOvvYElXT12r+y0CC6u67hegDHaxcPqb2fZHOGlqxugGQPNB1EnTezjBetkwkw==
 
 type-is@~1.6.18:
   version "1.6.18"

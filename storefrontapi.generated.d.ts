@@ -826,178 +826,6 @@ export type CustomerAccessTokenCreateMutation = {
   }>;
 };
 
-export type CustomerDetailsQueryVariables = StorefrontAPI.Exact<{
-  customerAccessToken: StorefrontAPI.Scalars['String'];
-  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
-  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-}>;
-
-export type CustomerDetailsQuery = {
-  customer?: StorefrontAPI.Maybe<
-    Pick<
-      StorefrontAPI.Customer,
-      'firstName' | 'lastName' | 'phone' | 'email'
-    > & {
-      defaultAddress?: StorefrontAPI.Maybe<
-        Pick<
-          StorefrontAPI.MailingAddress,
-          | 'id'
-          | 'formatted'
-          | 'firstName'
-          | 'lastName'
-          | 'company'
-          | 'address1'
-          | 'address2'
-          | 'country'
-          | 'province'
-          | 'city'
-          | 'zip'
-          | 'phone'
-        >
-      >;
-      addresses: {
-        edges: Array<{
-          node: Pick<
-            StorefrontAPI.MailingAddress,
-            | 'id'
-            | 'formatted'
-            | 'firstName'
-            | 'lastName'
-            | 'company'
-            | 'address1'
-            | 'address2'
-            | 'country'
-            | 'province'
-            | 'city'
-            | 'zip'
-            | 'phone'
-          >;
-        }>;
-      };
-      orders: {
-        edges: Array<{
-          node: Pick<
-            StorefrontAPI.Order,
-            | 'id'
-            | 'orderNumber'
-            | 'processedAt'
-            | 'financialStatus'
-            | 'fulfillmentStatus'
-          > & {
-            currentTotalPrice: Pick<
-              StorefrontAPI.MoneyV2,
-              'amount' | 'currencyCode'
-            >;
-            lineItems: {
-              edges: Array<{
-                node: Pick<StorefrontAPI.OrderLineItem, 'title'> & {
-                  variant?: StorefrontAPI.Maybe<{
-                    image?: StorefrontAPI.Maybe<
-                      Pick<
-                        StorefrontAPI.Image,
-                        'url' | 'altText' | 'height' | 'width'
-                      >
-                    >;
-                  }>;
-                };
-              }>;
-            };
-          };
-        }>;
-      };
-    }
-  >;
-};
-
-export type AddressPartialFragment = Pick<
-  StorefrontAPI.MailingAddress,
-  | 'id'
-  | 'formatted'
-  | 'firstName'
-  | 'lastName'
-  | 'company'
-  | 'address1'
-  | 'address2'
-  | 'country'
-  | 'province'
-  | 'city'
-  | 'zip'
-  | 'phone'
->;
-
-export type CustomerDetailsFragment = Pick<
-  StorefrontAPI.Customer,
-  'firstName' | 'lastName' | 'phone' | 'email'
-> & {
-  defaultAddress?: StorefrontAPI.Maybe<
-    Pick<
-      StorefrontAPI.MailingAddress,
-      | 'id'
-      | 'formatted'
-      | 'firstName'
-      | 'lastName'
-      | 'company'
-      | 'address1'
-      | 'address2'
-      | 'country'
-      | 'province'
-      | 'city'
-      | 'zip'
-      | 'phone'
-    >
-  >;
-  addresses: {
-    edges: Array<{
-      node: Pick<
-        StorefrontAPI.MailingAddress,
-        | 'id'
-        | 'formatted'
-        | 'firstName'
-        | 'lastName'
-        | 'company'
-        | 'address1'
-        | 'address2'
-        | 'country'
-        | 'province'
-        | 'city'
-        | 'zip'
-        | 'phone'
-      >;
-    }>;
-  };
-  orders: {
-    edges: Array<{
-      node: Pick<
-        StorefrontAPI.Order,
-        | 'id'
-        | 'orderNumber'
-        | 'processedAt'
-        | 'financialStatus'
-        | 'fulfillmentStatus'
-      > & {
-        currentTotalPrice: Pick<
-          StorefrontAPI.MoneyV2,
-          'amount' | 'currencyCode'
-        >;
-        lineItems: {
-          edges: Array<{
-            node: Pick<StorefrontAPI.OrderLineItem, 'title'> & {
-              variant?: StorefrontAPI.Maybe<{
-                image?: StorefrontAPI.Maybe<
-                  Pick<
-                    StorefrontAPI.Image,
-                    'url' | 'altText' | 'height' | 'width'
-                  >
-                >;
-              }>;
-            };
-          }>;
-        };
-      };
-    }>;
-  };
-};
-
 export type MoneyFragment = Pick<
   StorefrontAPI.MoneyV2,
   'amount' | 'currencyCode'
@@ -1229,6 +1057,178 @@ export type CustomerResetMutation = {
   }>;
 };
 
+export type CustomerDetailsQueryVariables = StorefrontAPI.Exact<{
+  customerAccessToken: StorefrontAPI.Scalars['String'];
+  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+}>;
+
+export type CustomerDetailsQuery = {
+  customer?: StorefrontAPI.Maybe<
+    Pick<
+      StorefrontAPI.Customer,
+      'email' | 'phone' | 'lastName' | 'firstName'
+    > & {
+      orders: {
+        edges: Array<{
+          node: Pick<
+            StorefrontAPI.Order,
+            | 'id'
+            | 'orderNumber'
+            | 'processedAt'
+            | 'financialStatus'
+            | 'fulfillmentStatus'
+          > & {
+            currentTotalPrice: Pick<
+              StorefrontAPI.MoneyV2,
+              'amount' | 'currencyCode'
+            >;
+            lineItems: {
+              edges: Array<{
+                node: Pick<StorefrontAPI.OrderLineItem, 'title'> & {
+                  variant?: StorefrontAPI.Maybe<{
+                    image?: StorefrontAPI.Maybe<
+                      Pick<
+                        StorefrontAPI.Image,
+                        'url' | 'altText' | 'height' | 'width'
+                      >
+                    >;
+                  }>;
+                };
+              }>;
+            };
+          };
+        }>;
+      };
+      addresses: {
+        edges: Array<{
+          node: Pick<
+            StorefrontAPI.MailingAddress,
+            | 'id'
+            | 'zip'
+            | 'city'
+            | 'phone'
+            | 'company'
+            | 'country'
+            | 'province'
+            | 'address1'
+            | 'address2'
+            | 'lastName'
+            | 'firstName'
+            | 'formatted'
+          >;
+        }>;
+      };
+      defaultAddress?: StorefrontAPI.Maybe<
+        Pick<
+          StorefrontAPI.MailingAddress,
+          | 'id'
+          | 'zip'
+          | 'city'
+          | 'phone'
+          | 'company'
+          | 'country'
+          | 'province'
+          | 'address1'
+          | 'address2'
+          | 'lastName'
+          | 'firstName'
+          | 'formatted'
+        >
+      >;
+    }
+  >;
+};
+
+export type AddressPartialFragment = Pick<
+  StorefrontAPI.MailingAddress,
+  | 'id'
+  | 'zip'
+  | 'city'
+  | 'phone'
+  | 'company'
+  | 'country'
+  | 'province'
+  | 'address1'
+  | 'address2'
+  | 'lastName'
+  | 'firstName'
+  | 'formatted'
+>;
+
+export type CustomerDetailsFragment = Pick<
+  StorefrontAPI.Customer,
+  'email' | 'phone' | 'lastName' | 'firstName'
+> & {
+  orders: {
+    edges: Array<{
+      node: Pick<
+        StorefrontAPI.Order,
+        | 'id'
+        | 'orderNumber'
+        | 'processedAt'
+        | 'financialStatus'
+        | 'fulfillmentStatus'
+      > & {
+        currentTotalPrice: Pick<
+          StorefrontAPI.MoneyV2,
+          'amount' | 'currencyCode'
+        >;
+        lineItems: {
+          edges: Array<{
+            node: Pick<StorefrontAPI.OrderLineItem, 'title'> & {
+              variant?: StorefrontAPI.Maybe<{
+                image?: StorefrontAPI.Maybe<
+                  Pick<
+                    StorefrontAPI.Image,
+                    'url' | 'altText' | 'height' | 'width'
+                  >
+                >;
+              }>;
+            };
+          }>;
+        };
+      };
+    }>;
+  };
+  addresses: {
+    edges: Array<{
+      node: Pick<
+        StorefrontAPI.MailingAddress,
+        | 'id'
+        | 'zip'
+        | 'city'
+        | 'phone'
+        | 'company'
+        | 'country'
+        | 'province'
+        | 'address1'
+        | 'address2'
+        | 'lastName'
+        | 'firstName'
+        | 'formatted'
+      >;
+    }>;
+  };
+  defaultAddress?: StorefrontAPI.Maybe<
+    Pick<
+      StorefrontAPI.MailingAddress,
+      | 'id'
+      | 'zip'
+      | 'city'
+      | 'phone'
+      | 'company'
+      | 'country'
+      | 'province'
+      | 'address1'
+      | 'address2'
+      | 'lastName'
+      | 'firstName'
+      | 'formatted'
+    >
+  >;
+};
+
 export type ApiAllProductsQueryVariables = StorefrontAPI.Exact<{
   query?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
   count?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
@@ -1380,7 +1380,7 @@ export type CollectionDetailsQuery = {
         >;
         pageInfo: Pick<
           StorefrontAPI.PageInfo,
-          'startCursor' | 'endCursor' | 'hasNextPage' | 'hasPreviousPage'
+          'hasPreviousPage' | 'endCursor' | 'startCursor'
         >;
       };
     }
@@ -1965,13 +1965,13 @@ interface GeneratedQueryTypes {
     return: ShopNameQuery;
     variables: ShopNameQueryVariables;
   };
-  '#graphql\n  query CustomerDetails(\n    $customerAccessToken: String!\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(country: $country, language: $language) {\n    customer(customerAccessToken: $customerAccessToken) {\n      ...CustomerDetails\n    }\n  }\n\n  fragment AddressPartial on MailingAddress {\n    id\n    formatted\n    firstName\n    lastName\n    company\n    address1\n    address2\n    country\n    province\n    city\n    zip\n    phone\n  }\n\n  fragment CustomerDetails on Customer {\n    firstName\n    lastName\n    phone\n    email\n    defaultAddress {\n      ...AddressPartial\n    }\n    addresses(first: 6) {\n      edges {\n        node {\n          ...AddressPartial\n        }\n      }\n    }\n    orders(first: 250, sortKey: PROCESSED_AT, reverse: true) {\n      edges {\n        node {\n          ...OrderCard\n        }\n      }\n    }\n  }\n\n  #graphql\n  fragment OrderCard on Order {\n    id\n    orderNumber\n    processedAt\n    financialStatus\n    fulfillmentStatus\n    currentTotalPrice {\n      amount\n      currencyCode\n    }\n    lineItems(first: 2) {\n      edges {\n        node {\n          variant {\n            image {\n              url\n              altText\n              height\n              width\n            }\n          }\n          title\n        }\n      }\n    }\n  }\n\n': {
-    return: CustomerDetailsQuery;
-    variables: CustomerDetailsQueryVariables;
-  };
   '#graphql\n  #graphql\nfragment ProductVariant on ProductVariant {\n  id\n  sku\n  title\n  availableForSale\n\n  image {\n    id\n    url\n    width\n    height\n    altText\n  }\n  price {\n    amount\n    currencyCode\n  }\n  product {\n    title\n    handle\n  }\n  unitPrice {\n    amount\n    currencyCode\n  }\n  compareAtPrice {\n    amount\n    currencyCode\n  }\n  selectedOptions {\n    name\n    value\n  }\n}\n\n  fragment Money on MoneyV2 {\n    amount\n    currencyCode\n  }\n  fragment AddressFull on MailingAddress {\n    address1\n    address2\n    city\n    company\n    country\n    countryCodeV2\n    firstName\n    formatted\n    id\n    lastName\n    name\n    phone\n    province\n    provinceCode\n    zip\n  }\n  fragment DiscountApplication on DiscountApplication {\n    value {\n      __typename\n      ... on MoneyV2 {\n        amount\n        currencyCode\n      }\n      ... on PricingPercentageValue {\n        percentage\n      }\n    }\n  }\n  fragment LineItemFull on OrderLineItem {\n    title\n    quantity\n    discountAllocations {\n      allocatedAmount {\n        ...Money\n      }\n      discountApplication {\n        ...DiscountApplication\n      }\n    }\n    originalTotalPrice {\n      ...Money\n    }\n    discountedTotalPrice {\n      ...Money\n    }\n    variant {\n      ...ProductVariant\n    }\n  }\n\n  query CustomerOrder(\n    $country: CountryCode\n    $language: LanguageCode\n    $orderId: ID!\n  ) @inContext(country: $country, language: $language) {\n    node(id: $orderId) {\n      ... on Order {\n        id\n        name\n        orderNumber\n        processedAt\n        fulfillmentStatus\n        totalTaxV2 {\n          ...Money\n        }\n        totalPriceV2 {\n          ...Money\n        }\n        subtotalPriceV2 {\n          ...Money\n        }\n        shippingAddress {\n          ...AddressFull\n        }\n        discountApplications(first: 100) {\n          nodes {\n            ...DiscountApplication\n          }\n        }\n        lineItems(first: 100) {\n          nodes {\n            ...LineItemFull\n          }\n        }\n      }\n    }\n  }\n': {
     return: CustomerOrderQuery;
     variables: CustomerOrderQueryVariables;
+  };
+  '#graphql\n  query CustomerDetails(\n    $customerAccessToken: String!\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(country: $country, language: $language) {\n    customer(customerAccessToken: $customerAccessToken) {\n      ...CustomerDetails\n    }\n  }\n\n  fragment AddressPartial on MailingAddress {\n    id\n    zip\n    city\n    phone\n    company\n    country\n    province\n    address1\n    address2\n    lastName\n    firstName\n    formatted\n  }\n\n  fragment CustomerDetails on Customer {\n    email\n    phone\n    lastName\n    firstName\n    orders(first: 250, sortKey: PROCESSED_AT, reverse: true) {\n      edges {\n        node {\n          ...OrderCard\n        }\n      }\n    }\n    addresses(first: 6) {\n      edges {\n        node {\n          ...AddressPartial\n        }\n      }\n    }\n    defaultAddress {\n      ...AddressPartial\n    }\n  }\n\n  #graphql\n  fragment OrderCard on Order {\n    id\n    orderNumber\n    processedAt\n    financialStatus\n    fulfillmentStatus\n    currentTotalPrice {\n      amount\n      currencyCode\n    }\n    lineItems(first: 2) {\n      edges {\n        node {\n          variant {\n            image {\n              url\n              altText\n              height\n              width\n            }\n          }\n          title\n        }\n      }\n    }\n  }\n\n': {
+    return: CustomerDetailsQuery;
+    variables: CustomerDetailsQueryVariables;
   };
   '#graphql\n  query ApiAllProducts(\n    $query: String\n    $count: Int\n    $reverse: Boolean\n    $country: CountryCode\n    $language: LanguageCode\n    $sortKey: ProductSortKeys\n  ) @inContext(country: $country, language: $language) {\n    products(first: $count, sortKey: $sortKey, reverse: $reverse, query: $query) {\n      nodes {\n        ...ProductCard\n      }\n    }\n  }\n  #graphql\n  fragment ProductCard on Product {\n    id\n    title\n    handle\n    vendor\n    publishedAt\n    options {\n      name\n      values\n    }\n    variants(first: 1) {\n      nodes {\n        id\n        availableForSale\n        image {\n          url\n          width\n          height\n          altText\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        selectedOptions {\n          name\n          value\n        }\n        product {\n          title\n          handle\n        }\n      }\n    }\n  }\n\n': {
     return: ApiAllProductsQuery;
@@ -1981,7 +1981,7 @@ interface GeneratedQueryTypes {
     return: ApiSelectedVariantQuery;
     variables: ApiSelectedVariantQueryVariables;
   };
-  '#graphql\n  query CollectionDetails(\n    $last: Int\n    $first: Int\n    $handle: String!\n    $country: CountryCode\n    $reverse: Boolean\n    $filters: [ProductFilter!]\n    $sortKey: ProductCollectionSortKeys!\n    $language: LanguageCode\n    $endCursor: String\n    $startCursor: String\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      id\n      title\n      handle\n      description\n      seo {\n        title\n        description\n      }\n      image {\n        id\n        url\n        width\n        height\n        altText\n      }\n      products(\n        last: $last,\n        first: $first,\n        after: $endCursor,\n        before: $startCursor,\n        filters: $filters,\n        sortKey: $sortKey,\n        reverse: $reverse\n      ) {\n        nodes {\n          ...ProductCard\n        }\n        filters {\n          id\n          type\n          label\n          values {\n            id\n            count\n            label\n            input\n          }\n        }\n        pageInfo {\n          startCursor\n          endCursor\n          hasNextPage\n          hasPreviousPage\n        }\n      }\n    }\n    collections(first: 100) {\n      edges {\n        node {\n          title\n          handle\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ProductCard on Product {\n    id\n    title\n    handle\n    vendor\n    publishedAt\n    options {\n      name\n      values\n    }\n    variants(first: 1) {\n      nodes {\n        id\n        availableForSale\n        image {\n          url\n          width\n          height\n          altText\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        selectedOptions {\n          name\n          value\n        }\n        product {\n          title\n          handle\n        }\n      }\n    }\n  }\n\n': {
+  '#graphql\n  query CollectionDetails(\n    $last: Int\n    $first: Int\n    $handle: String!\n    $country: CountryCode\n    $reverse: Boolean\n    $filters: [ProductFilter!]\n    $sortKey: ProductCollectionSortKeys!\n    $language: LanguageCode\n    $endCursor: String\n    $startCursor: String\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      id\n      title\n      handle\n      description\n      seo {\n        title\n        description\n      }\n      image {\n        id\n        url\n        width\n        height\n        altText\n      }\n      products(\n        last: $last,\n        first: $first,\n        after: $endCursor,\n        before: $startCursor,\n        filters: $filters,\n        sortKey: $sortKey,\n        reverse: $reverse\n      ) {\n        nodes {\n          ...ProductCard\n        }\n        filters {\n          id\n          type\n          label\n          values {\n            id\n            count\n            label\n            input\n          }\n        }\n        pageInfo {\n          hasPreviousPage\n          endCursor\n          startCursor\n        }\n      }\n    }\n    collections(first: 100) {\n      edges {\n        node {\n          title\n          handle\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ProductCard on Product {\n    id\n    title\n    handle\n    vendor\n    publishedAt\n    options {\n      name\n      values\n    }\n    variants(first: 1) {\n      nodes {\n        id\n        availableForSale\n        image {\n          url\n          width\n          height\n          altText\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        selectedOptions {\n          name\n          value\n        }\n        product {\n          title\n          handle\n        }\n      }\n    }\n  }\n\n': {
     return: CollectionDetailsQuery;
     variables: CollectionDetailsQueryVariables;
   };
