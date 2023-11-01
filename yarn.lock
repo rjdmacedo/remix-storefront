@@ -3838,6 +3838,11 @@
     "@remix-run/router" "1.7.2"
     react-router-dom "6.14.2"
 
+"@remix-run/router@1.11.0":
+  version "1.11.0"
+  resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.11.0.tgz#e0e45ac3fff9d8a126916f166809825537e9f955"
+  integrity sha512-BHdhcWgeiudl91HvVa2wxqZjSHbheSgIiDvxrF1VjFzBzpTtuDPkOdOi3Iqvc08kXtFkLjhbS+ML9aM8mJS+wQ==
+
 "@remix-run/router@1.7.2":
   version "1.7.2"
   resolved "https://registry.yarnpkg.com/@remix-run/router/-/router-1.7.2.tgz#cba1cf0a04bc04cb66027c51fa600e9cbc388bc8"
@@ -3849,6 +3854,18 @@
   integrity sha512-sRTx/Ibl8HSLGhEr73YTZz3GzO5eZRCusfSJ8MBh1Kq0Mo571W9g4AJ/qJsF3G/wKTKxU2n75MVo0nIfTh4oZQ==
   dependencies:
     "@remix-run/router" "1.7.2"
+    "@types/cookie" "^0.4.1"
+    "@web3-storage/multipart-parser" "^1.0.0"
+    cookie "^0.4.1"
+    set-cookie-parser "^2.4.8"
+    source-map "^0.7.3"
+
+"@remix-run/server-runtime@^2.1.0":
+  version "2.2.0"
+  resolved "https://registry.yarnpkg.com/@remix-run/server-runtime/-/server-runtime-2.2.0.tgz#1c1b2ec4d6292b43987cef8edf38ea8785468308"
+  integrity sha512-+FiQy/Y6yqakkP2dRMhyf47fEvO2Pbu5aHCknUC9GKuzvDSbR5z65lB/rlRYUg1f8OBY46b7AMVG46qM+tRxeQ==
+  dependencies:
+    "@remix-run/router" "1.11.0"
     "@types/cookie" "^0.4.1"
     "@web3-storage/multipart-parser" "^1.0.0"
     cookie "^0.4.1"
@@ -3873,7 +3890,7 @@
   resolved "https://registry.yarnpkg.com/@rushstack/eslint-patch/-/eslint-patch-1.3.3.tgz#16ab6c727d8c2020a5b6e4a176a243ecd88d8d69"
   integrity sha512-0xd7qez0AQ+MbHatZTlI1gu5vkG8r7MYRUJAHPAHJBmGLs16zpkrpAVLvjQKQOqaXPDUBwOiJzNc00znHSCVBw==
 
-"@shopify/cli-hydrogen@^5.4.1":
+"@shopify/cli-hydrogen@^5.5.0":
   version "5.5.1"
   resolved "https://registry.yarnpkg.com/@shopify/cli-hydrogen/-/cli-hydrogen-5.5.1.tgz#9cc09f3bf0fd49cafe6f23abc467faefd1ae7c8a"
   integrity sha512-TrrA4vGKcWKZpKrocRG0+0sKXZUlg7GCAa2Tp1E3Sppty4RpovMRZuVfXSgOV64I5rg75z20V7z7mbpWwgj2Jg==
@@ -4148,10 +4165,10 @@
     "@graphql-codegen/typescript" "^3.0.1"
     "@graphql-codegen/typescript-operations" "^3.0.1"
 
-"@shopify/hydrogen-react@2023.7.4":
-  version "2023.7.4"
-  resolved "https://registry.yarnpkg.com/@shopify/hydrogen-react/-/hydrogen-react-2023.7.4.tgz#1de07dc9bee08b073bf8908ea1c99a839da8ec4b"
-  integrity sha512-GuiZ6ZIjcykr+DSwO90Q0/soNC6X4nVQh90sQJMInAwecveMbsbaHlTVWDVdgnauc8+YQuo4ZeelQrFGBSWfOA==
+"@shopify/hydrogen-react@2023.7.5":
+  version "2023.7.5"
+  resolved "https://registry.yarnpkg.com/@shopify/hydrogen-react/-/hydrogen-react-2023.7.5.tgz#20d615210c586b09903867322c20863e5faea08a"
+  integrity sha512-2eR75mnZq5v1LLerp9WUFRSIay3OLWakqgI+zpz7ikur16chHfGepb2BnI5UYXkZNLPk9yMUKBOGb/62o1t7gA==
   dependencies:
     "@google/model-viewer" "^1.12.1"
     "@xstate/fsm" "^2.0.0"
@@ -4160,14 +4177,13 @@
     type-fest "^3.6.0"
     worktop "^0.7.3"
 
-"@shopify/hydrogen@2023.7.10":
-  version "2023.7.10"
-  resolved "https://registry.yarnpkg.com/@shopify/hydrogen/-/hydrogen-2023.7.10.tgz#5fe10c5383a16c96b8c5c8949121b0faf37d766a"
-  integrity sha512-NMtTn3LtVLWaKzOcrBnjWelgIr1NTnRV2uVDVvZdLJRpl5mKG6kpoC5aPEE12dguidBWRFm3QboGqzMItxOlBQ==
+"@shopify/hydrogen@2023.7.12":
+  version "2023.7.12"
+  resolved "https://registry.yarnpkg.com/@shopify/hydrogen/-/hydrogen-2023.7.12.tgz#66823782e471589ac9871deaa02f75a5a0f9c5a7"
+  integrity sha512-8m0K0dlQljrG7get2evKhGBkV2fA95KsPbl3oSOHnnRrAczZZqM+Ae+QS2YK/VsUwIZLsuY8mEzY/fv+0wCDBg==
   dependencies:
-    "@shopify/hydrogen-react" "2023.7.4"
+    "@shopify/hydrogen-react" "2023.7.5"
     content-security-policy-builder "^2.1.1"
-    react "^18.2.0"
 
 "@shopify/mini-oxygen@^2.2.3":
   version "2.2.3"
@@ -4220,12 +4236,12 @@
   resolved "https://registry.yarnpkg.com/@shopify/prettier-config/-/prettier-config-1.1.2.tgz#612f87c0cd1196e8b43c85425e587d0fa7f1172d"
   integrity sha512-5ugCL9sPGzmOaZjeRGaWUWhHgAbemrS6z+R7v6gwiD+BiqSeoFhIY+imLpfdFCVpuOGalpHeCv6o3gv++EHs0A==
 
-"@shopify/remix-oxygen@^1.1.5":
-  version "1.1.8"
-  resolved "https://registry.yarnpkg.com/@shopify/remix-oxygen/-/remix-oxygen-1.1.8.tgz#2174511eda314ac668f5072fda3c280512fa8658"
-  integrity sha512-Ggs6Msx3JB7O2J3jKPHicPFYV6oVQiWmPGo26cmGB+9+G73AwptlNVezAkt2U9b+ZdkZQD22p08jqN5egVXcRA==
+"@shopify/remix-oxygen@^2.0.0":
+  version "2.0.0"
+  resolved "https://registry.yarnpkg.com/@shopify/remix-oxygen/-/remix-oxygen-2.0.0.tgz#2788f362f35e2200d857c8811fbadc201beae741"
+  integrity sha512-Ki5G7zCa1xBNp3q6Axl/kQgAgE1vuP3bfTPjNgD37l57uTGSPuANThM4mvJrgOslJKmWY2ew8MO12s7Kt88ukw==
   dependencies:
-    "@remix-run/server-runtime" "1.19.1"
+    "@remix-run/server-runtime" "^2.1.0"
 
 "@sigstore/bundle@^1.1.0":
   version "1.1.0"
@@ -13815,6 +13831,11 @@ text-table@^0.2.0, text-table@~0.2.0:
   resolved "https://registry.yarnpkg.com/text-table/-/text-table-0.2.0.tgz#7f5ee823ae805207c00af2df4a84ec3fcfa570b4"
   integrity sha512-N+8UisAXDGk8PFXP4HAzVR9nbfmVJ3zYLAWiTIoqC5v5isinhr+r5uaO8+7r3BMfuNIufIsA7RdpVgacC2cSpw==
 
+textr@^0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/textr/-/textr-0.3.0.tgz#717361286962ac8df36b7a2619fb773a15b9b7f7"
+  integrity sha512-yQrF3w9ThyNvyJjkpFTwBpsVxRQ4870xHg2fue1xeK1J1EZIx5cV7XPW6Fwi/XNC0du/3t9CNWZvlHUfCxPpPg==
+
 thenify-all@^1.0.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/thenify-all/-/thenify-all-1.6.0.tgz#1a1918d402d8fc3f98fbf234db0bcc8cc10e9726"
@@ -14144,6 +14165,105 @@ typescript@^5.1.6:
   version "5.2.2"
   resolved "https://registry.yarnpkg.com/typescript/-/typescript-5.2.2.tgz#5ebb5e5a5b75f085f22bc3f8460fba308310fa78"
   integrity sha512-mI4WrpHsbCIcwT9cF4FZvr80QUeKvsUsUvKDoR+X/7XHQH98xYD8YHZg7ANtz2GtZt/CBq2QJ0thkGJMHfqc1w==
+
+typographic-apostrophes-for-possessive-plurals@^1.0.5:
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/typographic-apostrophes-for-possessive-plurals/-/typographic-apostrophes-for-possessive-plurals-1.0.5.tgz#ca31b6f3d27ba800d6902d62fba29b548f639b99"
+  integrity sha512-sBUA/sFTAFFjd/ey9Xtld1cq2fXCZJ0tQHmlDovttMC9D1WJDOt2f49b9DxA0Yk2iK3yoDFm0HQAs/mKO24sDg==
+
+typographic-apostrophes@^1.1.1:
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/typographic-apostrophes/-/typographic-apostrophes-1.1.1.tgz#bc6905eb949048a736fa8399f8b90aafa8894787"
+  integrity sha512-3/05j0vg9osPy4whnihGaudPLwNxuyczO3AYmsVeLUBUq/aKhbSfbjVPx1VzV7Rwpkbl0vf9qOwOLP6CgfRWZg==
+
+typographic-arrows@^1.0.0:
+  version "1.0.3"
+  resolved "https://registry.yarnpkg.com/typographic-arrows/-/typographic-arrows-1.0.3.tgz#fdd4692ce660024b42fd1605100c34337380c925"
+  integrity sha512-RlmhHjxOSQ9QjWQbdHFPb+B54hVQLxwWvbO+liqy5NN0naLUzqnZumYH3V/RrR9Xf6cpAZvxKdmwYzpozlx2Ug==
+
+typographic-base@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/typographic-base/-/typographic-base-1.0.4.tgz#8bb74e8e3262401915c5bd2d6b5d520bd2d15697"
+  integrity sha512-R2ABy+ohOfZAKumZkkTmP11NWqj0AG7nZg3yyvnuzzl+D0GL9Gu8jO2+D/oAD+04z+/z0AesMO/rncBooHUs7g==
+  dependencies:
+    textr "^0.3.0"
+    typographic-apostrophes "^1.1.1"
+    typographic-apostrophes-for-possessive-plurals "^1.0.5"
+    typographic-arrows "^1.0.0"
+    typographic-copyright "^1.0.1"
+    typographic-currency "^1.1.0"
+    typographic-ellipses "^1.0.11"
+    typographic-em-dashes "^1.0.2"
+    typographic-en-dashes "^1.0.1"
+    typographic-math-symbols "^1.1.5"
+    typographic-quotes "^1.2.1"
+    typographic-registered-trademark "^1.0.1"
+    typographic-single-spaces "^1.0.2"
+    typographic-trademark "^1.0.1"
+
+typographic-copyright@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/typographic-copyright/-/typographic-copyright-1.0.1.tgz#4c4a0b6d7dba271c29b741f204002f4c6d4b00c0"
+  integrity sha512-DSx9fojOVoBhtYw5Zh0r9ShFWgjuMwUH615l21OXDbi3m2Fl/bBT5yMoZjbZzuJ51kiF66CnTTfJP5Zu5zVZMg==
+
+typographic-currency-db@1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/typographic-currency-db/-/typographic-currency-db-1.0.0.tgz#32f8a6daf0c91209a641360fdaa69ce54fed0c67"
+  integrity sha512-jWu0u9P4mmpZ+e62f/GHrSKUpwS4WmNxGsSI3ZrZZYmfJlmtjA+WkIt+RvpmM0H8ZzyyFzOYRifV5UbxoeTcAw==
+
+typographic-currency@^1.1.0:
+  version "1.1.2"
+  resolved "https://registry.yarnpkg.com/typographic-currency/-/typographic-currency-1.1.2.tgz#cec5f4763c13c608b0494d85f70f42d69026da40"
+  integrity sha512-adlN4VO5DwYSx2kxfj1AMmx+FGHn6ShFS3qip0Q3VwBD7tSENE4XUbs22b9hlK9g4thw8mZsLyXS3ca799gYhQ==
+  dependencies:
+    typographic-currency-db "1.0.0"
+
+typographic-ellipses@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/typographic-ellipses/-/typographic-ellipses-1.0.11.tgz#a69143b4b8c5611dd3a669b7c3052603e8a69487"
+  integrity sha512-TN83hcvDfvPFxqyWTe4ascexSj1wxuzafnXrLS7cZZq5ZEeHYQPE4UXP15mZnsNg71ysnOJxdNXWckxqeTVMAQ==
+
+typographic-em-dashes@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/typographic-em-dashes/-/typographic-em-dashes-1.0.2.tgz#754cafb1b0be64713ed2f0d3f32d7d9a64feb1a5"
+  integrity sha512-9aCk1Crubx0YCWsj2PJCD7PIIpx6dBdyOogPL5lOQuH2gIyZtSMp7OGt7SCcpn0BxbToIal2t38SnSOhsagU9A==
+
+typographic-en-dashes@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/typographic-en-dashes/-/typographic-en-dashes-1.0.1.tgz#a37739fdc43ed38c351bbf70a80c2503ccb022e0"
+  integrity sha512-/Zaf64q0tCJZ4yxAbBVUmogPB1pV2upiQ6v3aU3kvU+HxEC8szXmRFA6wDTUkAP6YVrnDYgHlUaLzUvKcFUSiw==
+
+typographic-math-symbols@^1.1.5:
+  version "1.1.5"
+  resolved "https://registry.yarnpkg.com/typographic-math-symbols/-/typographic-math-symbols-1.1.5.tgz#56f756c6e5cb3d6d3ab2172e49d91e823028de4e"
+  integrity sha512-GBYbJzZbERHZJ9eflsqFQMfZDBJGCkguMXVbWerG1PkyndNFOA6fYR1H+jUh9JSobr7ir/C92QJ+7LrcBsAbVw==
+
+typographic-quotes-l10n-db@^1.0.0:
+  version "1.0.0"
+  resolved "https://registry.yarnpkg.com/typographic-quotes-l10n-db/-/typographic-quotes-l10n-db-1.0.0.tgz#1304d2fa95ac71fec3efd8327834ee49b013b254"
+  integrity sha512-E9/XSBJWtmax9XkFlLwqbNW5wNFBbLhL2CDYShmQ/Kw87wL9TwKU36j8SON7Ro0K2GF+RjfcYb/SdUN3XqZkvg==
+
+typographic-quotes@^1.2.1:
+  version "1.2.2"
+  resolved "https://registry.yarnpkg.com/typographic-quotes/-/typographic-quotes-1.2.2.tgz#906e28dba2b13062d29b57f10ac931472080e062"
+  integrity sha512-rdbJx2ho7ovckr+Yd+zccU3UnTyS0U+lwEzBl0FoMMECewQn7ZM0tLMBWPEvOOHPHCiYaP2C0Wx9Lq1F+Ou8yg==
+  dependencies:
+    typographic-quotes-l10n-db "^1.0.0"
+
+typographic-registered-trademark@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/typographic-registered-trademark/-/typographic-registered-trademark-1.0.1.tgz#1830b693bf782cfc23560ec80d61a2672a98c8dd"
+  integrity sha512-pxjY5hicdCH+VPEzqgoYlQD9ZXMqaJZgOLrAweIzBl19hs6SLLdf8CD0kXF6jv9s4QRCjTl/uiaoVkid6paI9Q==
+
+typographic-single-spaces@^1.0.2:
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/typographic-single-spaces/-/typographic-single-spaces-1.0.2.tgz#82c3115437db6ddb2e17aef55494dd907e941f7f"
+  integrity sha512-OTfrg6zmAx2XXaaXywdFfFIJ/w2e2/DZdRwBK+IqJHjEEzN0C1QtQ7kkOCW/Rdf04S1K639Wcb3y5OPVlP4zew==
+
+typographic-trademark@^1.0.1:
+  version "1.0.1"
+  resolved "https://registry.yarnpkg.com/typographic-trademark/-/typographic-trademark-1.0.1.tgz#573165bc6f50307e6ec758832677483377844580"
+  integrity sha512-d+vFEiagUVltY/cFD2wzATb1YZvOvx+SmxHtCq1QLc22mImkpAccOD826d6eRCUFx75eGhsE3nWjNKOsis2Ibg==
 
 ua-parser-js@^1.0.35:
   version "1.0.35"

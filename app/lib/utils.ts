@@ -1,10 +1,10 @@
 import {twMerge} from 'tailwind-merge';
 import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
-import typographicBase from 'typographic-base';
 import type {ClassValue} from 'clsx';
 import clsx from 'clsx';
 import {useLocation, useMatches} from '@remix-run/react';
 import type React from 'react';
+import typographicBase from 'typographic-base';
 
 import type {
   MenuFragment,
@@ -344,3 +344,5 @@ export function isLocalPath(url: string) {
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
+
+export class getCartId {}
