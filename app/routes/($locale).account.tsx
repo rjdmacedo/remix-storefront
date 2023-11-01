@@ -89,7 +89,7 @@ export async function loader({request, context, params}: LoaderArgs) {
   const isAccountPage = /^\/account\/?$/.test(pathname);
 
   const customerAccessToken = await context.session.get(CUSTOMER_ACCESS_TOKEN);
-  const isAuthenticated = Boolean(customerAccessToken);
+  const isAuthenticated = !!customerAccessToken;
 
   if (!isAuthenticated) {
     if (isAccountPage) {
