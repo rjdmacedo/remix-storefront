@@ -3,7 +3,7 @@ import React, {useState} from 'react';
 import {json, redirect} from '@shopify/remix-oxygen';
 import type {DataFunctionArgs} from '@shopify/remix-oxygen';
 import {ExclamationTriangleIcon} from '@radix-ui/react-icons';
-import {Form, useActionData, type V2_MetaFunction} from '@remix-run/react';
+import {Form, useActionData, type MetaFunction} from '@remix-run/react';
 import {EyeIcon, EyeSlashIcon} from '@heroicons/react/24/outline';
 
 import {passwordSchema} from '~/lib/validation/user';
@@ -31,7 +31,7 @@ const ResetFormSchema = z
 
 type FormData = z.infer<typeof ResetFormSchema>;
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [{title: 'Reset Password'}];
 };
 
@@ -89,7 +89,7 @@ export async function action({
 
     session.set(CUSTOMER_ACCESS_TOKEN, accessToken);
 
-    return redirect(locale ? `${locale}/account` : '/account', {
+    return redirect(locale ? `${locale}/account/profile` : '/account/profile', {
       headers: {
         'Set-Cookie': await session.commit(),
       },

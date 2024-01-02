@@ -2,9 +2,9 @@
 /// <reference types="@shopify/remix-oxygen" />
 /// <reference types="@shopify/oxygen-workers-types" />
 
-import type {HydrogenCart} from '@shopify/hydrogen';
+import {HydrogenSession} from '~/lib/hydrogen.server';
 import type {Storefront} from '~/lib/type';
-import type {HydrogenSession} from '~/lib/session.server';
+import type {HydrogenCart} from '@shopify/hydrogen';
 
 declare global {
   /**
@@ -29,11 +29,11 @@ declare module '@shopify/remix-oxygen' {
    * Declare local additions to the Remix loader context.
    */
   export interface AppLoadContext {
-    waitUntil: ExecutionContext['waitUntil'];
-    session: HydrogenSession;
-    storefront: Storefront;
-    cart: HydrogenCart;
     env: Env;
+    cart: HydrogenCart;
+    session: HydrogenSession;
+    waitUntil: ExecutionContext['waitUntil'];
+    storefront: Storefront;
   }
 
   /**

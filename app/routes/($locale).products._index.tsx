@@ -1,6 +1,6 @@
 import invariant from 'tiny-invariant';
 import {useLoaderData} from '@remix-run/react';
-import {json, type LoaderArgs} from '@shopify/remix-oxygen';
+import {json, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {Pagination, getPaginationVariables} from '@shopify/hydrogen';
 
 import {cn} from '~/lib/utils';
@@ -17,7 +17,10 @@ const PAGE_BY = 8;
 
 export const headers = routeHeaders;
 
-export async function loader({request, context: {storefront}}: LoaderArgs) {
+export async function loader({
+  request,
+  context: {storefront},
+}: LoaderFunctionArgs) {
   const variables = getPaginationVariables(request, {pageBy: PAGE_BY});
 
   const data = await storefront.query<AllProductsQuery>(ALL_PRODUCTS_QUERY, {
@@ -60,37 +63,35 @@ export default function AllProducts() {
   return (
     <>
       <PageHeader heading="All Products" />
+
       <Section>
         <Pagination connection={products}>
-          {({nodes, isLoading, NextLink, PreviousLink}) => {
-            const itemsMarkup = nodes.map((product, idx) => (
-              <ProductCard
-                key={product.id}
-                product={product}
-                loading={getImageLoadingPriority(idx)}
-              />
-            ));
+          {({nodes, isLoading, NextLink, PreviousLink}) => (
+            <>
+              <div className="mb-6 flex items-center justify-center">
+                <PreviousLink className={cn(buttonVariants(), 'block w-full')}>
+                  {isLoading ? 'Loading...' : 'Previous'}
+                </PreviousLink>
+              </div>
 
-            return (
-              <>
-                <div className="mb-6 flex items-center justify-center">
-                  <PreviousLink
-                    className={cn(buttonVariants(), 'block w-full')}
-                  >
-                    {isLoading ? 'Loading...' : 'Previous'}
-                  </PreviousLink>
-                </div>
+              <Grid data-test="product-grid">
+                {nodes.map((product, idx) => (
+                  <ProductCard
+                    key={product.id}
+                    product={product}
+                    quickAdd
+                    loading={getImageLoadingPriority(idx)}
+                  />
+                ))}
+              </Grid>
 
-                <Grid data-test="product-grid">{itemsMarkup}</Grid>
-
-                <div className="mt-6 flex items-center justify-center">
-                  <NextLink className={cn(buttonVariants(), 'block w-full')}>
-                    {isLoading ? 'Loading...' : 'Next'}
-                  </NextLink>
-                </div>
-              </>
-            );
-          }}
+              <div className="mt-6 flex items-center justify-center">
+                <NextLink className={cn(buttonVariants(), 'block w-full')}>
+                  {isLoading ? 'Loading...' : 'Next'}
+                </NextLink>
+              </div>
+            </>
+          )}
         </Pagination>
       </Section>
     </>

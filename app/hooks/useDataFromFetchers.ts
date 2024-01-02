@@ -15,7 +15,7 @@ import {useFetchers} from '@remix-run/react';
  *   useDataFromFetchers
  * } from '@shopify/hydrogen';
  *
- * export async function action({request, context}: ActionArgs) {
+ * export async function action({request, context}: ActionFunctionArgs) {
  *   const cartId = await session.get('cartId');
  *   ...
  *   return json({

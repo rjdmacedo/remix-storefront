@@ -1,8 +1,8 @@
 // Inspired by react-hot-toast library
 import * as React from 'react';
 
-import {Typography} from '~/components/ui';
-import type {ToastActionElement, ToastProps} from '~/components/ui';
+import {useRootLoaderData} from '~/root';
+import type {ToastActionElement, ToastProps} from '~/components/ui/toast';
 
 const TOAST_LIMIT = 1;
 const TOAST_REMOVE_DELAY = 1000000;
@@ -10,8 +10,8 @@ const TOAST_REMOVE_DELAY = 1000000;
 type ToasterToast = ToastProps & {
   id: string;
   title?: React.ReactNode;
-  action?: ToastActionElement;
   description?: React.ReactNode;
+  action?: ToastActionElement;
 };
 
 const actionTypes = {
@@ -24,7 +24,7 @@ const actionTypes = {
 let count = 0;
 
 function genId() {
-  count = (count + 1) % Number.MAX_VALUE;
+  count = (count + 1) % Number.MAX_SAFE_INTEGER;
   return count.toString();
 }
 
@@ -144,11 +144,7 @@ function toast({...props}: Toast) {
   const update = (props: ToasterToast) =>
     dispatch({
       type: 'UPDATE_TOAST',
-      toast: {
-        ...props,
-        id,
-        description: <Typography.Text>{props.description}</Typography.Text>,
-      },
+      toast: {...props, id},
     });
   const dismiss = () => dispatch({type: 'DISMISS_TOAST', toastId: id});
 
@@ -166,13 +162,25 @@ function toast({...props}: Toast) {
 
   return {
     id,
-    update,
     dismiss,
+    update,
   };
 }
 
 function useToast() {
+  const rootData = useRootLoaderData();
+
   const [state, setState] = React.useState<State>(memoryState);
+
+  React.useEffect(() => {
+    const toastMessage = rootData?.toast;
+    if (toastMessage) {
+      toast({
+        type: 'background',
+        description: toastMessage.message,
+      });
+    }
+  }, [rootData?.toast]);
 
   React.useEffect(() => {
     listeners.push(setState);

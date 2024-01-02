@@ -1,27 +1,34 @@
-import React, {useState} from 'react';
-import type {DataFunctionArgs} from '@shopify/remix-oxygen';
 import * as z from 'zod';
-import {json, redirect} from '@shopify/remix-oxygen';
 import invariant from 'tiny-invariant';
-import type {V2_MetaFunction} from '@remix-run/react';
+import {json} from '@shopify/remix-oxygen';
+import React, {useState} from 'react';
+import type {MetaFunction} from '@remix-run/react';
 import {Form, useActionData} from '@remix-run/react';
+import type {DataFunctionArgs, LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {ExclamationTriangleIcon} from '@radix-ui/react-icons';
+import {EyeIcon, EyeSlashIcon} from '@heroicons/react/24/outline';
 
 import {
   Alert,
-  AlertDescription,
-  AlertTitle,
-  Button,
   Input,
   Label,
+  Button,
   Separator,
+  AlertTitle,
   Typography,
+  AlertDescription,
 } from '~/components/ui';
+import {
+  getCustomer,
+  CUSTOMER_UPDATE_MUTATION,
+} from '~/routes/($locale).account';
+import {doLogin} from '~/routes/($locale).login';
+import {routeHeaders} from '~/data/cache';
 import {passwordSchema} from '~/lib/validation/user';
 import {preprocessFormData} from '~/lib/forms';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
-import {getCustomer} from '~/routes/($locale).account';
-import {doLogin} from '~/routes/($locale).account.login';
+import {requireLoggedInUser} from '~/lib/utils';
+import {redirectWithSuccess} from '~/lib/toast.server';
 
 import type {CustomerUpdateMutation} from '../../storefrontapi.generated';
 
@@ -29,36 +36,19 @@ export const handle = {
   accountChild: true,
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [{title: 'Change Password'}];
 };
 
-const PasswordResetFormSchema = z
-  .object({
-    currentPassword: passwordSchema,
-    newPassword: passwordSchema,
-    newPasswordConfirm: passwordSchema,
-  })
-  .refine((data) => data.newPassword === data.newPasswordConfirm, {
-    path: ['newPasswordConfirm'],
-    message: 'Passwords do not match',
+export const headers = routeHeaders;
+
+export async function loader({params, context}: LoaderFunctionArgs) {
+  await requireLoggedInUser(context, {
+    locale: params.locale,
+    redirectTo: '/account/security',
   });
 
-type FormData = z.infer<typeof PasswordResetFormSchema>;
-
-export async function loader({params, context}: DataFunctionArgs) {
-  const locale = params.locale;
-
-  const loginPath = locale ? `/${locale}/account/login` : '/account/login';
-
-  const customerAccessToken = await context.session.get(CUSTOMER_ACCESS_TOKEN);
-  const isAuthenticated = Boolean(customerAccessToken);
-
-  if (!isAuthenticated) {
-    return redirect(loginPath);
-  }
-
-  return json({});
+  return json(null);
 }
 
 export async function action({request, context, params}: DataFunctionArgs) {
@@ -109,13 +99,15 @@ export async function action({request, context, params}: DataFunctionArgs) {
       },
     );
 
-    context.session.flash('success', 'Password updated successfully.');
-
-    return redirect(params?.locale ? `${params.locale}/account` : '/account', {
-      headers: {
-        'Set-Cookie': await context.session.commit(),
+    return redirectWithSuccess(
+      params?.locale ? `${params.locale}/account/profile` : '/account/profile',
+      'Password updated successfully',
+      {
+        headers: {
+          'Set-Cookie': await context.session.commit(),
+        },
       },
-    });
+    );
   } catch (error: any) {
     if (context.storefront.isApiError(error)) {
       return badRequest({
@@ -139,7 +131,7 @@ export async function action({request, context, params}: DataFunctionArgs) {
   }
 }
 
-export default function AccountSecurity() {
+export default function AccountSecurityPage() {
   return (
     <div className="space-y-6">
       <Typography.Title size="xl">Change Password</Typography.Title>
@@ -154,9 +146,11 @@ export default function AccountSecurity() {
   );
 }
 
-const ChangePasswordForm = () => {
+function ChangePasswordForm() {
   const actionData = useActionData<typeof action>();
-  const [eyeOpen, setEyeOpen] = useState(false);
+  const [newEyeOpen, setNewEyeOpen] = useState(false);
+  const [currEyeOpen, setCurrEyeOpen] = useState(false);
+  const [confirmEyeOpen, setConfirmEyeOpen] = useState(false);
 
   const formHasError = actionData?.status === 'error';
 
@@ -178,9 +172,24 @@ const ChangePasswordForm = () => {
           <div className="mt-2">
             <Input
               id="current-password"
-              type="password"
+              type={currEyeOpen ? 'text' : 'password'}
               name="currentPassword"
               autoComplete="current-password"
+              suffix={
+                <Button
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setCurrEyeOpen(!currEyeOpen)}
+                  className="h-6 w-6"
+                >
+                  {currEyeOpen ? (
+                    <EyeIcon className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <EyeSlashIcon className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </Button>
+              }
             />
             {actionData?.errors.fieldErrors.currentPassword && (
               <Typography.Text color="destructive" size="xs">
@@ -195,9 +204,24 @@ const ChangePasswordForm = () => {
           <div className="mt-2">
             <Input
               id="new-password"
-              type="password"
+              type={newEyeOpen ? 'text' : 'password'}
               name="newPassword"
               autoComplete="new-password"
+              suffix={
+                <Button
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setNewEyeOpen(!newEyeOpen)}
+                  className="h-6 w-6"
+                >
+                  {newEyeOpen ? (
+                    <EyeIcon className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <EyeSlashIcon className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </Button>
+              }
             />
           </div>
           {actionData?.errors.fieldErrors.newPasswordConfirm && (
@@ -212,9 +236,24 @@ const ChangePasswordForm = () => {
           <div className="mt-2">
             <Input
               id="confirm-password"
-              type="password"
+              type={confirmEyeOpen ? 'text' : 'password'}
               name="newPasswordConfirm"
               autoComplete="new-password"
+              suffix={
+                <Button
+                  size="icon"
+                  type="button"
+                  variant="ghost"
+                  onClick={() => setConfirmEyeOpen(!confirmEyeOpen)}
+                  className="h-6 w-6"
+                >
+                  {confirmEyeOpen ? (
+                    <EyeIcon className="h-4 w-4" aria-hidden="true" />
+                  ) : (
+                    <EyeSlashIcon className="h-4 w-4" aria-hidden="true" />
+                  )}
+                </Button>
+              }
             />
           </div>
         </div>
@@ -225,7 +264,7 @@ const ChangePasswordForm = () => {
       </div>
     </Form>
   );
-};
+}
 
 const badRequest = (data: z.typeToFlattenedError<FormData>) =>
   json(
@@ -239,14 +278,15 @@ const badRequest = (data: z.typeToFlattenedError<FormData>) =>
     {status: 400},
   );
 
-const CUSTOMER_UPDATE_MUTATION = `#graphql
-mutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {
-  customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {
-    customerUserErrors {
-      code
-      field
-      message
-    }
-  }
-}
-`;
+const PasswordResetFormSchema = z
+  .object({
+    currentPassword: passwordSchema,
+    newPassword: passwordSchema,
+    newPasswordConfirm: passwordSchema,
+  })
+  .refine((data) => data.newPassword === data.newPasswordConfirm, {
+    path: ['newPasswordConfirm'],
+    message: 'Passwords do not match',
+  });
+
+type FormData = z.infer<typeof PasswordResetFormSchema>;

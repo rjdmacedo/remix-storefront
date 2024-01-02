@@ -1,13 +1,13 @@
 import {
   json,
   redirect,
-  type ActionArgs,
-  type LoaderArgs,
+  type ActionFunctionArgs,
+  type LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
-import {Form, useActionData, type V2_MetaFunction} from '@remix-run/react';
 import * as z from 'zod';
 import React from 'react';
 import {ExclamationTriangleIcon} from '@radix-ui/react-icons';
+import {Form, useActionData, type MetaFunction} from '@remix-run/react';
 
 import {
   Input,
@@ -23,7 +23,7 @@ import {preprocessFormData} from '~/lib/forms';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
 import {emailSchema, passwordSchema} from '~/lib/validation/user';
 
-import {doLogin} from './($locale).account.login';
+import {doLogin} from './($locale).login';
 
 const RegisterFormSchema = z.object({
   email: emailSchema,
@@ -36,21 +36,23 @@ export const handle = {
   isPublic: true,
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [{title: 'Register'}];
 };
 
-export async function loader({context, params}: LoaderArgs) {
+export async function loader({context, params}: LoaderFunctionArgs) {
   const customerAccessToken = await context.session.get(CUSTOMER_ACCESS_TOKEN);
 
   if (customerAccessToken) {
-    return redirect(params.locale ? `${params.locale}/account` : '/account');
+    return redirect(
+      params.locale ? `${params.locale}/account/profile` : '/account/profile',
+    );
   }
 
   return new Response(null);
 }
 
-export async function action({request, context, params}: ActionArgs) {
+export async function action({request, context, params}: ActionFunctionArgs) {
   const formData = await request.clone().formData();
 
   const result = RegisterFormSchema.safeParse(
@@ -94,11 +96,14 @@ export async function action({request, context, params}: ActionArgs) {
     });
     session.set(CUSTOMER_ACCESS_TOKEN, customerAccessToken);
 
-    return redirect(params.locale ? `${params.locale}/account` : '/account', {
-      headers: {
-        'Set-Cookie': await session.commit(),
+    return redirect(
+      params.locale ? `${params.locale}/account/profile` : '/account/profile',
+      {
+        headers: {
+          'Set-Cookie': await session.commit(),
+        },
       },
-    });
+    );
   } catch (error: any) {
     if (storefront.isApiError(error)) {
       return badRequest({
@@ -171,8 +176,6 @@ export default function Register() {
               name="password"
               type="password"
               required
-              // eslint-disable-next-line jsx-a11y/no-autofocus
-              autoFocus
               autoComplete="current-password"
             />
             {actionData?.errors.fieldErrors.password && (
@@ -191,7 +194,7 @@ export default function Register() {
           <div className="mt-8 flex items-center border-t border-gray-300">
             <p className="mt-6 align-baseline text-sm">
               Already have an account? &nbsp;
-              <Link className="inline underline" to="/account/login">
+              <Link className="inline underline" to="/login">
                 Sign in
               </Link>
             </p>

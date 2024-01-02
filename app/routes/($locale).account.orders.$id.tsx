@@ -3,7 +3,7 @@ import invariant from 'tiny-invariant';
 import {json, redirect} from '@shopify/remix-oxygen';
 import type {DataFunctionArgs} from '@shopify/remix-oxygen';
 import {Money, Image, flattenConnection} from '@shopify/hydrogen';
-import {useLoaderData, type V2_MetaFunction} from '@remix-run/react';
+import {useLoaderData, type MetaFunction} from '@remix-run/react';
 
 import {
   Badge,
@@ -19,17 +19,19 @@ import {
 import {cn, statusMessage} from '~/lib/utils';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
 import {PRODUCT_VARIANT_FRAGMENT} from '~/data/fragments';
-import {Link, Heading, PageHeader, Text, Section} from '~/components';
+import {Link, Heading, PageHeader, Section} from '~/components';
 
 import type {CustomerOrderQuery} from '../../storefrontapi.generated';
 
-export const meta: V2_MetaFunction<typeof loader> = ({data}) => {
+export const meta: MetaFunction<typeof loader> = ({data}) => {
   return [{title: `Order ${data?.order?.name}`}];
 };
 
 export async function loader({request, context, params}: DataFunctionArgs) {
   if (!params.id) {
-    return redirect(params?.locale ? `${params.locale}/account` : '/account');
+    return redirect(
+      params?.locale ? `${params.locale}/account/profile` : '/account/profile',
+    );
   }
 
   const queryParams = new URL(request.url).searchParams;
@@ -40,9 +42,7 @@ export async function loader({request, context, params}: DataFunctionArgs) {
   const customerAccessToken = await context.session.get(CUSTOMER_ACCESS_TOKEN);
 
   if (!customerAccessToken) {
-    return redirect(
-      params.locale ? `${params.locale}/account/login` : '/account/login',
-    );
+    return redirect(params.locale ? `${params.locale}/login` : '/login');
   }
 
   const orderId = `gid://shopify/Order/${params.id}?key=${orderToken}`;

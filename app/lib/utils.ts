@@ -1,10 +1,10 @@
-import {twMerge} from 'tailwind-merge';
-import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
-import type {ClassValue} from 'clsx';
 import clsx from 'clsx';
-import {useLocation, useMatches} from '@remix-run/react';
+import {twMerge} from 'tailwind-merge';
 import type React from 'react';
+import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 import typographicBase from 'typographic-base';
+import type {ClassValue} from 'clsx';
+import type {AppLoadContext} from '@shopify/remix-oxygen';
 
 import type {
   MenuFragment,
@@ -12,6 +12,9 @@ import type {
   ParentMenuItemFragment,
 } from 'storefrontapi.generated';
 import {countries} from '~/data/countries';
+import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
+import {redirectWithError} from '~/lib/toast.server';
+import {getCustomer} from '~/routes/($locale).account';
 
 import type {I18nLocale} from './type';
 
@@ -86,13 +89,13 @@ export async function minDelay<T>(promise: Promise<T>, ms: number) {
 
 function resolveToFromType(
   {
-    type,
-    pathname,
     customPrefixes,
+    pathname,
+    type,
   }: {
-    type?: string;
-    pathname?: string;
     customPrefixes: Record<string, string>;
+    pathname?: string;
+    type?: string;
   } = {
     customPrefixes: {},
   },
@@ -304,21 +307,11 @@ export function getLocaleFromRequest(request: Request): I18nLocale {
       };
 }
 
-export function usePrefixPathWithLocale(path: string) {
-  const [root] = useMatches();
-  const selectedLocale = root.data?.selectedLocale ?? DEFAULT_LOCALE;
-
-  return `${selectedLocale.pathPrefix}${
-    path.startsWith('/') ? path : '/' + path
-  }`;
-}
-
-export function useIsHomePath() {
-  const {pathname} = useLocation();
-  const [root] = useMatches();
-  const selectedLocale = root.data?.selectedLocale ?? DEFAULT_LOCALE;
-  const strippedPathname = pathname.replace(selectedLocale.pathPrefix, '');
-  return strippedPathname === '/';
+export function parseAsCurrency(value: number, locale: I18nLocale) {
+  return new Intl.NumberFormat(locale.language + '-' + locale.country, {
+    style: 'currency',
+    currency: locale.currency,
+  }).format(value);
 }
 
 /**
@@ -345,4 +338,35 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-export class getCartId {}
+export async function requireLoggedInUser(
+  context: AppLoadContext,
+  {
+    locale,
+    redirectTo = '/',
+  }: {
+    locale?: string;
+    redirectTo?: string;
+  } = {},
+) {
+  try {
+    const token = await context.session.get(CUSTOMER_ACCESS_TOKEN);
+
+    if (!token) throw new Error('No token found');
+
+    return {
+      token: String(token),
+    };
+  } catch (error: any) {
+    context.session.unset(CUSTOMER_ACCESS_TOKEN);
+    const loginPath = locale ? `/${locale}/login` : '/login';
+    return redirectWithError(
+      loginPath + '?redirect=' + redirectTo,
+      error.message,
+      {
+        headers: {
+          'Set-Cookie': await context.session.commit(),
+        },
+      },
+    );
+  }
+}

@@ -22,7 +22,7 @@ export const themeSessionResolver = createThemeSessionResolver(themeStorage);
  * swap out the cookie-based implementation with something else!
  */
 export class HydrogenSession {
-  #session;
+  readonly #session;
   #sessionStorage;
 
   constructor(sessionStorage: SessionStorage, session: Session) {
@@ -33,7 +33,7 @@ export class HydrogenSession {
   static async init(request: Request, secrets: string[]) {
     const storage = createCookieSessionStorage({
       cookie: {
-        name: 'session',
+        name: '__session',
         httpOnly: true,
         path: '/',
         sameSite: 'lax',

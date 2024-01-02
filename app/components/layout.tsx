@@ -1,6 +1,5 @@
 import {
   Await,
-  useMatches,
   useFetcher,
   useNavigate,
   useLocation,
@@ -40,14 +39,10 @@ import {
   DropdownMenuContent,
   DropdownMenuSeparator,
 } from '~/components/ui';
-import {
-  cn,
-  useIsHomePath,
-  type EnhancedMenu,
-  type ChildEnhancedMenuItem,
-} from '~/lib/utils';
-import {useIsHydrated, useCartFetchers} from '~/hooks';
+import {cn, type EnhancedMenu, type ChildEnhancedMenuItem} from '~/lib/utils';
+import {useIsHydrated, useCartFetchers, useIsHomePath} from '~/hooks';
 import {type LayoutQuery} from 'storefrontapi.generated';
+import {useRootLoaderData} from '~/root';
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -80,15 +75,15 @@ export function Layout({children, layout}: LayoutProps) {
 }
 
 function Header({title, menu}: {title: string; menu?: EnhancedMenu}) {
-  const {isOpen: isCartOpen, openDrawer: openCart} = useDrawer();
+  const {isOpen: isCartDrawerOpen, openDrawer: openCartDrawer} = useDrawer();
 
   const addToCartFetchers = useCartFetchers('ADD_TO_CART');
 
   // toggle cart drawer when adding to cart
   React.useEffect(() => {
-    if (isCartOpen || !addToCartFetchers.length) return;
-    openCart();
-  }, [addToCartFetchers, isCartOpen, openCart]);
+    if (isCartDrawerOpen || !addToCartFetchers.length) return;
+    openCartDrawer();
+  }, [addToCartFetchers, isCartDrawerOpen, openCartDrawer]);
 
   return (
     <header className="supports-backdrop-blur:bg-background/60 sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur">
@@ -101,7 +96,7 @@ function Header({title, menu}: {title: string; menu?: EnhancedMenu}) {
           </div>
           <nav className="flex items-center space-x-2">
             <AccountLink />
-            <CartCount openCart={openCart} />
+            <CartCount openCartDrawer={openCartDrawer} />
           </nav>
         </div>
       </div>
@@ -229,10 +224,6 @@ function AvatarMenu() {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Avatar className="h-8 w-8">
-          <AvatarImage
-            src="https://github.com/rjdmacedo.png"
-            alt="@rjdmacedo"
-          />
           <AvatarFallback>RM</AvatarFallback>
         </Avatar>
       </DropdownMenuTrigger>
@@ -252,7 +243,7 @@ function AvatarMenu() {
           onSelect={() =>
             fetcher.submit(null, {
               method: 'post',
-              action: '/account/logout',
+              action: '/logout',
             })
           }
         >
@@ -264,14 +255,14 @@ function AvatarMenu() {
 }
 
 function AccountLink({className}: {className?: string}) {
-  const [root] = useMatches();
-  const isLoggedIn = root.data?.isLoggedIn;
+  const rootData = useRootLoaderData();
+  const isLoggedIn = rootData?.isLoggedIn;
 
   return isLoggedIn ? (
     <AvatarMenu />
   ) : (
     <Link
-      to={isLoggedIn ? '/account' : '/account/login'}
+      to="/account/profile"
       prefetch="intent"
       className={({isActive}) =>
         cn(
@@ -288,22 +279,33 @@ function AccountLink({className}: {className?: string}) {
   );
 }
 
-function CartCount({openCart}: {openCart: () => void}) {
-  const [root] = useMatches();
+function CartCount({openCartDrawer}: {openCartDrawer: () => void}) {
+  const rootData = useRootLoaderData();
 
   return (
-    <React.Suspense fallback={<CartBadge count={0} openCart={openCart} />}>
-      <Await resolve={root.data?.cart}>
+    <React.Suspense
+      fallback={<CartBadge count={0} openCartDrawer={openCartDrawer} />}
+    >
+      <Await resolve={rootData?.cart}>
         {(cart) => (
-          <CartBadge count={cart?.totalQuantity || 0} openCart={openCart} />
+          <CartBadge
+            count={cart?.totalQuantity || 0}
+            openCartDrawer={openCartDrawer}
+          />
         )}
       </Await>
     </React.Suspense>
   );
 }
 
-function CartBadge({count, openCart}: {count: number; openCart: () => void}) {
-  const locaion = useLocation();
+function CartBadge({
+  count,
+  openCartDrawer,
+}: {
+  count: number;
+  openCartDrawer: () => void;
+}) {
+  const location = useLocation();
   const isHydrated = useIsHydrated();
 
   const BadgeCounter = React.useMemo(
@@ -329,9 +331,9 @@ function CartBadge({count, openCart}: {count: number; openCart: () => void}) {
     <Button
       size="icon"
       variant="ghost"
-      onClick={openCart}
+      onClick={openCartDrawer}
       className={cn(
-        locaion.pathname === '/cart'
+        location.pathname === '/cart'
           ? 'text-foreground'
           : 'text-foreground/60 hover:text-foreground/80',
         'relative flex',

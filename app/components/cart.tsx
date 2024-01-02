@@ -304,12 +304,7 @@ function ItemRemoveButton({lineId}: {lineId: CartLine['id']}) {
       action={CartForm.ACTIONS.LinesRemove}
     >
       {(fetcher) => (
-        <Button
-          size="icon"
-          type="submit"
-          variant="outline"
-          disabled={fetcher.state !== 'idle'}
-        >
+        <Button size="icon" type="submit" variant="outline">
           <span className="sr-only">Remove</span>
           <IconRemove aria-hidden="true" />
         </Button>
@@ -343,7 +338,7 @@ function CartLineQuantityAdjust({line}: {line: CartLine}) {
               size="icon"
               value={prevQuantity}
               variant="outline"
-              disabled={optimisticQuantity <= 1 || busy}
+              disabled={optimisticQuantity <= 1}
               aria-label="Decrease quantity"
             >
               <span>&#8722;</span>
@@ -366,7 +361,6 @@ function CartLineQuantityAdjust({line}: {line: CartLine}) {
               size="icon"
               value={nextQuantity}
               variant="outline"
-              disabled={busy}
               aria-label="Increase quantity"
             >
               <span>&#43;</span>
@@ -459,7 +453,9 @@ function CartEmpty({
         </Typography.Text>
 
         <div>
-          <Button onClick={onClose}>Continue shopping</Button>
+          <Link to="/" className={buttonVariants({variant: 'default'})}>
+            Continue shopping
+          </Link>
         </div>
       </section>
       <section className="grid gap-8 pt-16">

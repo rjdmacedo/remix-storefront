@@ -2,7 +2,7 @@ import * as z from 'zod';
 import React from 'react';
 import {ExclamationTriangleIcon} from '@radix-ui/react-icons';
 import {json, redirect, type DataFunctionArgs} from '@shopify/remix-oxygen';
-import {Form, useActionData, type V2_MetaFunction} from '@remix-run/react';
+import {Form, useActionData, type MetaFunction} from '@remix-run/react';
 
 import {
   Input,
@@ -28,7 +28,7 @@ export const handle = {
   isPublic: true,
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [{title: 'Recover Password'}];
 };
 
@@ -36,7 +36,9 @@ export async function loader({context, params}: DataFunctionArgs) {
   const customerAccessToken = await context.session.get(CUSTOMER_ACCESS_TOKEN);
 
   if (customerAccessToken) {
-    return redirect(params.locale ? `${params.locale}/account` : '/account');
+    return redirect(
+      params.locale ? `${params.locale}/account/profile` : '/account/profile',
+    );
   }
 
   return new Response(null);
@@ -146,7 +148,7 @@ export default function Recover() {
                 <div className="mt-8 flex items-center border-t border-gray-300">
                   <p className="mt-6 align-baseline text-sm">
                     Return to &nbsp;
-                    <Link className="inline underline" to="/account/login">
+                    <Link className="inline underline" to="/login">
                       Login
                     </Link>
                   </p>

@@ -1,4 +1,4 @@
-import {redirect, type LoaderArgs} from '@shopify/remix-oxygen';
+import {redirect, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 
 /**
  * Automatically applies a discount found on the url
@@ -13,7 +13,7 @@ import {redirect, type LoaderArgs} from '@shopify/remix-oxygen';
  * ```
  * @preserve
  */
-export async function loader({request, context, params}: LoaderArgs) {
+export async function loader({request, context, params}: LoaderFunctionArgs) {
   const {code} = params;
   const {cart} = context;
 

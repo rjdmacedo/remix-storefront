@@ -13,18 +13,17 @@ import {
   CardContent,
   PopoverContent,
   PopoverTrigger,
-  DropdownMenuCheckboxItem,
   RadioGroup,
   RadioGroupItem,
   Label,
+  toast,
+  buttonVariants,
 } from '~/components/ui';
 import {AddToCartButton, Link} from '~/components';
 import {getProductPlaceholder} from '~/lib/placeholders';
-import type {
-  ProductCardFragment,
-  ProductVariantFragment,
-} from 'storefrontapi.generated';
+import type {ProductCardFragment} from 'storefrontapi.generated';
 import {cn, isDiscounted, isNewArrival} from '~/lib/utils';
+import type {loader} from '~/routes/($locale).api.selected-variant';
 
 export function ProductCard({
   label,
@@ -135,7 +134,7 @@ function ProductOptionsDropdownMenu({
   product: ProductCardFragment;
   options: Array<{name: string; values: string[]}>;
 }) {
-  const fetcher = useFetcher();
+  const fetcher = useFetcher<typeof loader>();
   const [open, setOpen] = React.useState(false);
   const [selectedOptions, setSelectedOptions] = React.useState<
     Record<string, string>
@@ -157,7 +156,10 @@ function ProductOptionsDropdownMenu({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedOptions]);
 
-  const variant = fetcher.data?.data?.variant as ProductVariantFragment;
+  const variant =
+    fetcher.data?.status === 'success'
+      ? fetcher.data?.data?.variant
+      : undefined;
   const isOutOfStock = variant?.availableForSale === false;
 
   return (
@@ -200,7 +202,20 @@ function ProductOptionsDropdownMenu({
         <AddToCartButton
           variant={isOutOfStock ? 'destructive' : 'default'}
           disabled={!variant || isOutOfStock}
-          onSuccess={() => setOpen(false)}
+          onSuccess={() => {
+            setOpen(false);
+            toast({
+              description: 'Added to cart!',
+              action: (
+                <Link
+                  to="/cart"
+                  className={cn(buttonVariants({variant: 'ghost'}))}
+                >
+                  View Cart
+                </Link>
+              ),
+            });
+          }}
           lines={[
             {
               quantity: 1,

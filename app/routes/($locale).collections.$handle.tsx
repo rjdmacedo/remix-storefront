@@ -1,107 +1,68 @@
+import React, {useEffect} from 'react';
+import {json, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {useLoaderData, useNavigate} from '@remix-run/react';
+import {useInView} from 'react-intersection-observer';
 import type {
   Filter,
   ProductCollectionSortKeys,
+  ProductFilter,
 } from '@shopify/hydrogen/storefront-api-types';
 import {
+  AnalyticsPageType,
   Pagination,
   flattenConnection,
-  AnalyticsPageType,
   getPaginationVariables,
 } from '@shopify/hydrogen';
-import React from 'react';
 import invariant from 'tiny-invariant';
-import {useLoaderData} from '@remix-run/react';
-import {json, type LoaderArgs} from '@shopify/remix-oxygen';
 
-import {seoPayload} from '~/lib/seo.server';
-import {routeHeaders} from '~/data/cache';
-import {Button, Typography} from '~/components/ui';
+import type {SortParam} from '~/components';
+import {
+  Grid,
+  Section,
+  PageHeader,
+  SortFilter,
+  ProductCard,
+  FILTER_URL_PREFIX,
+} from '~/components';
 import {PRODUCT_CARD_FRAGMENT} from '~/data/fragments';
+import {routeHeaders} from '~/data/cache';
+import {seoPayload} from '~/lib/seo.server';
 import {getImageLoadingPriority} from '~/lib/const';
-import type {AppliedFilter, SortParam} from '~/components/sort-filter';
-import {Grid, Section, PageHeader, SortFilter, ProductCard} from '~/components';
-
-import type {CollectionDetailsQuery} from '../../storefrontapi.generated';
+import {parseAsCurrency} from '~/lib/utils';
+import {Button, Typography} from '~/components/ui';
 
 export const headers = routeHeaders;
 
-type VariantFilterParam = Record<string, string | boolean>;
-type PriceFiltersQueryParam = Record<'price', {max?: number; min?: number}>;
-type VariantOptionFiltersQueryParam = Record<
-  'variantOption',
-  {name: string; value: string}
->;
-type FiltersQueryParams = Array<
-  VariantFilterParam | PriceFiltersQueryParam | VariantOptionFiltersQueryParam
->;
-
-export async function loader({params, request, context}: LoaderArgs) {
+export async function loader({params, request, context}: LoaderFunctionArgs) {
   const paginationVariables = getPaginationVariables(request, {
     pageBy: 8,
   });
   const {handle} = params;
+  const locale = context.storefront.i18n;
 
   invariant(handle, 'Missing "$handle" param');
-
-  const available = 'available';
-  const knownFilters = ['productVendor', 'productType'];
-  const variantOption = 'variantOption';
-
-  const filters: FiltersQueryParams = [];
-  const appliedFilters: AppliedFilter[] = [];
 
   const searchParams = new URL(request.url).searchParams;
 
   const {sortKey, reverse} = getSortValuesFromParam(
     searchParams.get('sort') as SortParam,
   );
+  const filters = [...searchParams.entries()].reduce(
+    (filters, [key, value]) => {
+      if (key.startsWith(FILTER_URL_PREFIX)) {
+        const filterKey = key.substring(FILTER_URL_PREFIX.length);
+        filters.push({
+          [filterKey]: JSON.parse(value),
+        });
+      }
+      return filters;
+    },
+    [] as ProductFilter[],
+  );
 
-  for (const [key, value] of searchParams.entries()) {
-    if (available === key) {
-      filters.push({available: value === 'true'});
-      appliedFilters.push({
-        label: value === 'true' ? 'In stock' : 'Out of stock',
-        urlParam: {
-          key: available,
-          value,
-        },
-      });
-    } else if (knownFilters.includes(key)) {
-      filters.push({[key]: value});
-      appliedFilters.push({label: value, urlParam: {key, value}});
-    } else if (key.includes(variantOption)) {
-      const [name, val] = value.split(':');
-      filters.push({variantOption: {name, value: val}});
-      appliedFilters.push({label: val, urlParam: {key, value}});
-    }
-  }
-
-  // Builds min and max price filter since we can't stack them separately into
-  // the filter array. See price filters limitations:
-  // https://shopify.dev/custom-storefronts/products-collections/filter-products#limitations
-  if (searchParams.has('minPrice') || searchParams.has('maxPrice')) {
-    const price: {min?: number; max?: number} = {};
-    if (searchParams.has('minPrice')) {
-      price.min = Number(searchParams.get('minPrice')) || 0;
-      appliedFilters.push({
-        label: `Min: $${price.min}`,
-        urlParam: {key: 'minPrice', value: searchParams.get('minPrice')!},
-      });
-    }
-    if (searchParams.has('maxPrice')) {
-      price.max = Number(searchParams.get('maxPrice')) || 0;
-      appliedFilters.push({
-        label: `Max: $${price.max}`,
-        urlParam: {key: 'maxPrice', value: searchParams.get('maxPrice')!},
-      });
-    }
-    filters.push({
-      price,
-    });
-  }
-
-  const {collection, collections} =
-    await context.storefront.query<CollectionDetailsQuery>(COLLECTION_QUERY, {
+  const {collection, collections} = await context.storefront.query(
+    COLLECTION_QUERY,
+    {
       variables: {
         ...paginationVariables,
         handle,
@@ -111,7 +72,8 @@ export async function loader({params, request, context}: LoaderArgs) {
         country: context.storefront.i18n.country,
         language: context.storefront.i18n.language,
       },
-    });
+    },
+  );
 
   if (!collection) {
     throw new Response('collection', {status: 404});
@@ -119,16 +81,63 @@ export async function loader({params, request, context}: LoaderArgs) {
 
   const seo = seoPayload.collection({collection, url: request.url});
 
+  const allFilterValues = collection.products.filters.flatMap(
+    (filter) => filter.values,
+  );
+
+  const appliedFilters = filters
+    .map((filter) => {
+      const foundValue = allFilterValues.find((value) => {
+        const valueInput = JSON.parse(value.input as string) as ProductFilter;
+        // special case for price, the user can enter something freeform (still a number, though)
+        // that may not make sense for the locale/currency.
+        // Basically just check if the price filter is applied at all.
+        if (valueInput.price && filter.price) {
+          return true;
+        }
+        return (
+          // This comparison should be okay as long as we're not manipulating the input we
+          // get from the API before using it as a URL param.
+          JSON.stringify(valueInput) === JSON.stringify(filter)
+        );
+      });
+      if (!foundValue) {
+        // eslint-disable-next-line no-console
+        console.error('Could not find filter value for filter', filter);
+        return null;
+      }
+
+      if (foundValue.id === 'filter.v.price') {
+        // Special case for price, we want to show the min and max values as the label.
+        const input = JSON.parse(foundValue.input as string) as ProductFilter;
+        const min = parseAsCurrency(input.price?.min ?? 0, locale);
+        const max = input.price?.max
+          ? parseAsCurrency(input.price.max, locale)
+          : '';
+        const label = min && max ? `${min} - ${max}` : 'Price';
+
+        return {
+          filter,
+          label,
+        };
+      }
+      return {
+        filter,
+        label: foundValue.label,
+      };
+    })
+    .filter((filter): filter is NonNullable<typeof filter> => filter !== null);
+
   return json({
-    seo,
+    collection,
+    appliedFilters,
+    collections: flattenConnection(collections),
     analytics: {
-      handle,
       pageType: AnalyticsPageType.collection,
       resourceId: collection.id,
+      collectionHandle: handle,
     },
-    collection,
-    collections: flattenConnection(collections),
-    appliedFilters,
+    seo,
   });
 }
 
@@ -136,11 +145,13 @@ export default function Collection() {
   const {collection, collections, appliedFilters} =
     useLoaderData<typeof loader>();
 
+  const {ref, inView} = useInView();
+
   return (
     <>
       <PageHeader heading={collection.title}>
         {collection?.description && (
-          <div className="flex w-full items-baseline justify-between">
+          <div className="flex items-baseline justify-between w-full">
             <div>
               <Typography.Text format spacing="tight" as="p">
                 {collection.description}
@@ -153,45 +164,37 @@ export default function Collection() {
       <Section>
         <SortFilter
           filters={collection.products.filters as Filter[]}
-          collections={collections}
           appliedFilters={appliedFilters}
+          collections={collections}
         >
           <Pagination connection={collection.products}>
             {({
               nodes,
-              NextLink,
               isLoading,
-              hasNextPage,
               PreviousLink,
-              hasPreviousPage,
+              NextLink,
+              nextPageUrl,
+              hasNextPage,
+              state,
             }) => (
               <>
-                {hasPreviousPage && (
-                  <div className="mb-6 flex items-center justify-center">
-                    <Button as={PreviousLink} className="w-full">
-                      {isLoading ? 'Loading...' : 'Load previous'}
-                    </Button>
-                  </div>
-                )}
-
-                <Grid layout="products">
-                  {nodes.map((product, i) => (
-                    <ProductCard
-                      key={product.id}
-                      product={product}
-                      loading={getImageLoadingPriority(i)}
-                      quickAdd
-                    />
-                  ))}
-                </Grid>
-
-                {hasNextPage && (
-                  <div className="mt-6 flex items-center justify-center">
-                    <Button as={NextLink} className="w-full">
-                      {isLoading ? 'Loading...' : 'Load more products'}
-                    </Button>
-                  </div>
-                )}
+                <div className="flex items-center justify-center mb-6">
+                  <Button as={PreviousLink} variant="secondary">
+                    {isLoading ? 'Loading...' : 'Load previous'}
+                  </Button>
+                </div>
+                <ProductsLoadedOnScroll
+                  nodes={nodes}
+                  inView={inView}
+                  nextPageUrl={nextPageUrl}
+                  hasNextPage={hasNextPage}
+                  state={state}
+                />
+                <div className="flex items-center justify-center mt-6">
+                  <Button ref={ref} as={NextLink} variant="secondary">
+                    {isLoading ? 'Loading...' : 'Load more products'}
+                  </Button>
+                </div>
               </>
             )}
           </Pagination>
@@ -201,75 +204,115 @@ export default function Collection() {
   );
 }
 
-const COLLECTION_QUERY = `#graphql
-  query CollectionDetails(
-    $last: Int
-    $first: Int
-    $handle: String!
-    $country: CountryCode
-    $reverse: Boolean
-    $filters: [ProductFilter!]
-    $sortKey: ProductCollectionSortKeys!
-    $language: LanguageCode
-    $endCursor: String
-    $startCursor: String
-  ) @inContext(country: $country, language: $language) {
-    collection(handle: $handle) {
-      id
-      title
-      handle
-      description
-      seo {
-        title
-        description
-      }
-      image {
-        id
-        url
-        width
-        height
-        altText
-      }
-      products(
-        last: $last,
-        first: $first,
-        after: $endCursor,
-        before: $startCursor,
-        filters: $filters,
-        sortKey: $sortKey,
-        reverse: $reverse
-      ) {
-        nodes {
-          ...ProductCard
-        }
-        filters {
-          id
-          type
-          label
-          values {
-            id
-            count
-            label
-            input
-          }
-        }
-        pageInfo {
-          hasPreviousPage
-          endCursor
-          startCursor
-        }
-      }
+function ProductsLoadedOnScroll({
+  nodes,
+  inView,
+  nextPageUrl,
+  hasNextPage,
+  state,
+}: {
+  nodes: any;
+  inView: boolean;
+  nextPageUrl: string;
+  hasNextPage: boolean;
+  state: any;
+}) {
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (inView && hasNextPage) {
+      navigate(nextPageUrl, {
+        replace: true,
+        preventScrollReset: true,
+        state,
+      });
     }
-    collections(first: 100) {
-      edges {
-        node {
-          title
-          handle
+  }, [inView, navigate, state, nextPageUrl, hasNextPage]);
+
+  return (
+    <Grid layout="products">
+      {nodes.map((product: any, i: number) => (
+        <ProductCard
+          key={product.id}
+          product={product}
+          loading={getImageLoadingPriority(i)}
+          quickAdd
+        />
+      ))}
+    </Grid>
+  );
+}
+
+const COLLECTION_QUERY = `#graphql
+query CollectionDetails(
+  $handle: String!
+  $country: CountryCode
+  $language: LanguageCode
+  $filters: [ProductFilter!]
+  $sortKey: ProductCollectionSortKeys!
+  $reverse: Boolean
+  $first: Int
+  $last: Int
+  $startCursor: String
+  $endCursor: String
+) @inContext(country: $country, language: $language) {
+  collection(handle: $handle) {
+    id
+    handle
+    title
+    description
+    seo {
+      description
+      title
+    }
+    image {
+      id
+      url
+      width
+      height
+      altText
+    }
+    products(
+      first: $first,
+      last: $last,
+      before: $startCursor,
+      after: $endCursor,
+      filters: $filters,
+      sortKey: $sortKey,
+      reverse: $reverse
+    ) {
+      filters {
+        id
+        label
+        type
+        values {
+          id
+          label
+          count
+          input
         }
+      }
+      nodes {
+        ...ProductCard
+      }
+      pageInfo {
+        hasPreviousPage
+        hasNextPage
+        endCursor
+        startCursor
       }
     }
   }
-  ${PRODUCT_CARD_FRAGMENT}
+  collections(first: 100) {
+    edges {
+      node {
+        title
+        handle
+      }
+    }
+  }
+}
+${PRODUCT_CARD_FRAGMENT}
 ` as const;
 
 function getSortValuesFromParam(sortParam: SortParam | null): {

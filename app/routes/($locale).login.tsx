@@ -2,13 +2,13 @@ import {
   Form,
   useActionData,
   useLoaderData,
-  type V2_MetaFunction,
+  type MetaFunction,
 } from '@remix-run/react';
-import {
-  json,
-  redirect,
-  type AppLoadContext,
-  type DataFunctionArgs,
+import {json, redirect} from '@shopify/remix-oxygen';
+import type {
+  AppLoadContext,
+  LoaderFunctionArgs,
+  ActionFunctionArgs,
 } from '@shopify/remix-oxygen';
 import * as z from 'zod';
 import React, {useState} from 'react';
@@ -23,15 +23,16 @@ import {
   AlertTitle,
   Typography,
   AlertDescription,
-  useToast,
 } from '~/components/ui';
 import {Link} from '~/components';
 import {preprocessFormData} from '~/lib/forms';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
 import {emailSchema, passwordSchema} from '~/lib/validation/user';
-import {useFlashMessages} from '~/hooks';
-
-import type {CustomerAccessTokenCreateMutation} from '../../storefrontapi.generated';
+import type {
+  ShopNameQuery,
+  CustomerAccessTokenCreateMutation,
+} from 'storefrontapi.generated';
+import {redirectWithSuccess} from '~/lib/toast.server';
 
 const LoginFormSchema = z.object({
   email: emailSchema,
@@ -44,25 +45,27 @@ export const handle = {
   isPublic: true,
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [{title: 'Login'}];
 };
 
-export async function loader({context, params}: DataFunctionArgs) {
-  const customerAccessToken = await context.session.get(CUSTOMER_ACCESS_TOKEN);
+export async function loader({context, params}: LoaderFunctionArgs) {
+  const token = await context.session.get(CUSTOMER_ACCESS_TOKEN);
 
-  if (customerAccessToken) {
-    return redirect(params.locale ? `${params.locale}/account` : '/account');
+  if (token) {
+    return redirect(
+      params.locale ? `${params.locale}/account/profile` : '/account/profile',
+    );
   }
 
-  const {shop} = await context.storefront.query(SHOP_QUERY, {
+  const {shop} = await context.storefront.query<ShopNameQuery>(SHOP_QUERY, {
     variables: {language: context.storefront.i18n.language},
   });
 
   return json({shopName: shop.name});
 }
 
-export async function action({request, context, params}: DataFunctionArgs) {
+export async function action({request, context, params}: ActionFunctionArgs) {
   const formData = await request.clone().formData();
 
   const result = LoginFormSchema.safeParse(
@@ -90,11 +93,14 @@ export async function action({request, context, params}: DataFunctionArgs) {
     });
     session.set(CUSTOMER_ACCESS_TOKEN, customerAccessToken);
 
-    return redirect(params.locale ? `/${params.locale}/account` : '/account', {
-      headers: {
-        'Set-Cookie': await session.commit(),
-      },
-    });
+    const {searchParams} = new URL(request.url);
+    const redirectTo = searchParams.get('redirect') || '/account/profile';
+
+    return redirectWithSuccess(
+      params.locale ? params.locale + redirectTo : redirectTo,
+      'You are now logged in.',
+      {headers: {'Set-Cookie': await session.commit()}},
+    );
   } catch (error: any) {
     if (storefront.isApiError(error)) {
       return badRequest({
@@ -117,36 +123,11 @@ export async function action({request, context, params}: DataFunctionArgs) {
 }
 
 export default function Login() {
-  const {toast} = useToast();
   const actionData = useActionData<typeof action>();
   const {shopName} = useLoaderData<typeof loader>();
-  const flashMessages = useFlashMessages();
   const [eyeOpen, setEyeOpen] = useState(false);
 
   const formHasError = actionData?.status === 'error';
-
-  if (Object.keys(flashMessages).length > 0) {
-    Object.entries(flashMessages).forEach(([type, message]) => {
-      let title = '';
-      switch (type) {
-        case 'info':
-          title = 'Info';
-          break;
-        case 'error':
-          title = 'Error';
-          break;
-        case 'success':
-          title = 'Success';
-          break;
-        default:
-          break;
-      }
-      toast({
-        title,
-        description: message,
-      });
-    });
-  }
 
   return (
     <div className="my-24 flex justify-center px-4">
@@ -228,14 +209,14 @@ export default function Login() {
             <p className="mt-6 align-baseline text-sm">
               <>
                 New to {shopName}? &nbsp;
-                <Link className="inline underline" to="/account/register">
+                <Link className="inline underline" to="/register">
                   Create an account
                 </Link>
               </>
             </p>
             <Link
+              to="/recover"
               className="mt-6 inline-block align-baseline text-sm text-primary/50"
-              to="/account/recover"
             >
               Forgot password
             </Link>

@@ -2,12 +2,10 @@ import {
   Form,
   useParams,
   useFetcher,
-  useMatches,
   useNavigate,
   useSearchParams,
 } from '@remix-run/react';
 import * as React from 'react';
-import type {MoneyV2} from '@shopify/hydrogen/dist/storefront-api-types';
 import {Theme, useTheme} from 'remix-themes';
 import {type DialogProps} from '@radix-ui/react-alert-dialog';
 import {flattenConnection} from '@shopify/hydrogen';
@@ -24,7 +22,9 @@ import {
   UserIcon,
   UserPlusIcon,
   CursorArrowRippleIcon,
+  ShoppingBagIcon,
 } from '@heroicons/react/24/outline';
+import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
 
 import {
   Input,
@@ -40,9 +40,9 @@ import {
   CommandSeparator,
 } from '~/components/ui';
 import type {loader} from '~/routes/($locale).search';
-import type {MenuFragment} from 'storefrontapi.generated';
 import {useDebounce, useIsHydrated} from '~/hooks';
 import {cn, isDiscounted, isNewArrival} from '~/lib/utils';
+import {useRootLoaderData} from '~/root';
 
 export function SiteSearch({...props}: DialogProps) {
   const isHydrated = useIsHydrated();
@@ -90,7 +90,7 @@ function SearchForm() {
 }
 
 function SearchMenu({...props}: DialogProps) {
-  const [root] = useMatches();
+  const rootData = useRootLoaderData();
   const fetcher = useFetcher<typeof loader>();
   const navigate = useNavigate();
   const [theme, setTheme] = useTheme();
@@ -100,8 +100,8 @@ function SearchMenu({...props}: DialogProps) {
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState('');
 
-  const menu = root.data?.layout?.heeader as MenuFragment;
-  const isLoggedIn: boolean = root.data?.isLoggedIn;
+  const menu = rootData?.layout?.header;
+  const isLoggedIn: boolean = rootData?.isLoggedIn;
 
   const products = flattenConnection(fetcher.data?.products) || [];
 
@@ -179,10 +179,17 @@ function SearchMenu({...props}: DialogProps) {
               <HomeIcon className="mr-2 h-4 w-4" />
               Home
             </CommandItem>
+            <CommandItem
+              value="cart"
+              onSelect={() => runCommand(() => navigate('/cart'))}
+            >
+              <ShoppingBagIcon className="mr-2 h-4 w-4" />
+              Cart
+            </CommandItem>
             {isLoggedIn && (
               <CommandItem
                 value="account"
-                onSelect={() => runCommand(() => navigate('/account'))}
+                onSelect={() => runCommand(() => navigate('/account/profile'))}
               >
                 <UserIcon className="mr-2 h-4 w-4" />
                 <span>My Account</span>
@@ -212,7 +219,7 @@ function SearchMenu({...props}: DialogProps) {
                   runCommand(() =>
                     fetcher.submit(null, {
                       method: 'post',
-                      action: '/account/logout',
+                      action: '/logout',
                     }),
                   )
                 }
@@ -224,16 +231,14 @@ function SearchMenu({...props}: DialogProps) {
               <>
                 <CommandItem
                   value="login"
-                  onSelect={() => runCommand(() => navigate('/account/login'))}
+                  onSelect={() => runCommand(() => navigate('/login'))}
                 >
                   <EnterIcon className="mr-2 h-4 w-4" />
                   <span>Sign In</span>
                 </CommandItem>
                 <CommandItem
                   value="register"
-                  onSelect={() =>
-                    runCommand(() => navigate('/account/register'))
-                  }
+                  onSelect={() => runCommand(() => navigate('/register'))}
                 >
                   <UserPlusIcon className="mr-2 h-4 w-4" />
                   <span>Register</span>

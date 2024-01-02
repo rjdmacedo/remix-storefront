@@ -1,6 +1,6 @@
 import invariant from 'tiny-invariant';
 import {useLoaderData} from '@remix-run/react';
-import {json, type LoaderArgs} from '@shopify/remix-oxygen';
+import {json, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
@@ -12,7 +12,7 @@ import type {PoliciesHandleQuery} from '../../storefrontapi.generated';
 
 export const headers = routeHeaders;
 
-export async function loader({request, params, context}: LoaderArgs) {
+export async function loader({request, params, context}: LoaderFunctionArgs) {
   invariant(params.policyHandle, 'Missing policy handle');
 
   const policyName = params.policyHandle.replace(
@@ -24,11 +24,11 @@ export async function loader({request, params, context}: LoaderArgs) {
     POLICY_CONTENT_QUERY,
     {
       variables: {
-        [policyName]: true,
         refundPolicy: false,
         privacyPolicy: false,
         shippingPolicy: false,
         termsOfService: false,
+        [policyName]: true,
         language: context.storefront.i18n.language,
       },
     },
@@ -52,7 +52,7 @@ export async function loader({request, params, context}: LoaderArgs) {
   });
 }
 
-export default function Policies() {
+export default function PolicyHandle() {
   const {policy} = useLoaderData<typeof loader>();
 
   return (
@@ -75,6 +75,7 @@ export default function Policies() {
           &larr; Back to Policies
         </Link>
       </PageHeader>
+
       <div className="w-full flex-grow md:w-7/12">
         <div
           className="prose"
@@ -87,11 +88,11 @@ export default function Policies() {
 
 const POLICY_CONTENT_QUERY = `#graphql
   fragment PolicyHandle on ShopPolicy {
-    body
-    handle
     id
-    title
     url
+    body
+    title
+    handle
   }
 
   query PoliciesHandle(

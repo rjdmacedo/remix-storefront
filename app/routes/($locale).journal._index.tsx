@@ -1,5 +1,5 @@
 import {useLoaderData} from '@remix-run/react';
-import {json, type LoaderArgs} from '@shopify/remix-oxygen';
+import {json, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 import {flattenConnection, Image} from '@shopify/hydrogen';
 
 import {seoPayload} from '~/lib/seo.server';
@@ -12,7 +12,10 @@ const BLOG_HANDLE = 'Journal';
 
 export const headers = routeHeaders;
 
-export const loader = async ({request, context: {storefront}}: LoaderArgs) => {
+export const loader = async ({
+  request,
+  context: {storefront},
+}: LoaderFunctionArgs) => {
   const {language, country} = storefront.i18n;
 
   const {blog} = await storefront.query<BlogQuery>(BLOGS_QUERY, {

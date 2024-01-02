@@ -1,158 +1,104 @@
-import {
-  CheckIcon,
-  XMarkIcon,
-  AdjustmentsHorizontalIcon,
-} from '@heroicons/react/24/outline';
-import {useDebounce} from 'react-use';
-import type {Location} from '@remix-run/react';
-import type {Filter, FilterType} from '@shopify/hydrogen/storefront-api-types';
+import type {SyntheticEvent} from 'react';
 import React, {useMemo, useState} from 'react';
-import {useLocation, useNavigate, useSearchParams} from '@remix-run/react';
-
+import {Menu, Disclosure} from '@headlessui/react';
+import type {Location} from '@remix-run/react';
 import {
-  Badge,
-  Button,
-  Typography,
-  Collapsible,
-  DropdownMenu,
-  buttonVariants,
-  CollapsibleContent,
-  CollapsibleTrigger,
-  DropdownMenuContent,
-  DropdownMenuTrigger,
-  DropdownMenuCheckboxItem,
-} from '~/components/ui';
-import {IconCaret, Link} from '~/components';
-import {cn} from '~/lib/utils';
+  Link,
+  useLocation,
+  useSearchParams,
+  useNavigate,
+} from '@remix-run/react';
+import {useDebounce} from 'react-use';
+import type {
+  Filter,
+  ProductFilter,
+} from '@shopify/hydrogen/storefront-api-types';
+
+import {Heading, IconFilters, IconCaret, IconXMark, Text} from '~/components';
 
 export type AppliedFilter = {
   label: string;
-  urlParam: {
-    key: string;
-    value: string;
-  };
+  filter: ProductFilter;
 };
 
 export type SortParam =
-  | 'newest'
-  | 'featured'
-  | 'best-selling'
   | 'price-low-high'
-  | 'price-high-low';
+  | 'price-high-low'
+  | 'best-selling'
+  | 'newest'
+  | 'featured';
 
-type SortFilterProps = {
+type Props = {
   filters: Filter[];
+  appliedFilters?: AppliedFilter[];
   children: React.ReactNode;
   collections?: Array<{handle: string; title: string}>;
-  appliedFilters?: AppliedFilter[];
 };
+export const FILTER_URL_PREFIX = 'filter.';
 
 export function SortFilter({
   filters,
+  appliedFilters = [],
   children,
   collections = [],
-  appliedFilters = [],
-}: SortFilterProps) {
+}: Props) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
     <>
-      <div className="flex w-full items-center justify-between">
-        <Button
-          size="icon"
-          type="button"
+      <div className="flex items-center justify-between w-full">
+        <button
           onClick={() => setIsOpen(!isOpen)}
-          variant="ghost"
           className={
-            'relative flex h-8 w-8 items-center justify-center focus:ring-primary/5'
+            'relative flex items-center justify-center w-8 h-8 focus:ring-primary/5'
           }
         >
-          <AdjustmentsHorizontalIcon className="h-6 w-6" aria-hidden="true" />
-        </Button>
+          <IconFilters />
+        </button>
         <SortMenu />
       </div>
       <div className="flex flex-col flex-wrap md:flex-row">
         <div
           className={`transition-all duration-200 ${
             isOpen
-              ? 'max-h-full min-w-full opacity-100 md:w-[240px] md:min-w-[240px] md:pr-8'
-              : 'max-h-0 pr-0 opacity-0 md:max-h-full md:w-[0px] md:min-w-[0px]'
+              ? 'opacity-100 min-w-full md:min-w-[240px] md:w-[240px] md:pr-8 max-h-full'
+              : 'opacity-0 md:min-w-[0px] md:w-[0px] pr-0 max-h-0 md:max-h-full'
           }`}
         >
-          <FilterDrawer
-            filters={filters}
-            collections={collections}
-            appliedFilters={appliedFilters}
-          />
+          <FiltersDrawer filters={filters} appliedFilters={appliedFilters} />
         </div>
-
         <div className="flex-1">{children}</div>
       </div>
     </>
   );
 }
 
-function FilterCollapsible({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) {
-  const [open, setOpen] = React.useState(false);
-
-  return (
-    <Collapsible open={open} onOpenChange={setOpen} className="py-2">
-      <CollapsibleTrigger asChild>
-        <div className="flex items-center justify-between">
-          {label}
-          <Button variant="ghost" size="xs" className="h-6 w-6 p-0">
-            <IconCaret direction={open ? 'up' : 'down'} />
-          </Button>
-        </div>
-      </CollapsibleTrigger>
-
-      <CollapsibleContent className="space-y-2">{children}</CollapsibleContent>
-    </Collapsible>
-  );
-}
-
-function FilterDrawer({
+export function FiltersDrawer({
   filters = [],
-  collections = [],
   appliedFilters = [],
-}: Omit<SortFilterProps, 'children'>) {
+}: Omit<Props, 'children'>) {
   const [params] = useSearchParams();
   const location = useLocation();
 
-  const filterMarkup = (filter: Filter, option: Filter['values'][number]) => {
+  const filterMarkup = (filter: Filter, option: Filter['values'][0]) => {
     switch (filter.type) {
       case 'PRICE_RANGE':
-        const min =
-          params.has('minPrice') && !isNaN(Number(params.get('minPrice')))
-            ? Number(params.get('minPrice'))
-            : undefined;
-
-        const max =
-          params.has('maxPrice') && !isNaN(Number(params.get('maxPrice')))
-            ? Number(params.get('maxPrice'))
-            : undefined;
+        const priceFilter = params.get(`${FILTER_URL_PREFIX}price`);
+        const price = priceFilter
+          ? (JSON.parse(priceFilter) as ProductFilter['price'])
+          : undefined;
+        const min = isNaN(Number(price?.min)) ? undefined : Number(price?.min);
+        const max = isNaN(Number(price?.max)) ? undefined : Number(price?.max);
 
         return <PriceRangeFilter min={min} max={max} />;
 
       default:
-        const to = getFilterLink(
-          filter,
-          option.input as string,
-          params,
-          location,
-        );
-
+        const to = getFilterLink(option.input as string, params, location);
         return (
           <Link
-            to={to}
+            className="focus:underline hover:underline"
             prefetch="intent"
-            className={cn(buttonVariants({variant: 'link'}))}
+            to={to}
           >
             {option.label}
           </Link>
@@ -160,84 +106,42 @@ function FilterDrawer({
     }
   };
 
-  const filtersMarkup = useMemo(
-    () =>
-      filters.map(
-        (filter: Filter) =>
-          filter.values.length > 1 && (
-            <FilterCollapsible key={filter.label} label={filter.label}>
-              <ul key={filter.id} className="py-2">
-                {filter.values?.map((option) => (
-                  <li key={option.id}>{filterMarkup(filter, option)}</li>
-                ))}
-              </ul>
-            </FilterCollapsible>
-          ),
-      ),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [filters],
-  );
-
-  const collectionsMarkup = useMemo(
-    () =>
-      collections.map((collection) => (
-        <ul key={collection.handle} className="py-2">
-          <li key={collection.handle}>
-            <Link
-              to={`/collections/${collection.handle}`}
-              key={collection.handle}
-              prefetch="intent"
-              className={({isActive}) =>
-                cn(
-                  buttonVariants({variant: 'link'}),
-                  isActive ? 'text-foreground' : 'text-foreground/60',
-                  'flex items-center justify-between p-0',
-                )
-              }
-            >
-              {collection.title}
-              {location.pathname.includes(collection.handle) && (
-                <CheckIcon className="h-4 w-4" />
-              )}
-            </Link>
-          </li>
-        </ul>
-      )),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [collections],
-  );
-
   return (
     <>
-      <nav className="space-y-8">
+      <nav className="py-8">
         {appliedFilters.length > 0 ? (
           <div className="pb-8">
             <AppliedFilters filters={appliedFilters} />
           </div>
         ) : null}
 
-        <div>
-          <Typography.Title as="h4" size="lg" spacing="wider" className="mb-2">
-            Filter By
-          </Typography.Title>
-
-          {filtersMarkup.length > 0 ? (
-            <div className="divide-y">{filtersMarkup}</div>
-          ) : (
-            <Typography.Title>No filters available</Typography.Title>
-          )}
-        </div>
-
-        <div>
-          <Typography.Title as="h4" size="lg" spacing="wider" className="mb-2">
-            Collections
-          </Typography.Title>
-
-          {collectionsMarkup.length > 0 ? (
-            <div className="divide-y">{collectionsMarkup}</div>
-          ) : (
-            <Typography.Title>No collections available</Typography.Title>
-          )}
+        <Heading as="h4" size="lead" className="pb-4">
+          Filter By
+        </Heading>
+        <div className="divide-y">
+          {filters.map((filter: Filter) => (
+            <Disclosure as="div" key={filter.id} className="w-full">
+              {({open}) => (
+                <>
+                  <Disclosure.Button className="flex justify-between w-full py-4">
+                    <Text size="lead">{filter.label}</Text>
+                    <IconCaret direction={open ? 'up' : 'down'} />
+                  </Disclosure.Button>
+                  <Disclosure.Panel key={filter.id}>
+                    <ul key={filter.id} className="py-2">
+                      {filter.values?.map((option) => {
+                        return (
+                          <li key={option.id} className="pb-4">
+                            {filterMarkup(filter, option)}
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </Disclosure.Panel>
+                </>
+              )}
+            </Disclosure>
+          ))}
         </div>
       </nav>
     </>
@@ -245,28 +149,26 @@ function FilterDrawer({
 }
 
 function AppliedFilters({filters = []}: {filters: AppliedFilter[]}) {
-  const location = useLocation();
   const [params] = useSearchParams();
-
+  const location = useLocation();
   return (
     <>
-      <Typography.Title as="h4" size="lg" className="pb-4">
+      <Heading as="h4" size="lead" className="pb-4">
         Applied filters
-      </Typography.Title>
-
+      </Heading>
       <div className="flex flex-wrap gap-2">
         {filters.map((filter: AppliedFilter) => {
           return (
-            <Badge
-              key={`${filter.label}-${filter.urlParam}`}
-              variant="secondary"
-              className="flex space-x-2"
+            <Link
+              to={getAppliedFilterLink(filter, params, location)}
+              className="flex px-2 border rounded-full gap"
+              key={`${filter.label}-${JSON.stringify(filter.filter)}`}
             >
-              <span>{filter.label}</span>
-              <Link to={getAppliedFilterLink(filter, params, location)}>
-                <XMarkIcon className="h-4 w-4" />
-              </Link>
-            </Badge>
+              <span className="flex-grow">{filter.label}</span>
+              <span>
+                <IconXMark />
+              </span>
+            </Link>
           );
         })}
       </div>
@@ -280,18 +182,10 @@ function getAppliedFilterLink(
   location: Location,
 ) {
   const paramsClone = new URLSearchParams(params);
-  if (filter.urlParam.key === 'variantOption') {
-    const variantOptions = paramsClone.getAll('variantOption');
-    const filteredVariantOptions = variantOptions.filter(
-      (options) => !options.includes(filter.urlParam.value),
-    );
-    paramsClone.delete(filter.urlParam.key);
-    for (const filteredVariantOption of filteredVariantOptions) {
-      paramsClone.append(filter.urlParam.key, filteredVariantOption);
-    }
-  } else {
-    paramsClone.delete(filter.urlParam.key);
-  }
+  Object.entries(filter.filter).forEach(([key, value]) => {
+    const fullKey = FILTER_URL_PREFIX + key;
+    paramsClone.delete(fullKey, JSON.stringify(value));
+  });
   return `${location.pathname}?${paramsClone.toString()}`;
 }
 
@@ -305,17 +199,16 @@ function getSortLink(
 }
 
 function getFilterLink(
-  filter: Filter,
-  rawInput: string | Record<string, any>,
+  rawInput: string | ProductFilter,
   params: URLSearchParams,
   location: ReturnType<typeof useLocation>,
 ) {
   const paramsClone = new URLSearchParams(params);
-  const newParams = filterInputToParams(filter.type, rawInput, paramsClone);
+  const newParams = filterInputToParams(rawInput, paramsClone);
   return `${location.pathname}?${newParams.toString()}`;
 }
 
-const PRICE_RANGE_FILTER_DEBOUNCE_IN_MS = 500;
+const PRICE_RANGE_FILTER_DEBOUNCE = 500;
 
 function PriceRangeFilter({max, min}: {max?: number; min?: number}) {
   const location = useLocation();
@@ -325,35 +218,41 @@ function PriceRangeFilter({max, min}: {max?: number; min?: number}) {
   );
   const navigate = useNavigate();
 
-  const [minPrice, setMinPrice] = useState(min ? String(min) : '');
-  const [maxPrice, setMaxPrice] = useState(max ? String(max) : '');
+  const [minPrice, setMinPrice] = useState(min);
+  const [maxPrice, setMaxPrice] = useState(max);
 
   useDebounce(
     () => {
-      if (
-        (minPrice === '' || minPrice === String(min)) &&
-        (maxPrice === '' || maxPrice === String(max))
-      )
+      if (minPrice === undefined && maxPrice === undefined) {
+        params.delete(`${FILTER_URL_PREFIX}price`);
+        navigate(`${location.pathname}?${params.toString()}`);
         return;
+      }
 
-      const price: {min?: string; max?: string} = {};
-      if (minPrice !== '') price.min = minPrice;
-      if (maxPrice !== '') price.max = maxPrice;
-
-      const newParams = filterInputToParams('PRICE_RANGE', {price}, params);
+      const price = {
+        ...(minPrice === undefined ? {} : {min: minPrice}),
+        ...(maxPrice === undefined ? {} : {max: maxPrice}),
+      };
+      const newParams = filterInputToParams({price}, params);
       navigate(`${location.pathname}?${newParams.toString()}`);
     },
-    PRICE_RANGE_FILTER_DEBOUNCE_IN_MS,
+    PRICE_RANGE_FILTER_DEBOUNCE,
     [minPrice, maxPrice],
   );
 
-  const onChangeMax = (event: React.SyntheticEvent) => {
-    const newMaxPrice = (event.target as HTMLInputElement).value;
+  const onChangeMax = (event: SyntheticEvent) => {
+    const value = (event.target as HTMLInputElement).value;
+    const newMaxPrice = Number.isNaN(parseFloat(value))
+      ? undefined
+      : parseFloat(value);
     setMaxPrice(newMaxPrice);
   };
 
-  const onChangeMin = (event: React.SyntheticEvent) => {
-    const newMinPrice = (event.target as HTMLInputElement).value;
+  const onChangeMin = (event: SyntheticEvent) => {
+    const value = (event.target as HTMLInputElement).value;
+    const newMinPrice = Number.isNaN(parseFloat(value))
+      ? undefined
+      : parseFloat(value);
     setMinPrice(newMinPrice);
   };
 
@@ -362,10 +261,10 @@ function PriceRangeFilter({max, min}: {max?: number; min?: number}) {
       <label className="mb-4">
         <span>from</span>
         <input
-          name="maxPrice"
+          name="minPrice"
           className="text-black"
-          type="text"
-          defaultValue={min}
+          type="number"
+          value={minPrice ?? ''}
           placeholder={'$'}
           onChange={onChangeMin}
         />
@@ -373,10 +272,10 @@ function PriceRangeFilter({max, min}: {max?: number; min?: number}) {
       <label>
         <span>to</span>
         <input
-          name="minPrice"
+          name="maxPrice"
           className="text-black"
           type="number"
-          defaultValue={max}
+          value={maxPrice ?? ''}
           placeholder={'$'}
           onChange={onChangeMax}
         />
@@ -386,93 +285,82 @@ function PriceRangeFilter({max, min}: {max?: number; min?: number}) {
 }
 
 function filterInputToParams(
-  type: FilterType,
-  rawInput: string | Record<string, any>,
+  rawInput: string | ProductFilter,
   params: URLSearchParams,
 ) {
-  const input = typeof rawInput === 'string' ? JSON.parse(rawInput) : rawInput;
-  switch (type) {
-    case 'PRICE_RANGE':
-      if (input.price.min) params.set('minPrice', input.price.min);
-      if (input.price.max) params.set('maxPrice', input.price.max);
-      break;
-    case 'LIST':
-      Object.entries(input).forEach(([key, value]) => {
-        if (typeof value === 'string') {
-          params.set(key, value);
-        } else if (typeof value === 'boolean') {
-          params.set(key, value.toString());
-        } else {
-          const {name, value: val} = value as {name: string; value: string};
-          const allVariants = params.getAll(`variantOption`);
-          const newVariant = `${name}:${val}`;
-          if (!allVariants.includes(newVariant)) {
-            params.append('variantOption', newVariant);
-          }
-        }
-      });
-      break;
-  }
+  const input =
+    typeof rawInput === 'string'
+      ? (JSON.parse(rawInput) as ProductFilter)
+      : rawInput;
+
+  Object.entries(input).forEach(([key, value]) => {
+    if (params.has(`${FILTER_URL_PREFIX}${key}`, JSON.stringify(value))) {
+      return;
+    }
+    if (key === 'price') {
+      // For price, we want to overwrite
+      params.set(`${FILTER_URL_PREFIX}${key}`, JSON.stringify(value));
+    } else {
+      params.append(`${FILTER_URL_PREFIX}${key}`, JSON.stringify(value));
+    }
+  });
 
   return params;
 }
 
-function SortMenu() {
-  const location = useLocation();
-  const navigate = useNavigate();
+export default function SortMenu() {
+  const items: {label: string; key: SortParam}[] = [
+    {label: 'Featured', key: 'featured'},
+    {
+      label: 'Price: Low - High',
+      key: 'price-low-high',
+    },
+    {
+      label: 'Price: High - Low',
+      key: 'price-high-low',
+    },
+    {
+      label: 'Best Selling',
+      key: 'best-selling',
+    },
+    {
+      label: 'Newest',
+      key: 'newest',
+    },
+  ];
   const [params] = useSearchParams();
-
-  const items: {label: string; key: SortParam}[] = React.useMemo(
-    () => [
-      {label: 'Featured', key: 'featured'},
-      {
-        label: 'Price: Low - High',
-        key: 'price-low-high',
-      },
-      {
-        label: 'Price: High - Low',
-        key: 'price-high-low',
-      },
-      {
-        label: 'Best Selling',
-        key: 'best-selling',
-      },
-      {
-        label: 'Newest',
-        key: 'newest',
-      },
-    ],
-    [],
-  );
-
+  const location = useLocation();
   const activeItem = items.find((item) => item.key === params.get('sort'));
 
-  const setSort = (sort: SortParam) => {
-    navigate(getSortLink(sort, params, location));
-  };
-
   return (
-    <DropdownMenu>
-      <DropdownMenuTrigger className="flex items-center">
-        <Typography.Text size="sm">
-          Sort by: {(activeItem || items[0]).label}
-        </Typography.Text>
+    <Menu as="div" className="relative z-40">
+      <Menu.Button className="flex items-center">
+        <span className="px-2">
+          <span className="px-2 font-medium">Sort by:</span>
+          <span>{(activeItem || items[0]).label}</span>
+        </span>
         <IconCaret />
-      </DropdownMenuTrigger>
+      </Menu.Button>
 
-      <DropdownMenuContent loop>
+      <Menu.Items
+        as="nav"
+        className="absolute right-0 flex flex-col p-4 text-right rounded-sm bg-contrast"
+      >
         {items.map((item) => (
-          <DropdownMenuCheckboxItem
-            key={item.key}
-            checked={activeItem?.key === item.key}
-            onCheckedChange={() => setSort(item.key)}
-          >
-            <Typography.Text spacing="wide" size="sm">
-              {item.label}
-            </Typography.Text>
-          </DropdownMenuCheckboxItem>
+          <Menu.Item key={item.label}>
+            {() => (
+              <Link
+                className={`block text-sm pb-2 px-3 ${
+                  activeItem?.key === item.key ? 'font-bold' : 'font-normal'
+                }`}
+                to={getSortLink(item.key, params, location)}
+              >
+                {item.label}
+              </Link>
+            )}
+          </Menu.Item>
         ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
+      </Menu.Items>
+    </Menu>
   );
 }

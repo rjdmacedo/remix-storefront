@@ -11,7 +11,7 @@ import {useMatches} from '@remix-run/react';
  *   useDataFromMatches
  * } from '@shopify/hydrogen';
  *
- * export async function loader({request, context}: LoaderArgs) {
+ * export async function loader({request, context}: LoaderFunctionArgs) {
  *   return defer({
  *     analytics: {
  *       shopId: 'gid://shopify/Shop/1',

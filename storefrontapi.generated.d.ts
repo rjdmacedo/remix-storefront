@@ -111,8 +111,8 @@ export type FeaturedCollectionDetailsFragment = Pick<
 
 export type LayoutQueryVariables = StorefrontAPI.Exact<{
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  headerMenuHandle: StorefrontAPI.Scalars['String'];
-  footerMenuHandle: StorefrontAPI.Scalars['String'];
+  headerMenuHandle: StorefrontAPI.Scalars['String']['input'];
+  footerMenuHandle: StorefrontAPI.Scalars['String']['input'];
 }>;
 
 export type LayoutQuery = {
@@ -129,12 +129,12 @@ export type LayoutQuery = {
       items: Array<
         Pick<
           StorefrontAPI.MenuItem,
-          'id' | 'url' | 'tags' | 'type' | 'title' | 'resourceId'
+          'id' | 'resourceId' | 'tags' | 'title' | 'type' | 'url'
         > & {
           items: Array<
             Pick<
               StorefrontAPI.MenuItem,
-              'id' | 'url' | 'tags' | 'type' | 'title' | 'resourceId'
+              'id' | 'resourceId' | 'tags' | 'title' | 'type' | 'url'
             >
           >;
         }
@@ -146,12 +146,12 @@ export type LayoutQuery = {
       items: Array<
         Pick<
           StorefrontAPI.MenuItem,
-          'id' | 'url' | 'tags' | 'type' | 'title' | 'resourceId'
+          'id' | 'resourceId' | 'tags' | 'title' | 'type' | 'url'
         > & {
           items: Array<
             Pick<
               StorefrontAPI.MenuItem,
-              'id' | 'url' | 'tags' | 'type' | 'title' | 'resourceId'
+              'id' | 'resourceId' | 'tags' | 'title' | 'type' | 'url'
             >
           >;
         }
@@ -172,284 +172,43 @@ export type ShopFragment = Pick<
   }>;
 };
 
+export type MenuItemFragment = Pick<
+  StorefrontAPI.MenuItem,
+  'id' | 'resourceId' | 'tags' | 'title' | 'type' | 'url'
+>;
+
+export type ChildMenuItemFragment = Pick<
+  StorefrontAPI.MenuItem,
+  'id' | 'resourceId' | 'tags' | 'title' | 'type' | 'url'
+>;
+
+export type ParentMenuItemFragment = Pick<
+  StorefrontAPI.MenuItem,
+  'id' | 'resourceId' | 'tags' | 'title' | 'type' | 'url'
+> & {
+  items: Array<
+    Pick<
+      StorefrontAPI.MenuItem,
+      'id' | 'resourceId' | 'tags' | 'title' | 'type' | 'url'
+    >
+  >;
+};
+
 export type MenuFragment = Pick<StorefrontAPI.Menu, 'id'> & {
   items: Array<
     Pick<
       StorefrontAPI.MenuItem,
-      'id' | 'url' | 'tags' | 'type' | 'title' | 'resourceId'
+      'id' | 'resourceId' | 'tags' | 'title' | 'type' | 'url'
     > & {
       items: Array<
         Pick<
           StorefrontAPI.MenuItem,
-          'id' | 'url' | 'tags' | 'type' | 'title' | 'resourceId'
+          'id' | 'resourceId' | 'tags' | 'title' | 'type' | 'url'
         >
       >;
     }
   >;
 };
-
-export type MenuItemFragment = Pick<
-  StorefrontAPI.MenuItem,
-  'id' | 'url' | 'tags' | 'type' | 'title' | 'resourceId'
->;
-
-export type ChildMenuItemFragment = Pick<
-  StorefrontAPI.MenuItem,
-  'id' | 'url' | 'tags' | 'type' | 'title' | 'resourceId'
->;
-
-export type ParentMenuItemFragment = Pick<
-  StorefrontAPI.MenuItem,
-  'id' | 'url' | 'tags' | 'type' | 'title' | 'resourceId'
-> & {
-  items: Array<
-    Pick<
-      StorefrontAPI.MenuItem,
-      'id' | 'url' | 'tags' | 'type' | 'title' | 'resourceId'
-    >
-  >;
-};
-
-export type CartQueryQueryVariables = StorefrontAPI.Exact<{
-  cartId: StorefrontAPI.Scalars['ID'];
-  country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
-  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-}>;
-
-export type CartQueryQuery = {
-  cart?: StorefrontAPI.Maybe<
-    Pick<
-      StorefrontAPI.Cart,
-      'id' | 'checkoutUrl' | 'totalQuantity' | 'note'
-    > & {
-      buyerIdentity: Pick<
-        StorefrontAPI.CartBuyerIdentity,
-        'countryCode' | 'email' | 'phone'
-      > & {
-        customer?: StorefrontAPI.Maybe<
-          Pick<
-            StorefrontAPI.Customer,
-            'id' | 'email' | 'firstName' | 'lastName' | 'displayName'
-          >
-        >;
-      };
-      lines: {
-        edges: Array<{
-          node:
-            | (Pick<StorefrontAPI.CartLine, 'id' | 'quantity'> & {
-                attributes: Array<
-                  Pick<StorefrontAPI.Attribute, 'key' | 'value'>
-                >;
-                cost: {
-                  totalAmount: Pick<
-                    StorefrontAPI.MoneyV2,
-                    'amount' | 'currencyCode'
-                  >;
-                  amountPerQuantity: Pick<
-                    StorefrontAPI.MoneyV2,
-                    'amount' | 'currencyCode'
-                  >;
-                  compareAtAmountPerQuantity?: StorefrontAPI.Maybe<
-                    Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
-                  >;
-                };
-                merchandise: Pick<
-                  StorefrontAPI.ProductVariant,
-                  'id' | 'availableForSale' | 'requiresShipping' | 'title'
-                > & {
-                  compareAtPrice?: StorefrontAPI.Maybe<
-                    Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>
-                  >;
-                  price: Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>;
-                  image?: StorefrontAPI.Maybe<
-                    Pick<
-                      StorefrontAPI.Image,
-                      'id' | 'url' | 'altText' | 'width' | 'height'
-                    >
-                  >;
-                  product: Pick<
-                    StorefrontAPI.Product,
-                    'handle' | 'title' | 'id'
-                  >;
-                  selectedOptions: Array<
-                    Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
-                  >;
-                };
-              })
-            | (Pick<
-                StorefrontAPI.ComponentizableCartLine,
-                'id' | 'quantity'
-              > & {
-                attributes: Array<
-                  Pick<StorefrontAPI.Attribute, 'key' | 'value'>
-                >;
-                cost: {
-                  totalAmount: Pick<
-                    StorefrontAPI.MoneyV2,
-                    'amount' | 'currencyCode'
-                  >;
-                  amountPerQuantity: Pick<
-                    StorefrontAPI.MoneyV2,
-                    'amount' | 'currencyCode'
-                  >;
-                  compareAtAmountPerQuantity?: StorefrontAPI.Maybe<
-                    Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
-                  >;
-                };
-                merchandise: Pick<
-                  StorefrontAPI.ProductVariant,
-                  'id' | 'availableForSale' | 'requiresShipping' | 'title'
-                > & {
-                  compareAtPrice?: StorefrontAPI.Maybe<
-                    Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>
-                  >;
-                  price: Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>;
-                  image?: StorefrontAPI.Maybe<
-                    Pick<
-                      StorefrontAPI.Image,
-                      'id' | 'url' | 'altText' | 'width' | 'height'
-                    >
-                  >;
-                  product: Pick<
-                    StorefrontAPI.Product,
-                    'handle' | 'title' | 'id'
-                  >;
-                  selectedOptions: Array<
-                    Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
-                  >;
-                };
-              });
-        }>;
-      };
-      cost: {
-        subtotalAmount: Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>;
-        totalAmount: Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>;
-        totalDutyAmount?: StorefrontAPI.Maybe<
-          Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>
-        >;
-        totalTaxAmount?: StorefrontAPI.Maybe<
-          Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>
-        >;
-      };
-      attributes: Array<Pick<StorefrontAPI.Attribute, 'key' | 'value'>>;
-      discountCodes: Array<Pick<StorefrontAPI.CartDiscountCode, 'code'>>;
-    }
-  >;
-};
-
-export type CartFragmentFragment = Pick<
-  StorefrontAPI.Cart,
-  'id' | 'checkoutUrl' | 'totalQuantity' | 'note'
-> & {
-  buyerIdentity: Pick<
-    StorefrontAPI.CartBuyerIdentity,
-    'countryCode' | 'email' | 'phone'
-  > & {
-    customer?: StorefrontAPI.Maybe<
-      Pick<
-        StorefrontAPI.Customer,
-        'id' | 'email' | 'firstName' | 'lastName' | 'displayName'
-      >
-    >;
-  };
-  lines: {
-    edges: Array<{
-      node:
-        | (Pick<StorefrontAPI.CartLine, 'id' | 'quantity'> & {
-            attributes: Array<Pick<StorefrontAPI.Attribute, 'key' | 'value'>>;
-            cost: {
-              totalAmount: Pick<
-                StorefrontAPI.MoneyV2,
-                'amount' | 'currencyCode'
-              >;
-              amountPerQuantity: Pick<
-                StorefrontAPI.MoneyV2,
-                'amount' | 'currencyCode'
-              >;
-              compareAtAmountPerQuantity?: StorefrontAPI.Maybe<
-                Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
-              >;
-            };
-            merchandise: Pick<
-              StorefrontAPI.ProductVariant,
-              'id' | 'availableForSale' | 'requiresShipping' | 'title'
-            > & {
-              compareAtPrice?: StorefrontAPI.Maybe<
-                Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>
-              >;
-              price: Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>;
-              image?: StorefrontAPI.Maybe<
-                Pick<
-                  StorefrontAPI.Image,
-                  'id' | 'url' | 'altText' | 'width' | 'height'
-                >
-              >;
-              product: Pick<StorefrontAPI.Product, 'handle' | 'title' | 'id'>;
-              selectedOptions: Array<
-                Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
-              >;
-            };
-          })
-        | (Pick<StorefrontAPI.ComponentizableCartLine, 'id' | 'quantity'> & {
-            attributes: Array<Pick<StorefrontAPI.Attribute, 'key' | 'value'>>;
-            cost: {
-              totalAmount: Pick<
-                StorefrontAPI.MoneyV2,
-                'amount' | 'currencyCode'
-              >;
-              amountPerQuantity: Pick<
-                StorefrontAPI.MoneyV2,
-                'amount' | 'currencyCode'
-              >;
-              compareAtAmountPerQuantity?: StorefrontAPI.Maybe<
-                Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
-              >;
-            };
-            merchandise: Pick<
-              StorefrontAPI.ProductVariant,
-              'id' | 'availableForSale' | 'requiresShipping' | 'title'
-            > & {
-              compareAtPrice?: StorefrontAPI.Maybe<
-                Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>
-              >;
-              price: Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>;
-              image?: StorefrontAPI.Maybe<
-                Pick<
-                  StorefrontAPI.Image,
-                  'id' | 'url' | 'altText' | 'width' | 'height'
-                >
-              >;
-              product: Pick<StorefrontAPI.Product, 'handle' | 'title' | 'id'>;
-              selectedOptions: Array<
-                Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
-              >;
-            };
-          });
-    }>;
-  };
-  cost: {
-    subtotalAmount: Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>;
-    totalAmount: Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>;
-    totalDutyAmount?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>
-    >;
-    totalTaxAmount?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.MoneyV2, 'currencyCode' | 'amount'>
-    >;
-  };
-  attributes: Array<Pick<StorefrontAPI.Attribute, 'key' | 'value'>>;
-  discountCodes: Array<Pick<StorefrontAPI.CartDiscountCode, 'code'>>;
-};
-
-export type MoneyFragmentFragment = Pick<
-  StorefrontAPI.MoneyV2,
-  'currencyCode' | 'amount'
->;
-
-export type ImageFragmentFragment = Pick<
-  StorefrontAPI.Image,
-  'id' | 'url' | 'altText' | 'width' | 'height'
->;
 
 export type GetShopPrimaryDomainQueryVariables = StorefrontAPI.Exact<{
   [key: string]: never;
@@ -517,7 +276,7 @@ export type CollectionContentFragment = Pick<
 };
 
 export type SeoCollectionContentQueryVariables = StorefrontAPI.Exact<{
-  handle?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
+  handle?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']['input']>;
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
 }>;
@@ -589,7 +348,7 @@ export type SeoCollectionContentQuery = {
 };
 
 export type HeroCollectionContentQueryVariables = StorefrontAPI.Exact<{
-  handle?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
+  handle?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']['input']>;
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
 }>;
@@ -714,26 +473,10 @@ export type HomepageFeaturedCollectionsQuery = {
   };
 };
 
-export type CustomerActivateMutationVariables = StorefrontAPI.Exact<{
-  id: StorefrontAPI.Scalars['ID'];
-  input: StorefrontAPI.CustomerActivateInput;
-}>;
-
-export type CustomerActivateMutation = {
-  customerActivate?: StorefrontAPI.Maybe<{
-    customerAccessToken?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.CustomerAccessToken, 'accessToken' | 'expiresAt'>
-    >;
-    customerUserErrors: Array<
-      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
-    >;
-  }>;
-};
-
 export type CustomerAddressUpdateMutationVariables = StorefrontAPI.Exact<{
+  id: StorefrontAPI.Scalars['ID']['input'];
+  token: StorefrontAPI.Scalars['String']['input'];
   address: StorefrontAPI.MailingAddressInput;
-  customerAccessToken: StorefrontAPI.Scalars['String'];
-  id: StorefrontAPI.Scalars['ID'];
 }>;
 
 export type CustomerAddressUpdateMutation = {
@@ -745,8 +488,8 @@ export type CustomerAddressUpdateMutation = {
 };
 
 export type CustomerAddressCreateMutationVariables = StorefrontAPI.Exact<{
+  token: StorefrontAPI.Scalars['String']['input'];
   address: StorefrontAPI.MailingAddressInput;
-  customerAccessToken: StorefrontAPI.Scalars['String'];
 }>;
 
 export type CustomerAddressCreateMutation = {
@@ -761,8 +504,8 @@ export type CustomerAddressCreateMutation = {
 };
 
 export type CustomerAddressDeleteMutationVariables = StorefrontAPI.Exact<{
-  customerAccessToken: StorefrontAPI.Scalars['String'];
-  id: StorefrontAPI.Scalars['ID'];
+  id: StorefrontAPI.Scalars['ID']['input'];
+  token: StorefrontAPI.Scalars['String']['input'];
 }>;
 
 export type CustomerAddressDeleteMutation = {
@@ -780,48 +523,14 @@ export type CustomerAddressDeleteMutation = {
 
 export type CustomerDefaultAddressUpdateMutationVariables =
   StorefrontAPI.Exact<{
-    addressId: StorefrontAPI.Scalars['ID'];
-    customerAccessToken: StorefrontAPI.Scalars['String'];
+    token: StorefrontAPI.Scalars['String']['input'];
+    addressId: StorefrontAPI.Scalars['ID']['input'];
   }>;
 
 export type CustomerDefaultAddressUpdateMutation = {
   customerDefaultAddressUpdate?: StorefrontAPI.Maybe<{
     customerUserErrors: Array<
       Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
-    >;
-  }>;
-};
-
-export type CustomerUpdateMutationVariables = StorefrontAPI.Exact<{
-  customerAccessToken: StorefrontAPI.Scalars['String'];
-  customer: StorefrontAPI.CustomerUpdateInput;
-}>;
-
-export type CustomerUpdateMutation = {
-  customerUpdate?: StorefrontAPI.Maybe<{
-    customerUserErrors: Array<
-      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
-    >;
-  }>;
-};
-
-export type ShopNameQueryVariables = StorefrontAPI.Exact<{
-  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-}>;
-
-export type ShopNameQuery = {shop: Pick<StorefrontAPI.Shop, 'name'>};
-
-export type CustomerAccessTokenCreateMutationVariables = StorefrontAPI.Exact<{
-  input: StorefrontAPI.CustomerAccessTokenCreateInput;
-}>;
-
-export type CustomerAccessTokenCreateMutation = {
-  customerAccessTokenCreate?: StorefrontAPI.Maybe<{
-    customerUserErrors: Array<
-      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
-    >;
-    customerAccessToken?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.CustomerAccessToken, 'expiresAt' | 'accessToken'>
     >;
   }>;
 };
@@ -908,7 +617,7 @@ export type LineItemFullFragment = Pick<
 export type CustomerOrderQueryVariables = StorefrontAPI.Exact<{
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  orderId: StorefrontAPI.Scalars['ID'];
+  orderId: StorefrontAPI.Scalars['ID']['input'];
 }>;
 
 export type CustomerOrderQuery = {
@@ -1016,49 +725,8 @@ export type CustomerOrderQuery = {
   >;
 };
 
-export type CustomerRecoverMutationVariables = StorefrontAPI.Exact<{
-  email: StorefrontAPI.Scalars['String'];
-}>;
-
-export type CustomerRecoverMutation = {
-  customerRecover?: StorefrontAPI.Maybe<{
-    customerUserErrors: Array<
-      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
-    >;
-  }>;
-};
-
-export type CustomerCreateMutationVariables = StorefrontAPI.Exact<{
-  input: StorefrontAPI.CustomerCreateInput;
-}>;
-
-export type CustomerCreateMutation = {
-  customerCreate?: StorefrontAPI.Maybe<{
-    customer?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Customer, 'id'>>;
-    customerUserErrors: Array<
-      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
-    >;
-  }>;
-};
-
-export type CustomerResetMutationVariables = StorefrontAPI.Exact<{
-  id: StorefrontAPI.Scalars['ID'];
-  input: StorefrontAPI.CustomerResetInput;
-}>;
-
-export type CustomerResetMutation = {
-  customerReset?: StorefrontAPI.Maybe<{
-    customerAccessToken?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.CustomerAccessToken, 'accessToken' | 'expiresAt'>
-    >;
-    customerUserErrors: Array<
-      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
-    >;
-  }>;
-};
-
 export type CustomerDetailsQueryVariables = StorefrontAPI.Exact<{
-  customerAccessToken: StorefrontAPI.Scalars['String'];
+  customerAccessToken: StorefrontAPI.Scalars['String']['input'];
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
 }>;
@@ -1229,10 +897,39 @@ export type CustomerDetailsFragment = Pick<
   >;
 };
 
+export type CustomerUpdateMutationVariables = StorefrontAPI.Exact<{
+  customerAccessToken: StorefrontAPI.Scalars['String']['input'];
+  customer: StorefrontAPI.CustomerUpdateInput;
+}>;
+
+export type CustomerUpdateMutation = {
+  customerUpdate?: StorefrontAPI.Maybe<{
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
+    >;
+  }>;
+};
+
+export type CustomerActivateMutationVariables = StorefrontAPI.Exact<{
+  id: StorefrontAPI.Scalars['ID']['input'];
+  input: StorefrontAPI.CustomerActivateInput;
+}>;
+
+export type CustomerActivateMutation = {
+  customerActivate?: StorefrontAPI.Maybe<{
+    customerAccessToken?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.CustomerAccessToken, 'accessToken' | 'expiresAt'>
+    >;
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
+    >;
+  }>;
+};
+
 export type ApiAllProductsQueryVariables = StorefrontAPI.Exact<{
-  query?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
-  count?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
-  reverse?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Boolean']>;
+  query?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']['input']>;
+  count?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  reverse?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Boolean']['input']>;
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
   sortKey?: StorefrontAPI.InputMaybe<StorefrontAPI.ProductSortKeys>;
@@ -1272,7 +969,7 @@ export type ApiAllProductsQuery = {
 };
 
 export type ApiSelectedVariantQueryVariables = StorefrontAPI.Exact<{
-  handle: StorefrontAPI.Scalars['String'];
+  handle: StorefrontAPI.Scalars['String']['input'];
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
   selectedOptions:
@@ -1310,31 +1007,45 @@ export type ApiSelectedVariantQuery = {
 };
 
 export type CollectionDetailsQueryVariables = StorefrontAPI.Exact<{
-  last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
-  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
-  handle: StorefrontAPI.Scalars['String'];
+  handle: StorefrontAPI.Scalars['String']['input'];
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
-  reverse?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Boolean']>;
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
   filters?: StorefrontAPI.InputMaybe<
     Array<StorefrontAPI.ProductFilter> | StorefrontAPI.ProductFilter
   >;
   sortKey: StorefrontAPI.ProductCollectionSortKeys;
-  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  endCursor?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
-  startCursor?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
+  reverse?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Boolean']['input']>;
+  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  startCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
+  endCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
 }>;
 
 export type CollectionDetailsQuery = {
   collection?: StorefrontAPI.Maybe<
     Pick<
       StorefrontAPI.Collection,
-      'id' | 'title' | 'handle' | 'description'
+      'id' | 'handle' | 'title' | 'description'
     > & {
-      seo: Pick<StorefrontAPI.Seo, 'title' | 'description'>;
+      seo: Pick<StorefrontAPI.Seo, 'description' | 'title'>;
       image?: StorefrontAPI.Maybe<
         Pick<StorefrontAPI.Image, 'id' | 'url' | 'width' | 'height' | 'altText'>
       >;
       products: {
+        filters: Array<
+          Pick<StorefrontAPI.Filter, 'id' | 'label' | 'type'> & {
+            values: Array<
+              Pick<
+                StorefrontAPI.FilterValue,
+                'id' | 'label' | 'count' | 'input'
+              >
+            >;
+          }
+        >;
         nodes: Array<
           Pick<
             StorefrontAPI.Product,
@@ -1368,19 +1079,9 @@ export type CollectionDetailsQuery = {
             };
           }
         >;
-        filters: Array<
-          Pick<StorefrontAPI.Filter, 'id' | 'type' | 'label'> & {
-            values: Array<
-              Pick<
-                StorefrontAPI.FilterValue,
-                'id' | 'count' | 'label' | 'input'
-              >
-            >;
-          }
-        >;
         pageInfo: Pick<
           StorefrontAPI.PageInfo,
-          'hasPreviousPage' | 'endCursor' | 'startCursor'
+          'hasPreviousPage' | 'hasNextPage' | 'endCursor' | 'startCursor'
         >;
       };
     }
@@ -1393,10 +1094,14 @@ export type CollectionDetailsQuery = {
 export type CollectionsQueryVariables = StorefrontAPI.Exact<{
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
-  last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
-  startCursor?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
-  endCursor?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
+  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  startCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
+  endCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
 }>;
 
 export type CollectionsQuery = {
@@ -1423,7 +1128,7 @@ export type CollectionsQuery = {
 };
 
 export type FeaturedItemsQueryVariables = StorefrontAPI.Exact<{
-  pageBy?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
+  pageBy?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
 }>;
@@ -1472,8 +1177,8 @@ export type FeaturedItemsQuery = {
 
 export type ArticleDetailsQueryVariables = StorefrontAPI.Exact<{
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  blogHandle: StorefrontAPI.Scalars['String'];
-  articleHandle: StorefrontAPI.Scalars['String'];
+  blogHandle: StorefrontAPI.Scalars['String']['input'];
+  articleHandle: StorefrontAPI.Scalars['String']['input'];
 }>;
 
 export type ArticleDetailsQuery = {
@@ -1496,10 +1201,10 @@ export type ArticleDetailsQuery = {
 };
 
 export type BlogQueryVariables = StorefrontAPI.Exact<{
-  pageBy: StorefrontAPI.Scalars['Int'];
-  cursor?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
+  pageBy: StorefrontAPI.Scalars['Int']['input'];
+  cursor?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']['input']>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  blogHandle: StorefrontAPI.Scalars['String'];
+  blogHandle: StorefrontAPI.Scalars['String']['input'];
 }>;
 
 export type BlogQuery = {
@@ -1540,9 +1245,30 @@ export type ArticleFragment = Pick<
   author?: StorefrontAPI.Maybe<Pick<StorefrontAPI.ArticleAuthor, 'name'>>;
 };
 
+export type ShopNameQueryVariables = StorefrontAPI.Exact<{
+  language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
+}>;
+
+export type ShopNameQuery = {shop: Pick<StorefrontAPI.Shop, 'name'>};
+
+export type CustomerAccessTokenCreateMutationVariables = StorefrontAPI.Exact<{
+  input: StorefrontAPI.CustomerAccessTokenCreateInput;
+}>;
+
+export type CustomerAccessTokenCreateMutation = {
+  customerAccessTokenCreate?: StorefrontAPI.Maybe<{
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
+    >;
+    customerAccessToken?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.CustomerAccessToken, 'expiresAt' | 'accessToken'>
+    >;
+  }>;
+};
+
 export type PageDetailsQueryVariables = StorefrontAPI.Exact<{
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  handle: StorefrontAPI.Scalars['String'];
+  handle: StorefrontAPI.Scalars['String']['input'];
 }>;
 
 export type PageDetailsQuery = {
@@ -1557,30 +1283,30 @@ export type PageDetailsQuery = {
 
 export type PolicyHandleFragment = Pick<
   StorefrontAPI.ShopPolicy,
-  'body' | 'handle' | 'id' | 'title' | 'url'
+  'id' | 'url' | 'body' | 'title' | 'handle'
 >;
 
 export type PoliciesHandleQueryVariables = StorefrontAPI.Exact<{
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  privacyPolicy: StorefrontAPI.Scalars['Boolean'];
-  shippingPolicy: StorefrontAPI.Scalars['Boolean'];
-  termsOfService: StorefrontAPI.Scalars['Boolean'];
-  refundPolicy: StorefrontAPI.Scalars['Boolean'];
+  privacyPolicy: StorefrontAPI.Scalars['Boolean']['input'];
+  shippingPolicy: StorefrontAPI.Scalars['Boolean']['input'];
+  termsOfService: StorefrontAPI.Scalars['Boolean']['input'];
+  refundPolicy: StorefrontAPI.Scalars['Boolean']['input'];
 }>;
 
 export type PoliciesHandleQuery = {
   shop: {
     privacyPolicy?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.ShopPolicy, 'body' | 'handle' | 'id' | 'title' | 'url'>
+      Pick<StorefrontAPI.ShopPolicy, 'id' | 'url' | 'body' | 'title' | 'handle'>
     >;
     shippingPolicy?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.ShopPolicy, 'body' | 'handle' | 'id' | 'title' | 'url'>
+      Pick<StorefrontAPI.ShopPolicy, 'id' | 'url' | 'body' | 'title' | 'handle'>
     >;
     termsOfService?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.ShopPolicy, 'body' | 'handle' | 'id' | 'title' | 'url'>
+      Pick<StorefrontAPI.ShopPolicy, 'id' | 'url' | 'body' | 'title' | 'handle'>
     >;
     refundPolicy?: StorefrontAPI.Maybe<
-      Pick<StorefrontAPI.ShopPolicy, 'body' | 'handle' | 'id' | 'title' | 'url'>
+      Pick<StorefrontAPI.ShopPolicy, 'id' | 'url' | 'body' | 'title' | 'handle'>
     >;
   };
 };
@@ -1615,7 +1341,7 @@ export type PoliciesIndexQuery = {
 };
 
 export type ProductQueryVariables = StorefrontAPI.Exact<{
-  handle: StorefrontAPI.Scalars['String'];
+  handle: StorefrontAPI.Scalars['String']['input'];
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
   selectedOptions:
@@ -1740,10 +1466,10 @@ export type ProductQuery = {
 };
 
 export type ProductRecommendationsQueryVariables = StorefrontAPI.Exact<{
-  count?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
+  count?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  productId: StorefrontAPI.Scalars['ID'];
+  productId: StorefrontAPI.Scalars['ID']['input'];
 }>;
 
 export type ProductRecommendationsQuery = {
@@ -1810,12 +1536,16 @@ export type ProductRecommendationsQuery = {
 };
 
 export type AllProductsQueryVariables = StorefrontAPI.Exact<{
-  last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
-  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
+  last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  endCursor?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
-  startCursor?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
+  endCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
+  startCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
 }>;
 
 export type AllProductsQuery = {
@@ -1855,14 +1585,61 @@ export type AllProductsQuery = {
   };
 };
 
+export type CustomerRecoverMutationVariables = StorefrontAPI.Exact<{
+  email: StorefrontAPI.Scalars['String']['input'];
+}>;
+
+export type CustomerRecoverMutation = {
+  customerRecover?: StorefrontAPI.Maybe<{
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
+    >;
+  }>;
+};
+
+export type CustomerCreateMutationVariables = StorefrontAPI.Exact<{
+  input: StorefrontAPI.CustomerCreateInput;
+}>;
+
+export type CustomerCreateMutation = {
+  customerCreate?: StorefrontAPI.Maybe<{
+    customer?: StorefrontAPI.Maybe<Pick<StorefrontAPI.Customer, 'id'>>;
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
+    >;
+  }>;
+};
+
+export type CustomerResetMutationVariables = StorefrontAPI.Exact<{
+  id: StorefrontAPI.Scalars['ID']['input'];
+  input: StorefrontAPI.CustomerResetInput;
+}>;
+
+export type CustomerResetMutation = {
+  customerReset?: StorefrontAPI.Maybe<{
+    customerAccessToken?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.CustomerAccessToken, 'accessToken' | 'expiresAt'>
+    >;
+    customerUserErrors: Array<
+      Pick<StorefrontAPI.CustomerUserError, 'code' | 'field' | 'message'>
+    >;
+  }>;
+};
+
 export type PaginatedProductsSearchQueryVariables = StorefrontAPI.Exact<{
-  last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
-  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
+  last?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
+  first?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
   country?: StorefrontAPI.InputMaybe<StorefrontAPI.CountryCode>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
-  endCursor?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
-  searchTerm?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
-  startCursor?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['String']>;
+  endCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
+  searchTerm?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
+  startCursor?: StorefrontAPI.InputMaybe<
+    StorefrontAPI.Scalars['String']['input']
+  >;
 }>;
 
 export type PaginatedProductsSearchQuery = {
@@ -1903,7 +1680,7 @@ export type PaginatedProductsSearchQuery = {
 };
 
 export type SitemapsQueryVariables = StorefrontAPI.Exact<{
-  urlLimits?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']>;
+  urlLimits?: StorefrontAPI.InputMaybe<StorefrontAPI.Scalars['Int']['input']>;
   language?: StorefrontAPI.InputMaybe<StorefrontAPI.LanguageCode>;
 }>;
 
@@ -1933,13 +1710,9 @@ export type SitemapsQuery = {
 };
 
 interface GeneratedQueryTypes {
-  '#graphql\n  query layout(\n    $language: LanguageCode\n    $headerMenuHandle: String!\n    $footerMenuHandle: String!\n  ) @inContext(language: $language) {\n    shop {\n      ...Shop\n    }\n    header: menu(handle: $headerMenuHandle) {\n      ...Menu\n    }\n    footer: menu(handle: $footerMenuHandle) {\n      ...Menu\n    }\n  }\n  fragment Shop on Shop {\n    id\n    name\n    description\n    primaryDomain {\n      url\n    }\n    brand {\n      logo {\n        image {\n          url\n        }\n      }\n    }\n  }\n  fragment Menu on Menu {\n    id\n    items {\n      ...ParentMenuItem\n    }\n  }\n  fragment MenuItem on MenuItem {\n    id\n    url\n    tags\n    type\n    title\n    resourceId\n  }\n  fragment ChildMenuItem on MenuItem {\n    ...MenuItem\n  }\n  fragment ParentMenuItem on MenuItem {\n    ...MenuItem\n    items {\n      ...ChildMenuItem\n    }\n  }\n': {
+  '#graphql\nquery layout(\n  $language: LanguageCode\n  $headerMenuHandle: String!\n  $footerMenuHandle: String!\n) @inContext(language: $language) {\n  shop {\n    ...Shop\n  }\n  header: menu(handle: $headerMenuHandle) {\n    ...Menu\n  }\n  footer: menu(handle: $footerMenuHandle) {\n    ...Menu\n  }\n}\nfragment Shop on Shop {\n  id\n  name\n  description\n  primaryDomain {\n    url\n  }\n  brand {\n    logo {\n      image {\n        url\n      }\n    }\n  }\n}\nfragment MenuItem on MenuItem {\n  id\n  resourceId\n  tags\n  title\n  type\n  url\n}\nfragment ChildMenuItem on MenuItem {\n  ...MenuItem\n}\nfragment ParentMenuItem on MenuItem {\n  ...MenuItem\n  items {\n    ...ChildMenuItem\n  }\n}\nfragment Menu on Menu {\n  id\n  items {\n    ...ParentMenuItem\n  }\n}\n': {
     return: LayoutQuery;
     variables: LayoutQueryVariables;
-  };
-  '#graphql\n  query cartQuery($cartId: ID!, $country: CountryCode, $language: LanguageCode)\n    @inContext(country: $country, language: $language) {\n    cart(id: $cartId) {\n      ...CartFragment\n    }\n  }\n  fragment CartFragment on Cart {\n    id\n    checkoutUrl\n    totalQuantity\n    buyerIdentity {\n      countryCode\n      customer {\n        id\n        email\n        firstName\n        lastName\n        displayName\n      }\n      email\n      phone\n    }\n    lines(first: 100) {\n      edges {\n        node {\n          id\n          quantity\n          attributes {\n            key\n            value\n          }\n          cost {\n            totalAmount {\n              amount\n              currencyCode\n            }\n            amountPerQuantity {\n              amount\n              currencyCode\n            }\n            compareAtAmountPerQuantity {\n              amount\n              currencyCode\n            }\n          }\n          merchandise {\n            ... on ProductVariant {\n              id\n              availableForSale\n              compareAtPrice {\n                ...MoneyFragment\n              }\n              price {\n                ...MoneyFragment\n              }\n              requiresShipping\n              title\n              image {\n                ...ImageFragment\n              }\n              product {\n                handle\n                title\n                id\n              }\n              selectedOptions {\n                name\n                value\n              }\n            }\n          }\n        }\n      }\n    }\n    cost {\n      subtotalAmount {\n        ...MoneyFragment\n      }\n      totalAmount {\n        ...MoneyFragment\n      }\n      totalDutyAmount {\n        ...MoneyFragment\n      }\n      totalTaxAmount {\n        ...MoneyFragment\n      }\n    }\n    note\n    attributes {\n      key\n      value\n    }\n    discountCodes {\n      code\n    }\n  }\n\n  fragment MoneyFragment on MoneyV2 {\n    currencyCode\n    amount\n  }\n\n  fragment ImageFragment on Image {\n    id\n    url\n    altText\n    width\n    height\n  }\n': {
-    return: CartQueryQuery;
-    variables: CartQueryQueryVariables;
   };
   '#graphql\n      query getShopPrimaryDomain { shop { primaryDomain { url } } }\n    ': {
     return: GetShopPrimaryDomainQuery;
@@ -1961,10 +1734,6 @@ interface GeneratedQueryTypes {
     return: HomepageFeaturedCollectionsQuery;
     variables: HomepageFeaturedCollectionsQueryVariables;
   };
-  '#graphql\n  query ShopName($language: LanguageCode) @inContext(language: $language) {\n    shop {\n      name\n    }\n  }\n': {
-    return: ShopNameQuery;
-    variables: ShopNameQueryVariables;
-  };
   '#graphql\n  #graphql\nfragment ProductVariant on ProductVariant {\n  id\n  sku\n  title\n  availableForSale\n\n  image {\n    id\n    url\n    width\n    height\n    altText\n  }\n  price {\n    amount\n    currencyCode\n  }\n  product {\n    title\n    handle\n  }\n  unitPrice {\n    amount\n    currencyCode\n  }\n  compareAtPrice {\n    amount\n    currencyCode\n  }\n  selectedOptions {\n    name\n    value\n  }\n}\n\n  fragment Money on MoneyV2 {\n    amount\n    currencyCode\n  }\n  fragment AddressFull on MailingAddress {\n    address1\n    address2\n    city\n    company\n    country\n    countryCodeV2\n    firstName\n    formatted\n    id\n    lastName\n    name\n    phone\n    province\n    provinceCode\n    zip\n  }\n  fragment DiscountApplication on DiscountApplication {\n    value {\n      __typename\n      ... on MoneyV2 {\n        amount\n        currencyCode\n      }\n      ... on PricingPercentageValue {\n        percentage\n      }\n    }\n  }\n  fragment LineItemFull on OrderLineItem {\n    title\n    quantity\n    discountAllocations {\n      allocatedAmount {\n        ...Money\n      }\n      discountApplication {\n        ...DiscountApplication\n      }\n    }\n    originalTotalPrice {\n      ...Money\n    }\n    discountedTotalPrice {\n      ...Money\n    }\n    variant {\n      ...ProductVariant\n    }\n  }\n\n  query CustomerOrder(\n    $country: CountryCode\n    $language: LanguageCode\n    $orderId: ID!\n  ) @inContext(country: $country, language: $language) {\n    node(id: $orderId) {\n      ... on Order {\n        id\n        name\n        orderNumber\n        processedAt\n        fulfillmentStatus\n        totalTaxV2 {\n          ...Money\n        }\n        totalPriceV2 {\n          ...Money\n        }\n        subtotalPriceV2 {\n          ...Money\n        }\n        shippingAddress {\n          ...AddressFull\n        }\n        discountApplications(first: 100) {\n          nodes {\n            ...DiscountApplication\n          }\n        }\n        lineItems(first: 100) {\n          nodes {\n            ...LineItemFull\n          }\n        }\n      }\n    }\n  }\n': {
     return: CustomerOrderQuery;
     variables: CustomerOrderQueryVariables;
@@ -1981,7 +1750,7 @@ interface GeneratedQueryTypes {
     return: ApiSelectedVariantQuery;
     variables: ApiSelectedVariantQueryVariables;
   };
-  '#graphql\n  query CollectionDetails(\n    $last: Int\n    $first: Int\n    $handle: String!\n    $country: CountryCode\n    $reverse: Boolean\n    $filters: [ProductFilter!]\n    $sortKey: ProductCollectionSortKeys!\n    $language: LanguageCode\n    $endCursor: String\n    $startCursor: String\n  ) @inContext(country: $country, language: $language) {\n    collection(handle: $handle) {\n      id\n      title\n      handle\n      description\n      seo {\n        title\n        description\n      }\n      image {\n        id\n        url\n        width\n        height\n        altText\n      }\n      products(\n        last: $last,\n        first: $first,\n        after: $endCursor,\n        before: $startCursor,\n        filters: $filters,\n        sortKey: $sortKey,\n        reverse: $reverse\n      ) {\n        nodes {\n          ...ProductCard\n        }\n        filters {\n          id\n          type\n          label\n          values {\n            id\n            count\n            label\n            input\n          }\n        }\n        pageInfo {\n          hasPreviousPage\n          endCursor\n          startCursor\n        }\n      }\n    }\n    collections(first: 100) {\n      edges {\n        node {\n          title\n          handle\n        }\n      }\n    }\n  }\n  #graphql\n  fragment ProductCard on Product {\n    id\n    title\n    handle\n    vendor\n    publishedAt\n    options {\n      name\n      values\n    }\n    variants(first: 1) {\n      nodes {\n        id\n        availableForSale\n        image {\n          url\n          width\n          height\n          altText\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        selectedOptions {\n          name\n          value\n        }\n        product {\n          title\n          handle\n        }\n      }\n    }\n  }\n\n': {
+  '#graphql\nquery CollectionDetails(\n  $handle: String!\n  $country: CountryCode\n  $language: LanguageCode\n  $filters: [ProductFilter!]\n  $sortKey: ProductCollectionSortKeys!\n  $reverse: Boolean\n  $first: Int\n  $last: Int\n  $startCursor: String\n  $endCursor: String\n) @inContext(country: $country, language: $language) {\n  collection(handle: $handle) {\n    id\n    handle\n    title\n    description\n    seo {\n      description\n      title\n    }\n    image {\n      id\n      url\n      width\n      height\n      altText\n    }\n    products(\n      first: $first,\n      last: $last,\n      before: $startCursor,\n      after: $endCursor,\n      filters: $filters,\n      sortKey: $sortKey,\n      reverse: $reverse\n    ) {\n      filters {\n        id\n        label\n        type\n        values {\n          id\n          label\n          count\n          input\n        }\n      }\n      nodes {\n        ...ProductCard\n      }\n      pageInfo {\n        hasPreviousPage\n        hasNextPage\n        endCursor\n        startCursor\n      }\n    }\n  }\n  collections(first: 100) {\n    edges {\n      node {\n        title\n        handle\n      }\n    }\n  }\n}\n#graphql\n  fragment ProductCard on Product {\n    id\n    title\n    handle\n    vendor\n    publishedAt\n    options {\n      name\n      values\n    }\n    variants(first: 1) {\n      nodes {\n        id\n        availableForSale\n        image {\n          url\n          width\n          height\n          altText\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        selectedOptions {\n          name\n          value\n        }\n        product {\n          title\n          handle\n        }\n      }\n    }\n  }\n\n': {
     return: CollectionDetailsQuery;
     variables: CollectionDetailsQueryVariables;
   };
@@ -1989,7 +1758,7 @@ interface GeneratedQueryTypes {
     return: CollectionsQuery;
     variables: CollectionsQueryVariables;
   };
-  '#graphql\n  query FeaturedItems(\n    $pageBy: Int = 12\n    $country: CountryCode\n    $language: LanguageCode\n  ) @inContext(country: $country, language: $language) {\n    featuredCollections: collections(first: 3, sortKey: UPDATED_AT) {\n      nodes {\n        ...FeaturedCollectionDetails\n      }\n    }\n    featuredProducts: products(first: $pageBy) {\n      nodes {\n        ...ProductCard\n      }\n    }\n  }\n\n  #graphql\n  fragment ProductCard on Product {\n    id\n    title\n    handle\n    vendor\n    publishedAt\n    options {\n      name\n      values\n    }\n    variants(first: 1) {\n      nodes {\n        id\n        availableForSale\n        image {\n          url\n          width\n          height\n          altText\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        selectedOptions {\n          name\n          value\n        }\n        product {\n          title\n          handle\n        }\n      }\n    }\n  }\n\n  #graphql\n  fragment FeaturedCollectionDetails on Collection {\n    id\n    title\n    handle\n    image {\n      altText\n      width\n      height\n      url\n    }\n  }\n\n': {
+  '#graphql\nquery FeaturedItems(\n  $pageBy: Int = 12\n  $country: CountryCode\n  $language: LanguageCode\n) @inContext(country: $country, language: $language) {\n  featuredCollections: collections(first: 3, sortKey: UPDATED_AT) {\n    nodes {\n      ...FeaturedCollectionDetails\n    }\n  }\n  featuredProducts: products(first: $pageBy) {\n    nodes {\n      ...ProductCard\n    }\n  }\n}\n\n#graphql\n  fragment ProductCard on Product {\n    id\n    title\n    handle\n    vendor\n    publishedAt\n    options {\n      name\n      values\n    }\n    variants(first: 1) {\n      nodes {\n        id\n        availableForSale\n        image {\n          url\n          width\n          height\n          altText\n        }\n        price {\n          amount\n          currencyCode\n        }\n        compareAtPrice {\n          amount\n          currencyCode\n        }\n        selectedOptions {\n          name\n          value\n        }\n        product {\n          title\n          handle\n        }\n      }\n    }\n  }\n\n#graphql\n  fragment FeaturedCollectionDetails on Collection {\n    id\n    title\n    handle\n    image {\n      altText\n      width\n      height\n      url\n    }\n  }\n\n': {
     return: FeaturedItemsQuery;
     variables: FeaturedItemsQueryVariables;
   };
@@ -2001,11 +1770,15 @@ interface GeneratedQueryTypes {
     return: BlogQuery;
     variables: BlogQueryVariables;
   };
+  '#graphql\n  query ShopName($language: LanguageCode) @inContext(language: $language) {\n    shop {\n      name\n    }\n  }\n': {
+    return: ShopNameQuery;
+    variables: ShopNameQueryVariables;
+  };
   '#graphql\n  query PageDetails($language: LanguageCode, $handle: String!)\n  @inContext(language: $language) {\n    page(handle: $handle) {\n      id\n      title\n      body\n      seo {\n        description\n        title\n      }\n    }\n  }\n': {
     return: PageDetailsQuery;
     variables: PageDetailsQueryVariables;
   };
-  '#graphql\n  fragment PolicyHandle on ShopPolicy {\n    body\n    handle\n    id\n    title\n    url\n  }\n\n  query PoliciesHandle(\n    $language: LanguageCode\n    $privacyPolicy: Boolean!\n    $shippingPolicy: Boolean!\n    $termsOfService: Boolean!\n    $refundPolicy: Boolean!\n  ) @inContext(language: $language) {\n    shop {\n      privacyPolicy @include(if: $privacyPolicy) {\n        ...PolicyHandle\n      }\n      shippingPolicy @include(if: $shippingPolicy) {\n        ...PolicyHandle\n      }\n      termsOfService @include(if: $termsOfService) {\n        ...PolicyHandle\n      }\n      refundPolicy @include(if: $refundPolicy) {\n        ...PolicyHandle\n      }\n    }\n  }\n': {
+  '#graphql\n  fragment PolicyHandle on ShopPolicy {\n    id\n    url\n    body\n    title\n    handle\n  }\n\n  query PoliciesHandle(\n    $language: LanguageCode\n    $privacyPolicy: Boolean!\n    $shippingPolicy: Boolean!\n    $termsOfService: Boolean!\n    $refundPolicy: Boolean!\n  ) @inContext(language: $language) {\n    shop {\n      privacyPolicy @include(if: $privacyPolicy) {\n        ...PolicyHandle\n      }\n      shippingPolicy @include(if: $shippingPolicy) {\n        ...PolicyHandle\n      }\n      termsOfService @include(if: $termsOfService) {\n        ...PolicyHandle\n      }\n      refundPolicy @include(if: $refundPolicy) {\n        ...PolicyHandle\n      }\n    }\n  }\n': {
     return: PoliciesHandleQuery;
     variables: PoliciesHandleQueryVariables;
   };
@@ -2036,29 +1809,29 @@ interface GeneratedQueryTypes {
 }
 
 interface GeneratedMutationTypes {
-  '#graphql\n  mutation customerActivate($id: ID!, $input: CustomerActivateInput!) {\n    customerActivate(id: $id, input: $input) {\n      customerAccessToken {\n        accessToken\n        expiresAt\n      }\n      customerUserErrors {\n        code\n        field\n        message\n      }\n    }\n  }\n': {
-    return: CustomerActivateMutation;
-    variables: CustomerActivateMutationVariables;
-  };
-  '#graphql\n  mutation customerAddressUpdate(\n    $address: MailingAddressInput!\n    $customerAccessToken: String!\n    $id: ID!\n  ) {\n    customerAddressUpdate(\n      address: $address\n      customerAccessToken: $customerAccessToken\n      id: $id\n    ) {\n      customerUserErrors {\n        code\n        field\n        message\n      }\n    }\n  }\n': {
+  '#graphql\n  mutation customerAddressUpdate(\n    $id: ID!\n    $token: String!\n    $address: MailingAddressInput!\n  ) {\n    customerAddressUpdate(\n      id: $id\n      address: $address\n      customerAccessToken: $token\n    ) {\n      customerUserErrors {\n        code\n        field\n        message\n      }\n    }\n  }\n': {
     return: CustomerAddressUpdateMutation;
     variables: CustomerAddressUpdateMutationVariables;
   };
-  '#graphql\nmutation customerAddressCreate(\n  $address: MailingAddressInput!\n  $customerAccessToken: String!\n) {\n  customerAddressCreate(\n    address: $address\n    customerAccessToken: $customerAccessToken\n  ) {\n    customerAddress {\n      id\n    }\n    customerUserErrors {\n      code\n      field\n      message\n    }\n  }\n}\n': {
+  '#graphql\nmutation customerAddressCreate(\n  $token: String!\n  $address: MailingAddressInput!\n) {\n  customerAddressCreate(\n    address: $address\n    customerAccessToken: $token\n  ) {\n    customerAddress {\n      id\n    }\n    customerUserErrors {\n      code\n      field\n      message\n    }\n  }\n}\n': {
     return: CustomerAddressCreateMutation;
     variables: CustomerAddressCreateMutationVariables;
   };
-  '#graphql\n  mutation customerAddressDelete($customerAccessToken: String!, $id: ID!) {\n    customerAddressDelete(customerAccessToken: $customerAccessToken, id: $id) {\n      customerUserErrors {\n        code\n        field\n        message\n      }\n      deletedCustomerAddressId\n    }\n  }\n': {
+  '#graphql\n  mutation customerAddressDelete($id: ID!, $token: String!) {\n    customerAddressDelete(customerAccessToken: $token, id: $id) {\n      customerUserErrors {\n        code\n        field\n        message\n      }\n      deletedCustomerAddressId\n    }\n  }\n': {
     return: CustomerAddressDeleteMutation;
     variables: CustomerAddressDeleteMutationVariables;
   };
-  '#graphql\n  mutation customerDefaultAddressUpdate(\n    $addressId: ID!\n    $customerAccessToken: String!\n  ) {\n    customerDefaultAddressUpdate(\n      addressId: $addressId\n      customerAccessToken: $customerAccessToken\n    ) {\n      customerUserErrors {\n        code\n        field\n        message\n      }\n    }\n  }\n': {
+  '#graphql\n  mutation customerDefaultAddressUpdate(\n    $token: String!\n    $addressId: ID!\n  ) {\n    customerDefaultAddressUpdate(\n      addressId: $addressId\n      customerAccessToken: $token\n    ) {\n      customerUserErrors {\n        code\n        field\n        message\n      }\n    }\n  }\n': {
     return: CustomerDefaultAddressUpdateMutation;
     variables: CustomerDefaultAddressUpdateMutationVariables;
   };
-  '#graphql\n  mutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {\n    customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {\n      customerUserErrors {\n        code\n        field\n        message\n      }\n    }\n  }\n  ': {
+  '#graphql\nmutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {\n  customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {\n    customerUserErrors {\n      code\n      field\n      message\n    }\n  }\n}\n': {
     return: CustomerUpdateMutation;
     variables: CustomerUpdateMutationVariables;
+  };
+  '#graphql\n  mutation customerActivate($id: ID!, $input: CustomerActivateInput!) {\n    customerActivate(id: $id, input: $input) {\n      customerAccessToken {\n        accessToken\n        expiresAt\n      }\n      customerUserErrors {\n        code\n        field\n        message\n      }\n    }\n  }\n': {
+    return: CustomerActivateMutation;
+    variables: CustomerActivateMutationVariables;
   };
   '#graphql\n  mutation customerAccessTokenCreate($input: CustomerAccessTokenCreateInput!) {\n    customerAccessTokenCreate(input: $input) {\n      customerUserErrors {\n        code\n        field\n        message\n      }\n      customerAccessToken {\n        expiresAt\n        accessToken\n      }\n    }\n  }\n': {
     return: CustomerAccessTokenCreateMutation;
@@ -2075,10 +1848,6 @@ interface GeneratedMutationTypes {
   '#graphql\n  mutation customerReset($id: ID!, $input: CustomerResetInput!) {\n    customerReset(id: $id, input: $input) {\n      customerAccessToken {\n        accessToken\n        expiresAt\n      }\n      customerUserErrors {\n        code\n        field\n        message\n      }\n    }\n  }\n': {
     return: CustomerResetMutation;
     variables: CustomerResetMutationVariables;
-  };
-  '#graphql\nmutation customerUpdate($customerAccessToken: String!, $customer: CustomerUpdateInput!) {\n  customerUpdate(customerAccessToken: $customerAccessToken, customer: $customer) {\n    customerUserErrors {\n      code\n      field\n      message\n    }\n  }\n}\n': {
-    return: CustomerUpdateMutation;
-    variables: CustomerUpdateMutationVariables;
   };
 }
 

@@ -10,7 +10,7 @@ import {Link} from '~/components/link';
 import {buttonVariants} from '~/components/ui';
 
 const navigation = [
-  {name: 'Profile', href: '/account/', icon: UserCircleIcon},
+  {name: 'Profile', href: '/account/profile', icon: UserCircleIcon},
   {name: 'Security', href: '/account/security', icon: FingerPrintIcon},
   {name: 'Addresses', href: '/account/addresses', icon: BookOpenIcon},
   {name: 'Orders', href: '/account/orders', icon: ShoppingBagIcon},

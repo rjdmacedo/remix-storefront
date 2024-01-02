@@ -1,4 +1,3 @@
-import type {ShouldRevalidateFunction} from '@remix-run/react';
 import {
   Meta,
   Links,
@@ -11,28 +10,30 @@ import {
   ScrollRestoration,
   isRouteErrorResponse,
 } from '@remix-run/react';
-import {defer} from '@shopify/remix-oxygen';
 import type {
-  LoaderArgs,
   LinksFunction,
   SerializeFrom,
   AppLoadContext,
+  LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
 import React from 'react';
+import {defer} from '@shopify/remix-oxygen';
 import invariant from 'tiny-invariant';
+import type {ShouldRevalidateFunction} from '@remix-run/react';
 import {ShopifySalesChannel, Seo, useNonce} from '@shopify/hydrogen';
 import {PreventFlashOnWrongTheme, ThemeProvider, useTheme} from 'remix-themes';
 
 import styles from '~/styles/tailwind.css';
 import {Layout} from '~/components';
+import {getToast} from '~/lib/toast.server';
+import {NotFound} from '~/components/NotFound';
 import {seoPayload} from '~/lib/seo.server';
 import {useAnalytics} from '~/hooks';
-import {themeSessionResolver} from '~/lib/session.server';
-import {parseMenu, DEFAULT_LOCALE} from '~/lib/utils';
-import {Toaster, TooltipProvider} from '~/components/ui';
-import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
 import {GenericError} from '~/components/GenericError';
-import {NotFound} from '~/components/NotFound';
+import {themeSessionResolver} from '~/lib/hydrogen.server';
+import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
+import {Toaster, TooltipProvider} from '~/components/ui';
+import {parseMenu, DEFAULT_LOCALE} from '~/lib/utils';
 
 import favicon from '../public/favicon.ico';
 
@@ -43,7 +44,7 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
   formMethod,
 }) => {
   // revalidate when a mutation is performed e.g add to cart, login...
-  if (formMethod && formMethod !== 'GET') {
+  if (formMethod && formMethod !== 'get') {
     return true;
   }
   // revalidate when manually revalidating via useRevalidator
@@ -53,32 +54,9 @@ export const shouldRevalidate: ShouldRevalidateFunction = ({
 export const links: LinksFunction = () => {
   return [
     {rel: 'stylesheet', href: styles},
-    {
-      rel: 'preconnect',
-      href: 'https://cdn.shopify.com',
-    },
-    {
-      rel: 'apple-touch-icon',
-      sizes: '180x180',
-      href: '/favicons/apple-touch-icon.png',
-    },
-    {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '32x32',
-      href: '/favicons/favicon-32x32.png',
-    },
-    {
-      rel: 'icon',
-      type: 'image/png',
-      sizes: '16x16',
-      href: '/favicons/favicon-16x16.png',
-    },
-    {rel: 'manifest', href: '/site.webmanifest'},
-    {rel: 'icon', href: '/favicon.ico'},
-    {rel: 'stylesheet', href: '/fonts/nunito-sans/font.css'},
+    {rel: 'preconnect', href: 'https://cdn.shopify.com'},
     {rel: 'icon', type: 'image/svg+xml', href: favicon},
-  ].filter(Boolean);
+  ];
 };
 
 export const useRootLoaderData = () => {
@@ -86,21 +64,24 @@ export const useRootLoaderData = () => {
   return root?.data as SerializeFrom<typeof loader>;
 };
 
-export async function loader({request, context}: LoaderArgs) {
+export async function loader({request, context}: LoaderFunctionArgs) {
   const {session, storefront, cart} = context;
-  const [theme, layout, customerAccessToken] = await Promise.all([
-    themeSessionResolver(request).then(({getTheme}) => getTheme()),
-    getLayoutData(context),
-    session.get(CUSTOMER_ACCESS_TOKEN),
-  ]);
+  const [theme, layout, customerAccessToken, {toast, headers}] =
+    await Promise.all([
+      themeSessionResolver(request).then(({getTheme}) => getTheme()),
+      getLayoutData(context),
+      session.get(CUSTOMER_ACCESS_TOKEN),
+      getToast(request),
+    ]);
 
   const seo = seoPayload.root({shop: layout.shop, url: request.url});
 
   return defer(
     {
       seo,
-      cart,
+      cart: cart.get(),
       theme,
+      toast,
       layout,
       isLoggedIn: Boolean(customerAccessToken),
       selectedLocale: storefront.i18n,
@@ -109,11 +90,7 @@ export async function loader({request, context}: LoaderArgs) {
         shopifySalesChannel: ShopifySalesChannel.hydrogen,
       },
     },
-    {
-      headers: {
-        'Set-Cookie': await context.session.commit(),
-      },
-    },
+    {headers},
   );
 }
 
@@ -121,7 +98,7 @@ export async function loader({request, context}: LoaderArgs) {
 // `specifiedTheme` is the stored theme in the session storage.
 // `themeAction` is the action name that's used to change the theme in the session storage.
 export default function AppWithProviders() {
-  const {theme} = useLoaderData();
+  const {theme} = useRootLoaderData();
 
   return (
     <ThemeProvider specifiedTheme={theme} themeAction="/api/theme">
@@ -152,10 +129,11 @@ function App() {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width,initial-scale=1" />
+        <meta name="msvalidate.01" content="A352E6A0AF9A652267361BBB572B8468" />
         <Seo />
         <Meta />
-        <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
         <Links />
+        <PreventFlashOnWrongTheme ssrTheme={Boolean(data.theme)} />
       </head>
       <body>
         <Layout
@@ -163,9 +141,8 @@ function App() {
           layout={data.layout}
         >
           <Outlet />
+          <Toaster />
         </Layout>
-        <Toaster />
-        {/** Pass the nonce to all components that generate a script **/}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
         <LiveReload nonce={nonce} />
@@ -174,10 +151,11 @@ function App() {
   );
 }
 
-export function ErrorBoundary({error}: {error: Error}) {
+export function ErrorBoundary({error}: {error: Error | unknown}) {
   const nonce = useNonce();
-  const routeError = useRouteError();
   const rootData = useRootLoaderData();
+  const routeError = useRouteError();
+
   const locale = rootData?.selectedLocale ?? DEFAULT_LOCALE;
   const isRouteError = isRouteErrorResponse(routeError);
 
@@ -199,24 +177,19 @@ export function ErrorBoundary({error}: {error: Error}) {
         <Links />
       </head>
       <body>
-        <Layout
-          layout={rootData?.layout}
-          key={`${locale.language}-${locale.country}`}
-        >
-          {isRouteError ? (
-            <>
-              {routeError.status === 404 ? (
-                <NotFound type={pageType} />
-              ) : (
-                <GenericError
-                  error={{message: `${routeError.status} ${routeError.data}`}}
-                />
-              )}
-            </>
-          ) : (
-            <GenericError error={error instanceof Error ? error : undefined} />
-          )}
-        </Layout>
+        {isRouteError ? (
+          <>
+            {routeError.status === 404 ? (
+              <NotFound type={pageType} />
+            ) : (
+              <GenericError
+                error={{message: `${routeError.status} ${routeError.data}`}}
+              />
+            )}
+          </>
+        ) : (
+          <GenericError error={error instanceof Error ? error : undefined} />
+        )}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
         <LiveReload nonce={nonce} />
@@ -226,62 +199,62 @@ export function ErrorBoundary({error}: {error: Error}) {
 }
 
 const LAYOUT_QUERY = `#graphql
-  query layout(
-    $language: LanguageCode
-    $headerMenuHandle: String!
-    $footerMenuHandle: String!
-  ) @inContext(language: $language) {
-    shop {
-      ...Shop
-    }
-    header: menu(handle: $headerMenuHandle) {
-      ...Menu
-    }
-    footer: menu(handle: $footerMenuHandle) {
-      ...Menu
-    }
+query layout(
+  $language: LanguageCode
+  $headerMenuHandle: String!
+  $footerMenuHandle: String!
+) @inContext(language: $language) {
+  shop {
+    ...Shop
   }
-  fragment Shop on Shop {
-    id
-    name
-    description
-    primaryDomain {
-      url
-    }
-    brand {
-      logo {
-        image {
-          url
-        }
+  header: menu(handle: $headerMenuHandle) {
+    ...Menu
+  }
+  footer: menu(handle: $footerMenuHandle) {
+    ...Menu
+  }
+}
+fragment Shop on Shop {
+  id
+  name
+  description
+  primaryDomain {
+    url
+  }
+  brand {
+    logo {
+      image {
+        url
       }
     }
   }
-  fragment Menu on Menu {
-    id
-    items {
-      ...ParentMenuItem
-    }
+}
+fragment MenuItem on MenuItem {
+  id
+  resourceId
+  tags
+  title
+  type
+  url
+}
+fragment ChildMenuItem on MenuItem {
+  ...MenuItem
+}
+fragment ParentMenuItem on MenuItem {
+  ...MenuItem
+  items {
+    ...ChildMenuItem
   }
-  fragment MenuItem on MenuItem {
-    id
-    url
-    tags
-    type
-    title
-    resourceId
+}
+fragment Menu on Menu {
+  id
+  items {
+    ...ParentMenuItem
   }
-  fragment ChildMenuItem on MenuItem {
-    ...MenuItem
-  }
-  fragment ParentMenuItem on MenuItem {
-    ...MenuItem
-    items {
-      ...ChildMenuItem
-    }
-  }
+}
 ` as const;
 
-async function getLayoutData({storefront, env}: AppLoadContext) {
+async function getLayoutData({env, storefront}: AppLoadContext) {
   const data = await storefront.query(LAYOUT_QUERY, {
     variables: {
       headerMenuHandle: 'main-menu',
@@ -311,132 +284,4 @@ async function getLayoutData({storefront, env}: AppLoadContext) {
     : undefined;
 
   return {shop: data.shop, header, footer};
-}
-
-const CART_QUERY = `#graphql
-  query cartQuery($cartId: ID!, $country: CountryCode, $language: LanguageCode)
-    @inContext(country: $country, language: $language) {
-    cart(id: $cartId) {
-      ...CartFragment
-    }
-  }
-  fragment CartFragment on Cart {
-    id
-    checkoutUrl
-    totalQuantity
-    buyerIdentity {
-      countryCode
-      customer {
-        id
-        email
-        firstName
-        lastName
-        displayName
-      }
-      email
-      phone
-    }
-    lines(first: 100) {
-      edges {
-        node {
-          id
-          quantity
-          attributes {
-            key
-            value
-          }
-          cost {
-            totalAmount {
-              amount
-              currencyCode
-            }
-            amountPerQuantity {
-              amount
-              currencyCode
-            }
-            compareAtAmountPerQuantity {
-              amount
-              currencyCode
-            }
-          }
-          merchandise {
-            ... on ProductVariant {
-              id
-              availableForSale
-              compareAtPrice {
-                ...MoneyFragment
-              }
-              price {
-                ...MoneyFragment
-              }
-              requiresShipping
-              title
-              image {
-                ...ImageFragment
-              }
-              product {
-                handle
-                title
-                id
-              }
-              selectedOptions {
-                name
-                value
-              }
-            }
-          }
-        }
-      }
-    }
-    cost {
-      subtotalAmount {
-        ...MoneyFragment
-      }
-      totalAmount {
-        ...MoneyFragment
-      }
-      totalDutyAmount {
-        ...MoneyFragment
-      }
-      totalTaxAmount {
-        ...MoneyFragment
-      }
-    }
-    note
-    attributes {
-      key
-      value
-    }
-    discountCodes {
-      code
-    }
-  }
-
-  fragment MoneyFragment on MoneyV2 {
-    currencyCode
-    amount
-  }
-
-  fragment ImageFragment on Image {
-    id
-    url
-    altText
-    width
-    height
-  }
-` as const;
-
-export async function getCart({storefront}: AppLoadContext, cartId: string) {
-  invariant(storefront, 'missing storefront client in cart query');
-
-  const {cart} = await storefront.query(CART_QUERY, {
-    variables: {
-      cartId,
-      country: storefront.i18n.country,
-      language: storefront.i18n.language,
-    },
-    cache: storefront.CacheNone(),
-  });
-
-  return cart;
 }

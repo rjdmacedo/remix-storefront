@@ -1,13 +1,34 @@
 import React from 'react';
-import {flattenConnection} from '@shopify/hydrogen';
+import {json} from '@shopify/remix-oxygen';
 import {PlusIcon} from '@heroicons/react/24/outline';
+import {flattenConnection} from '@shopify/hydrogen';
+import type {MetaFunction} from '@remix-run/react';
+import type {LoaderFunctionArgs} from '@shopify/remix-oxygen';
 
 import {useAccount} from '~/routes/($locale).account';
-import {Button, Typography} from '~/components/ui';
+import {routeHeaders} from '~/data/cache';
+import {cn, requireLoggedInUser} from '~/lib/utils';
+import {AccountAddressBook, Link} from '~/components';
+import {buttonVariants, Separator, Typography} from '~/components/ui';
 
 export const handle = {
   accountChild: true,
 };
+
+export const meta: MetaFunction = () => {
+  return [{title: 'Addresses'}];
+};
+
+export const headers = routeHeaders;
+
+export async function loader({params, context}: LoaderFunctionArgs) {
+  await requireLoggedInUser(context, {
+    locale: params.locale,
+    redirectTo: '/account/addresses',
+  });
+
+  return json(null);
+}
 
 export default function AccountAddresses() {
   const {customer} = useAccount();
@@ -15,35 +36,32 @@ export default function AccountAddresses() {
   const addresses = flattenConnection(customer?.addresses);
 
   return (
-    <>
-      <div className="flex justify-between items-center">
-        <div>
+    <div className="space-y-6">
+      <div className="relative">
+        <Typography.Title size="xl">
           <Typography.Title size="xl">Address Book</Typography.Title>
-          <Typography.Text size="sm" color="muted-foreground">
-            Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-          </Typography.Text>
-        </div>
+        </Typography.Title>
+        <Typography.Text size="sm" color="muted-foreground">
+          Update your address book.
+        </Typography.Text>
 
-        <Button>
+        <Link
+          to="../address/add"
+          className={cn(
+            buttonVariants({
+              variant: 'secondary',
+            }),
+            'absolute top-0 right-0',
+          )}
+        >
           <PlusIcon className="w-5 h-5 mr-1" />
           Address
-        </Button>
+        </Link>
       </div>
 
-      {addresses?.map((address) => (
-        <div key={address.id} className="py-8">
-          <Typography.Title size="sm">
-            {address.firstName} {address.lastName}
-          </Typography.Title>
-          <Typography.Text size="sm">{address.address1}</Typography.Text>
-          <Typography.Text size="sm">{address.address2}</Typography.Text>
-          <Typography.Text size="sm">
-            {address.city} {address.zip}
-          </Typography.Text>
-          <Typography.Text size="sm">{address.country}</Typography.Text>
-          <Typography.Text size="sm">{address.phone}</Typography.Text>
-        </div>
-      ))}
-    </>
+      <Separator />
+
+      <AccountAddressBook customer={customer} addresses={addresses} />
+    </div>
   );
 }

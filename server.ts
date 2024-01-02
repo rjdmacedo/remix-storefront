@@ -12,7 +12,7 @@ import {
   storefrontRedirect,
 } from '@shopify/hydrogen';
 
-import {HydrogenSession} from '~/lib/session.server';
+import {HydrogenSession} from '~/lib/hydrogen.server';
 import {getLocaleFromRequest} from '~/lib/utils';
 
 /**
@@ -33,6 +33,7 @@ export default {
       }
 
       const waitUntil = executionContext.waitUntil.bind(executionContext);
+
       const [cache, session] = await Promise.all([
         caches.open('hydrogen'),
         HydrogenSession.init(request, [env.SESSION_SECRET]),
@@ -66,11 +67,11 @@ export default {
         build: remixBuild,
         mode: process.env.NODE_ENV,
         getLoadContext: () => ({
+          env,
+          cart,
           session,
           waitUntil,
           storefront,
-          cart,
-          env,
         }),
       });
 

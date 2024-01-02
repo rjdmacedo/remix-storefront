@@ -3,6 +3,7 @@ import animatePlugin from 'tailwindcss-animate';
 import formsPlugin from '@tailwindcss/forms';
 import {fontFamily} from 'tailwindcss/defaultTheme';
 import typographyPlugin from '@tailwindcss/typography';
+import containerQueries from '@tailwindcss/container-queries';
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -84,5 +85,5 @@ export default {
       },
     },
   },
-  plugins: [formsPlugin, animatePlugin, typographyPlugin],
+  plugins: [formsPlugin, animatePlugin, typographyPlugin, containerQueries],
 } satisfies Config;

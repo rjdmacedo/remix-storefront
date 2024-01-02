@@ -1,7 +1,7 @@
 import React, {Suspense} from 'react';
 import {AnalyticsPageType} from '@shopify/hydrogen';
 import {Await, useLoaderData} from '@remix-run/react';
-import {defer, type LoaderArgs} from '@shopify/remix-oxygen';
+import {defer, type LoaderFunctionArgs} from '@shopify/remix-oxygen';
 
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
@@ -11,7 +11,7 @@ import {ProductSwimlane, FeaturedCollections, Hero} from '~/components';
 
 export const headers = routeHeaders;
 
-export async function loader({params, context}: LoaderArgs) {
+export async function loader({params, context}: LoaderFunctionArgs) {
   const {language, country} = context.storefront.i18n;
 
   if (

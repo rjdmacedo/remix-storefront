@@ -1,6 +1,5 @@
 import {
   Await,
-  useNavigate,
   useLocation,
   useLoaderData,
   useNavigation,
@@ -36,10 +35,8 @@ import type {Storefront} from '~/lib/type';
 import {
   Button,
   Select,
-  useToast,
   SelectItem,
   Typography,
-  ToastAction,
   SelectContent,
   SelectTrigger,
   buttonVariants,
@@ -183,8 +180,6 @@ export default function Product() {
 }
 
 function ProductForm() {
-  const {toast} = useToast();
-  const navigate = useNavigate();
   const {location} = useNavigation();
   const {product, analytics} = useLoaderData<typeof loader>();
   const [currentSearchParams] = useSearchParams();
@@ -260,27 +255,6 @@ function ProductForm() {
                 analytics={{
                   products: [productAnalytics],
                   totalValue: parseFloat(productAnalytics.price),
-                }}
-                onSuccess={() => {
-                  const {dismiss} = toast({
-                    title: 'Added to cart',
-                    description: (
-                      <Typography.Text>
-                        You can view your cart by clicking here.
-                      </Typography.Text>
-                    ),
-                    action: (
-                      <ToastAction
-                        altText="Go to Cart"
-                        onClick={() => {
-                          navigate('/cart');
-                          dismiss();
-                        }}
-                      >
-                        Go to cart
-                      </ToastAction>
-                    ),
-                  });
                 }}
               >
                 <span>Add to Cart</span>

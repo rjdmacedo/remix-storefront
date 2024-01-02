@@ -2,7 +2,7 @@ import * as z from 'zod';
 import React, {useState} from 'react';
 import {json, redirect} from '@shopify/remix-oxygen';
 import type {DataFunctionArgs} from '@shopify/remix-oxygen';
-import {Form, useActionData, type V2_MetaFunction} from '@remix-run/react';
+import {Form, useActionData, type MetaFunction} from '@remix-run/react';
 import {ExclamationTriangleIcon} from '@radix-ui/react-icons';
 import {EyeIcon, EyeSlashIcon} from '@heroicons/react/24/outline';
 
@@ -36,7 +36,7 @@ export const handle = {
   isPublic: true,
 };
 
-export const meta: V2_MetaFunction = () => {
+export const meta: MetaFunction = () => {
   return [{title: 'Activate Account'}];
 };
 
@@ -94,7 +94,7 @@ export async function action({
 
     session.set(CUSTOMER_ACCESS_TOKEN, accessToken);
 
-    return redirect(locale ? `${locale}/account` : '/account', {
+    return redirect(locale ? `${locale}/account/profile` : '/account/profile', {
       headers: {
         'Set-Cookie': await session.commit(),
       },

@@ -2,7 +2,7 @@ import {CartForm} from '@shopify/hydrogen';
 import {useInView} from 'react-intersection-observer';
 import React, {useEffect, useRef} from 'react';
 import type {CartBuyerIdentityInput} from '@shopify/hydrogen/storefront-api-types';
-import {useFetcher, useLocation, useMatches} from '@remix-run/react';
+import {useFetcher, useLocation} from '@remix-run/react';
 
 import {
   Icons,
@@ -14,16 +14,16 @@ import {
   SelectTrigger,
 } from '~/components/ui';
 import {cn, DEFAULT_LOCALE} from '~/lib/utils';
-import type {Localizations, Locale, I18nLocale} from '~/lib/type';
+import type {Localizations, Locale} from '~/lib/type';
 import {Heading} from '~/components/Text';
+import {useRootLoaderData} from '~/root';
 
 export function CountrySelector() {
-  const [root] = useMatches();
+  const rootData = useRootLoaderData();
   const fetcher = useFetcher();
   const {pathname, search} = useLocation();
 
-  const selectedLocale =
-    (root.data?.selectedLocale as I18nLocale) ?? DEFAULT_LOCALE;
+  const selectedLocale = rootData.selectedLocale ?? DEFAULT_LOCALE;
 
   const pathWithoutLocale = `${pathname.replace(
     selectedLocale.pathPrefix,
