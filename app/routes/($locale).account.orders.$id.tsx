@@ -34,6 +34,10 @@ export async function loader({request, context, params}: DataFunctionArgs) {
     );
   }
 
+  await context.authenticator.isAuthenticated(request, {
+    failureRedirect: `/login?redirect=/account/orders/${params.id}`,
+  });
+
   const queryParams = new URL(request.url).searchParams;
   const orderToken = queryParams.get('key');
 

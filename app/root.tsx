@@ -37,20 +37,6 @@ import {parseMenu, DEFAULT_LOCALE} from '~/lib/utils';
 
 import favicon from '../public/favicon.ico';
 
-// This is important to avoid re-fetching root queries on sub-navigations
-export const shouldRevalidate: ShouldRevalidateFunction = ({
-  nextUrl,
-  currentUrl,
-  formMethod,
-}) => {
-  // revalidate when a mutation is performed e.g add to cart, login...
-  if (formMethod && formMethod !== 'get') {
-    return true;
-  }
-  // revalidate when manually revalidating via useRevalidator
-  return currentUrl.toString() === nextUrl.toString();
-};
-
 export const links: LinksFunction = () => {
   return [
     {rel: 'stylesheet', href: styles},
@@ -65,14 +51,14 @@ export const useRootLoaderData = () => {
 };
 
 export async function loader({request, context}: LoaderFunctionArgs) {
-  const {session, storefront, cart} = context;
-  const [theme, layout, customerAccessToken, {toast, headers}] =
-    await Promise.all([
-      themeSessionResolver(request).then(({getTheme}) => getTheme()),
-      getLayoutData(context),
-      session.get(CUSTOMER_ACCESS_TOKEN),
-      getToast(request),
-    ]);
+  const {cart, storefront, authenticator} = context;
+
+  const [theme, layout, user, {toast, headers}] = await Promise.all([
+    themeSessionResolver(request).then(({getTheme}) => getTheme()),
+    getLayoutData(context),
+    authenticator.isAuthenticated(request),
+    getToast(request),
+  ]);
 
   const seo = seoPayload.root({shop: layout.shop, url: request.url});
 
@@ -83,7 +69,7 @@ export async function loader({request, context}: LoaderFunctionArgs) {
       theme,
       toast,
       layout,
-      isLoggedIn: Boolean(customerAccessToken),
+      isLoggedIn: Boolean(user),
       selectedLocale: storefront.i18n,
       analytics: {
         shopId: layout.shop.id,
@@ -143,53 +129,6 @@ function App() {
           <Outlet />
           <Toaster />
         </Layout>
-        <ScrollRestoration nonce={nonce} />
-        <Scripts nonce={nonce} />
-        <LiveReload nonce={nonce} />
-      </body>
-    </html>
-  );
-}
-
-export function ErrorBoundary({error}: {error: Error | unknown}) {
-  const nonce = useNonce();
-  const rootData = useRootLoaderData();
-  const routeError = useRouteError();
-
-  const locale = rootData?.selectedLocale ?? DEFAULT_LOCALE;
-  const isRouteError = isRouteErrorResponse(routeError);
-
-  let title = 'Error';
-  let pageType = 'page';
-
-  if (isRouteError) {
-    title = 'Not found';
-    if (routeError.status === 404) pageType = routeError.data || pageType;
-  }
-
-  return (
-    <html lang={locale.language}>
-      <head>
-        <meta charSet="utf-8" />
-        <meta name="viewport" content="width=device-width,initial-scale=1" />
-        <title>{title}</title>
-        <Meta />
-        <Links />
-      </head>
-      <body>
-        {isRouteError ? (
-          <>
-            {routeError.status === 404 ? (
-              <NotFound type={pageType} />
-            ) : (
-              <GenericError
-                error={{message: `${routeError.status} ${routeError.data}`}}
-              />
-            )}
-          </>
-        ) : (
-          <GenericError error={error instanceof Error ? error : undefined} />
-        )}
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
         <LiveReload nonce={nonce} />

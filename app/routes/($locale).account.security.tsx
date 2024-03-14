@@ -1,12 +1,12 @@
 import * as z from 'zod';
-import invariant from 'tiny-invariant';
 import {json} from '@shopify/remix-oxygen';
+import invariant from 'tiny-invariant';
 import React, {useState} from 'react';
 import type {MetaFunction} from '@remix-run/react';
 import {Form, useActionData} from '@remix-run/react';
-import type {DataFunctionArgs, LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {ExclamationTriangleIcon} from '@radix-ui/react-icons';
 import {EyeIcon, EyeSlashIcon} from '@heroicons/react/24/outline';
+import {ExclamationTriangleIcon} from '@radix-ui/react-icons';
+import type {DataFunctionArgs, LoaderFunctionArgs} from '@shopify/remix-oxygen';
 
 import {
   Alert,
@@ -27,10 +27,8 @@ import {routeHeaders} from '~/data/cache';
 import {passwordSchema} from '~/lib/validation/user';
 import {preprocessFormData} from '~/lib/forms';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
-import {requireLoggedInUser} from '~/lib/utils';
-import {redirectWithSuccess} from '~/lib/toast.server';
-
-import type {CustomerUpdateMutation} from '../../storefrontapi.generated';
+import type {CustomerUpdateMutation} from 'storefrontapi.generated';
+import {redirectWithError, redirectWithSuccess} from '~/lib/toast.server';
 
 export const handle = {
   accountChild: true,
@@ -42,13 +40,15 @@ export const meta: MetaFunction = () => {
 
 export const headers = routeHeaders;
 
-export async function loader({params, context}: LoaderFunctionArgs) {
-  await requireLoggedInUser(context, {
-    locale: params.locale,
-    redirectTo: '/account/security',
-  });
+export async function loader({request, context}: LoaderFunctionArgs) {
+  const user = await context.authenticator.isAuthenticated(request);
 
-  return json(null);
+  return user
+    ? json({user})
+    : redirectWithError(
+        '/login?redirect=/account/security',
+        'You must be logged in to update your account details.',
+      );
 }
 
 export async function action({request, context, params}: DataFunctionArgs) {

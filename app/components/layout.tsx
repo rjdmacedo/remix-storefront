@@ -26,7 +26,6 @@ import {
   Button,
   Avatar,
   ScrollArea,
-  AvatarImage,
   SheetContent,
   SheetTrigger,
   AvatarFallback,
@@ -40,7 +39,12 @@ import {
   DropdownMenuSeparator,
 } from '~/components/ui';
 import {cn, type EnhancedMenu, type ChildEnhancedMenuItem} from '~/lib/utils';
-import {useIsHydrated, useCartFetchers, useIsHomePath} from '~/hooks';
+import {
+  useIsHydrated,
+  useCartFetchers,
+  useIsHomePath,
+  usePrefixPathWithLocale,
+} from '~/hooks';
 import {type LayoutQuery} from 'storefrontapi.generated';
 import {useRootLoaderData} from '~/root';
 
@@ -220,6 +224,10 @@ function AvatarMenu() {
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
+  const cartPath = usePrefixPathWithLocale('/cart');
+  const logoutPath = usePrefixPathWithLocale('/logout');
+  const accountPath = usePrefixPathWithLocale('/account');
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
@@ -231,10 +239,10 @@ function AvatarMenu() {
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onSelect={() => navigate('/account')}>
+          <DropdownMenuItem onSelect={() => navigate(accountPath)}>
             Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => navigate('/cart')}>
+          <DropdownMenuItem onSelect={() => navigate(cartPath)}>
             Cart
           </DropdownMenuItem>
         </DropdownMenuGroup>
@@ -243,7 +251,7 @@ function AvatarMenu() {
           onSelect={() =>
             fetcher.submit(null, {
               method: 'post',
-              action: '/logout',
+              action: logoutPath,
             })
           }
         >
@@ -262,7 +270,7 @@ function AccountLink({className}: {className?: string}) {
     <AvatarMenu />
   ) : (
     <Link
-      to="/account/profile"
+      to="/login"
       prefetch="intent"
       className={({isActive}) =>
         cn(

@@ -1,9 +1,9 @@
-import {json} from '@shopify/remix-oxygen';
 import type {MetaFunction} from '@remix-run/react';
 import type {LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import {json} from '@shopify/remix-oxygen';
 
 import {routeHeaders} from '~/data/cache';
-import {requireLoggedInUser} from '~/lib/utils';
+import {redirectWithError} from '~/lib/toast.server';
 
 export const handle = {
   accountChild: true,
@@ -15,13 +15,15 @@ export const meta: MetaFunction = () => {
 
 export const headers = routeHeaders;
 
-export async function loader({params, context}: LoaderFunctionArgs) {
-  await requireLoggedInUser(context, {
-    locale: params.locale,
-    redirectTo: '/account/orders',
-  });
+export async function loader({request, context}: LoaderFunctionArgs) {
+  const user = await context.authenticator.isAuthenticated(request);
 
-  return json(null);
+  return user
+    ? json({user})
+    : redirectWithError(
+        '/login?redirect=/account/orders',
+        'You must be logged in to view your orders',
+      );
 }
 
 export default function AccountOrders() {

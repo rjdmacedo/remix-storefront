@@ -5,9 +5,10 @@ import {flattenConnection} from '@shopify/hydrogen';
 import type {MetaFunction} from '@remix-run/react';
 import type {LoaderFunctionArgs} from '@shopify/remix-oxygen';
 
+import {cn} from '~/lib/utils';
 import {useAccount} from '~/routes/($locale).account';
 import {routeHeaders} from '~/data/cache';
-import {cn, requireLoggedInUser} from '~/lib/utils';
+import {redirectWithError} from '~/lib/toast.server';
 import {AccountAddressBook, Link} from '~/components';
 import {buttonVariants, Separator, Typography} from '~/components/ui';
 
@@ -21,13 +22,15 @@ export const meta: MetaFunction = () => {
 
 export const headers = routeHeaders;
 
-export async function loader({params, context}: LoaderFunctionArgs) {
-  await requireLoggedInUser(context, {
-    locale: params.locale,
-    redirectTo: '/account/addresses',
-  });
+export async function loader({request, context}: LoaderFunctionArgs) {
+  const user = await context.authenticator.isAuthenticated(request);
 
-  return json(null);
+  return user
+    ? json({user})
+    : redirectWithError(
+        '/login?redirect=/account/addresses',
+        'You must be logged in to view your addresses.',
+      );
 }
 
 export default function AccountAddresses() {

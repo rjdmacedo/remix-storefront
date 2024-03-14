@@ -1,10 +1,11 @@
 import {
-  useMatches,
   Link as RemixLink,
   NavLink as RemixNavLink,
   type LinkProps as RemixLinkProps,
   type NavLinkProps as RemixNavLinkProps,
 } from '@remix-run/react';
+
+import {useRootLoaderData} from '~/root';
 
 type LinkProps = Omit<RemixLinkProps, 'className'> & {
   className?: RemixNavLinkProps['className'] | RemixLinkProps['className'];
@@ -25,15 +26,14 @@ type LinkProps = Omit<RemixLinkProps, 'className'> & {
  *
  * Ultimately, it is up to you to decide how to implement this behavior.
  */
-export function Link(props: LinkProps) {
-  const {to, className, ...resOfProps} = props;
-  const [root] = useMatches();
-  const selectedLocale = root.data?.selectedLocale;
+export function Link({to, className, ...resOfProps}: LinkProps) {
+  const rootData = useRootLoaderData();
+  const locale = rootData.selectedLocale;
 
   let toWithLocale = to;
 
   if (typeof to === 'string') {
-    toWithLocale = selectedLocale ? `${selectedLocale.pathPrefix}${to}` : to;
+    toWithLocale = locale ? `${locale.pathPrefix}${to}` : to;
   }
 
   if (typeof className === 'function') {

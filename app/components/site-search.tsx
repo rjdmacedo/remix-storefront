@@ -40,8 +40,8 @@ import {
   CommandSeparator,
 } from '~/components/ui';
 import type {loader} from '~/routes/($locale).search';
-import {useDebounce, useIsHydrated} from '~/hooks';
-import {cn, isDiscounted, isNewArrival} from '~/lib/utils';
+import {useDebounce, useIsHydrated, usePrefixPathWithLocale} from '~/hooks';
+import {cn, DEFAULT_LOCALE, isDiscounted, isNewArrival} from '~/lib/utils';
 import {useRootLoaderData} from '~/root';
 
 export function SiteSearch({...props}: DialogProps) {
@@ -90,10 +90,19 @@ function SearchForm() {
 }
 
 function SearchMenu({...props}: DialogProps) {
-  const rootData = useRootLoaderData();
   const fetcher = useFetcher<typeof loader>();
+  const rootData = useRootLoaderData();
   const navigate = useNavigate();
   const [theme, setTheme] = useTheme();
+
+  const locale = (rootData?.selectedLocale ?? DEFAULT_LOCALE).pathPrefix;
+
+  const homePath = usePrefixPathWithLocale('/');
+  const cartPath = usePrefixPathWithLocale('/cart');
+  const loginPath = usePrefixPathWithLocale('/login');
+  const logoutPath = usePrefixPathWithLocale('/logout');
+  const profilePath = usePrefixPathWithLocale('/account/profile');
+  const registerPath = usePrefixPathWithLocale('register');
 
   const loading = fetcher.state !== 'idle';
 
@@ -174,14 +183,14 @@ function SearchMenu({...props}: DialogProps) {
           <CommandGroup heading="Pages" value="pages-group">
             <CommandItem
               value="home"
-              onSelect={() => runCommand(() => navigate('/'))}
+              onSelect={() => runCommand(() => navigate(homePath))}
             >
               <HomeIcon className="mr-2 h-4 w-4" />
               Home
             </CommandItem>
             <CommandItem
               value="cart"
-              onSelect={() => runCommand(() => navigate('/cart'))}
+              onSelect={() => runCommand(() => navigate(cartPath))}
             >
               <ShoppingBagIcon className="mr-2 h-4 w-4" />
               Cart
@@ -189,24 +198,26 @@ function SearchMenu({...props}: DialogProps) {
             {isLoggedIn && (
               <CommandItem
                 value="account"
-                onSelect={() => runCommand(() => navigate('/account/profile'))}
+                onSelect={() => runCommand(() => navigate(profilePath))}
               >
                 <UserIcon className="mr-2 h-4 w-4" />
                 <span>My Account</span>
               </CommandItem>
             )}
-            {(menu?.items || []).map((item) => (
-              <CommandItem
-                key={item.id}
-                value={item.id}
-                onSelect={() =>
-                  runCommand(() => item.url && navigate(item.url))
-                }
-              >
-                <CursorArrowRippleIcon className="mr-2 h-4 w-4" />
-                {item.title}
-              </CommandItem>
-            ))}
+            {(menu?.items || []).map((item) => {
+              return (
+                <CommandItem
+                  key={item.id}
+                  value={item.id}
+                  onSelect={() =>
+                    runCommand(() => item.url && navigate(locale + item.to))
+                  }
+                >
+                  <CursorArrowRippleIcon className="mr-2 h-4 w-4" />
+                  {item.title}
+                </CommandItem>
+              );
+            })}
           </CommandGroup>
 
           <CommandSeparator className="my-2" alwaysRender />
@@ -219,7 +230,7 @@ function SearchMenu({...props}: DialogProps) {
                   runCommand(() =>
                     fetcher.submit(null, {
                       method: 'post',
-                      action: '/logout',
+                      action: logoutPath,
                     }),
                   )
                 }
@@ -231,14 +242,14 @@ function SearchMenu({...props}: DialogProps) {
               <>
                 <CommandItem
                   value="login"
-                  onSelect={() => runCommand(() => navigate('/login'))}
+                  onSelect={() => runCommand(() => navigate(loginPath))}
                 >
                   <EnterIcon className="mr-2 h-4 w-4" />
                   <span>Sign In</span>
                 </CommandItem>
                 <CommandItem
                   value="register"
-                  onSelect={() => runCommand(() => navigate('/register'))}
+                  onSelect={() => runCommand(() => navigate(registerPath))}
                 >
                   <UserPlusIcon className="mr-2 h-4 w-4" />
                   <span>Register</span>
