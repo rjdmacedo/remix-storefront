@@ -1,4 +1,3 @@
-export * from './use-toast';
 export * from './alert';
 export * from './aspect-ratio';
 export * from './avatar';
@@ -22,8 +21,7 @@ export * from './scroll-area';
 export * from './select';
 export * from './separator';
 export * from './sheet';
+export * from './sonner';
 export * from './table';
-export * from './toast';
-export * from './toaster';
 export * from './tooltip';
 export * from './typography';

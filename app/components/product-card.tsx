@@ -1,4 +1,5 @@
 import React from 'react';
+import {toast} from 'sonner';
 import {useFetcher} from '@remix-run/react';
 import type {MoneyV2, Product} from '@shopify/hydrogen/storefront-api-types';
 import type {ShopifyAnalyticsProduct} from '@shopify/hydrogen';
@@ -7,23 +8,22 @@ import {flattenConnection, Image, Money, useMoney} from '@shopify/hydrogen';
 import {
   Card,
   Badge,
+  Label,
   Button,
   Popover,
   Typography,
+  RadioGroup,
   CardContent,
   PopoverContent,
   PopoverTrigger,
-  RadioGroup,
   RadioGroupItem,
-  Label,
-  toast,
-  buttonVariants,
 } from '~/components/ui';
+import type {loader} from '~/routes/($locale).api.selected-variant';
+import {ShoppingBagIcon} from '@heroicons/react/24/solid';
 import {AddToCartButton, Link} from '~/components';
 import {getProductPlaceholder} from '~/lib/placeholders';
 import type {ProductCardFragment} from 'storefrontapi.generated';
 import {cn, isDiscounted, isNewArrival} from '~/lib/utils';
-import type {loader} from '~/routes/($locale).api.selected-variant';
 
 export function ProductCard({
   label,
@@ -204,16 +204,9 @@ function ProductOptionsDropdownMenu({
           disabled={!variant || isOutOfStock}
           onSuccess={() => {
             setOpen(false);
-            toast({
-              description: 'Added to cart!',
-              action: (
-                <Link
-                  to="/cart"
-                  className={cn(buttonVariants({variant: 'ghost'}))}
-                >
-                  View Cart
-                </Link>
-              ),
+            toast.success('Added to cart', {
+              icon: <ShoppingBagIcon className="h-5 w-5" />,
+              description: product.title,
             });
           }}
           lines={[

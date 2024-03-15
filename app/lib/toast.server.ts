@@ -261,7 +261,17 @@ export async function getToast(
 
 const ToastMessageSchema = z.object({
   message: z.string(),
-  type: z.custom<'info' | 'success' | 'error' | 'warning'>(),
+  type: z.custom<
+    | 'success'
+    | 'info'
+    | 'warning'
+    | 'error'
+    | 'custom'
+    | 'message'
+    | 'promise'
+    | 'dismiss'
+    | 'loading'
+  >(),
 });
 
 const FlashSessionValuesSchema = z.object({

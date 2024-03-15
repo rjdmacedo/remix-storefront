@@ -6,9 +6,7 @@ import {
   useMatches,
   LiveReload,
   useLoaderData,
-  useRouteError,
   ScrollRestoration,
-  isRouteErrorResponse,
 } from '@remix-run/react';
 import type {
   LinksFunction,
@@ -19,23 +17,20 @@ import type {
 import React from 'react';
 import {defer} from '@shopify/remix-oxygen';
 import invariant from 'tiny-invariant';
-import type {ShouldRevalidateFunction} from '@remix-run/react';
 import {ShopifySalesChannel, Seo, useNonce} from '@shopify/hydrogen';
 import {PreventFlashOnWrongTheme, ThemeProvider, useTheme} from 'remix-themes';
 
 import styles from '~/styles/tailwind.css';
 import {Layout} from '~/components';
 import {getToast} from '~/lib/toast.server';
-import {NotFound} from '~/components/NotFound';
 import {seoPayload} from '~/lib/seo.server';
 import {useAnalytics} from '~/hooks';
-import {GenericError} from '~/components/GenericError';
 import {themeSessionResolver} from '~/lib/hydrogen.server';
-import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
 import {Toaster, TooltipProvider} from '~/components/ui';
 import {parseMenu, DEFAULT_LOCALE} from '~/lib/utils';
 
 import favicon from '../public/favicon.ico';
+import {toast} from 'sonner';
 
 export const links: LinksFunction = () => {
   return [
@@ -110,6 +105,14 @@ function App() {
 
   useAnalytics(hasUserConsent, locale);
 
+  /*
+  setTimeout(() => {
+    if (data.toast) {
+      toast(data.toast.message);
+    }
+  });
+  */
+
   return (
     <html lang={locale.language} data-theme={theme ?? ''}>
       <head>
@@ -127,7 +130,7 @@ function App() {
           layout={data.layout}
         >
           <Outlet />
-          <Toaster />
+          <Toaster richColors={true} theme={theme as 'dark' | 'light'} />
         </Layout>
         <ScrollRestoration nonce={nonce} />
         <Scripts nonce={nonce} />
