@@ -1,26 +1,29 @@
-import {MetaFunction, useLoaderData} from '@remix-run/react';
+import React from 'react';
+import {MetaFunction} from '@remix-run/react';
 import type {LoaderFunctionArgs} from '@shopify/remix-oxygen';
-import {json} from '@shopify/remix-oxygen';
-
-import {routeHeaders} from '~/data/cache';
-import {redirectWithError} from '~/lib/toast.server';
-import {getCustomer, useAccount} from '~/routes/($locale).account';
 import {flattenConnection, Money} from '@shopify/hydrogen';
+
 import {
-  Button,
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
   Table,
+  Button,
+  TableRow,
+  Separator,
   TableBody,
   TableCell,
   TableHead,
+  Typography,
   TableHeader,
-  TableRow,
+  DropdownMenu,
+  DropdownMenuItem,
+  DropdownMenuContent,
+  DropdownMenuTrigger,
 } from '~/components/ui';
+import {useAccount} from '~/routes/($locale).account';
+import {routeHeaders} from '~/data/cache';
 import {statusMessage} from '~/lib/utils';
+import {redirectWithError} from '~/lib/toast.server';
 import {DotsHorizontalIcon} from '@radix-ui/react-icons';
+import {CustomerDetailsFragment} from '../../storefrontapi.generated';
 
 export const handle = {
   accountChild: true,
@@ -46,6 +49,19 @@ export async function loader({request, context}: LoaderFunctionArgs) {
 export default function AccountOrders() {
   const {customer} = useAccount();
 
+  return (
+    <div className="space-y-6">
+      <Typography.Title size="xl">Orders</Typography.Title>
+      <Typography.Text size="sm" color="muted-foreground">
+        View your order history and manage your orders.
+      </Typography.Text>
+      <Separator />
+      <OrdersTable customer={customer} />
+    </div>
+  );
+}
+
+function OrdersTable({customer}: {customer: CustomerDetailsFragment}) {
   const orders = flattenConnection(customer.orders);
 
   return (
