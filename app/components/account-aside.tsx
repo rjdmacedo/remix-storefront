@@ -11,9 +11,9 @@ import {buttonVariants} from '~/components/ui';
 
 const navigation = [
   {name: 'Profile', href: '/account/profile', icon: UserCircleIcon},
+  {name: 'Orders', href: '/account/orders', icon: ShoppingBagIcon},
   {name: 'Security', href: '/account/security', icon: FingerPrintIcon},
   {name: 'Addresses', href: '/account/addresses', icon: BookOpenIcon},
-  {name: 'Orders', href: '/account/orders', icon: ShoppingBagIcon},
 ];
 
 export function AccountAside() {

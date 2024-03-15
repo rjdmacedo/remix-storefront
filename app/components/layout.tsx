@@ -224,26 +224,39 @@ function AvatarMenu() {
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
-  const cartPath = usePrefixPathWithLocale('/cart');
+  const getAccountPath = (
+    path: 'profile' | 'security' | 'addresses' | 'orders',
+  ) => usePrefixPathWithLocale(`/account/${path}`);
+
   const logoutPath = usePrefixPathWithLocale('/logout');
-  const accountPath = usePrefixPathWithLocale('/account');
+  const [profilePath, securityPath, addressesPath, ordersPath] = (
+    ['profile', 'security', 'addresses', 'orders'] as const
+  ).map(getAccountPath);
 
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="h-8 w-8">
-          <AvatarFallback>RM</AvatarFallback>
-        </Avatar>
+        <Button size="icon" variant="ghost">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback>RM</AvatarFallback>
+          </Avatar>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent loop>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onSelect={() => navigate(accountPath)}>
+          <DropdownMenuItem onSelect={() => navigate(profilePath)}>
             Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => navigate(cartPath)}>
-            Cart
+          <DropdownMenuItem onSelect={() => navigate(ordersPath)}>
+            Orders
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => navigate(securityPath)}>
+            Security
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => navigate(addressesPath)}>
+            Addresses
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />

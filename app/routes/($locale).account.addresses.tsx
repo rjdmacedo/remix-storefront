@@ -26,7 +26,7 @@ export async function loader({request, context}: LoaderFunctionArgs) {
   const user = await context.authenticator.isAuthenticated(request);
 
   return user
-    ? json({user})
+    ? null
     : redirectWithError(
         '/login?redirect=/account/addresses',
         'You must be logged in to view your addresses.',

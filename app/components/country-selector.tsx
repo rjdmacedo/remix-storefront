@@ -8,20 +8,27 @@ import {
   Icons,
   Label,
   Button,
-  Select,
-  SelectValue,
-  SelectContent,
-  SelectTrigger,
+  Popover,
+  Command,
+  CommandItem,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  PopoverTrigger,
+  PopoverContent,
+  CommandList,
 } from '~/components/ui';
 import {cn, DEFAULT_LOCALE} from '~/lib/utils';
 import type {Localizations, Locale} from '~/lib/type';
 import {Heading} from '~/components/Text';
 import {useRootLoaderData} from '~/root';
+import {CaretSortIcon} from '@radix-ui/react-icons';
 
 export function CountrySelector() {
-  const rootData = useRootLoaderData();
   const fetcher = useFetcher();
-  const {pathname, search} = useLocation();
+  const rootData = useRootLoaderData();
+  const [open, setOpen] = React.useState(false);
+  const {search, pathname} = useLocation();
 
   const selectedLocale = rootData.selectedLocale ?? DEFAULT_LOCALE;
 
@@ -60,45 +67,68 @@ export function CountrySelector() {
         </Heading>
       </Label>
 
-      <Select>
-        <SelectTrigger id="countries-select">
-          <SelectValue placeholder={selectedLocale?.label} />
-        </SelectTrigger>
-        <SelectContent className="max-h-48" position="popper" sideOffset={5}>
-          {countries &&
-            Object.keys(countries).map((countryPath) => {
-              const countryLocale = countries[countryPath];
-              const isSelected =
-                countryLocale.language === selectedLocale.language &&
-                countryLocale.country === selectedLocale.country;
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger id="countries-select" asChild>
+          <Button
+            role="combobox"
+            variant="outline"
+            className="w-[200px] justify-between"
+            aria-expanded={open}
+          >
+            {selectedLocale.label}
+            <CaretSortIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent
+          className="max-h-48 overflow-auto w-[200px] p-0"
+          defaultValue={selectedLocale.label}
+        >
+          <Command>
+            <CommandInput placeholder="Search country..." className="h-9" />
+            <CommandList>
+              <CommandEmpty>No countries found.</CommandEmpty>
+              <CommandGroup>
+                {countries &&
+                  Object.keys(countries).map((countryPath) => {
+                    const countryLocale = countries[countryPath];
+                    const isSelected =
+                      countryLocale.language === selectedLocale.language &&
+                      countryLocale.country === selectedLocale.country;
 
-              const countryUrlPath = getCountryUrlPath({
-                countryLocale,
-                defaultLocalePrefix,
-                pathWithoutLocale,
-              });
+                    const countryUrlPath = getCountryUrlPath({
+                      countryLocale,
+                      defaultLocalePrefix,
+                      pathWithoutLocale,
+                    });
 
-              return (
-                <Country
-                  key={countryLocale.country}
-                  isSelected={isSelected}
-                  countryLocale={countryLocale}
-                  countryUrlPath={countryUrlPath}
-                />
-              );
-            })}
-        </SelectContent>
-      </Select>
+                    return (
+                      <CommandItem
+                        key={countryLocale.country}
+                        value={countryLocale.label}
+                        className={cn({
+                          'bg-primary': isSelected,
+                        })}
+                      >
+                        <Country
+                          countryLocale={countryLocale}
+                          countryUrlPath={countryUrlPath}
+                        />
+                      </CommandItem>
+                    );
+                  })}
+              </CommandGroup>
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
     </section>
   );
 }
 
 function Country({
-  isSelected,
   countryLocale,
   countryUrlPath,
 }: {
-  isSelected: boolean;
   countryLocale: Locale;
   countryUrlPath: string;
 }) {
@@ -108,17 +138,9 @@ function Country({
       redirectTo={countryUrlPath}
       buyerIdentity={{countryCode: countryLocale.country}}
     >
-      <Button
-        type="submit"
-        variant="ghost"
-        className={cn(
-          'flex w-full justify-between',
-          isSelected && 'bg-primary-foreground',
-        )}
-      >
+      <button type="submit" className="flex w-full justify-between p-0">
         {countryLocale.label}
-        {isSelected && <Icons.Check className="h-4 w-4 text-blue-500" />}
-      </Button>
+      </button>
     </ChangeLocaleForm>
   );
 }

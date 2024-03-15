@@ -44,7 +44,7 @@ export async function loader({request, context}: LoaderFunctionArgs) {
   const user = await context.authenticator.isAuthenticated(request);
 
   return user
-    ? json({user})
+    ? null
     : redirectWithError(
         '/login?redirect=/account/security',
         'You must be logged in to update your account details.',
