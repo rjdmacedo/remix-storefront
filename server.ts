@@ -1,5 +1,4 @@
 // Virtual entry point for the app
-import * as remixBuild from '@remix-run/dev/server-build';
 import {
   cartGetIdDefault,
   cartSetIdDefault,
@@ -9,13 +8,14 @@ import {
   createCustomerAccountClient,
 } from '@shopify/hydrogen';
 import {
+  type AppLoadContext,
   createRequestHandler,
   getStorefrontHeaders,
-  type AppLoadContext,
 } from '@shopify/remix-oxygen';
 import {AppSession} from '~/lib/hydrogen.server';
-import {CART_QUERY_FRAGMENT} from '~/data/fragments';
 import {authenticator} from '~/lib/authenticator.server';
+import * as remixBuild from '@remix-run/dev/server-build';
+import {CART_QUERY_FRAGMENT} from '~/data/fragments';
 
 /**
  * Export a fetch handler in module format.
