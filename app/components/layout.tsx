@@ -68,7 +68,7 @@ export function Layout({children, layout}: LayoutProps) {
 
         {header && <Header title={shop.name} menu={header} />}
 
-        <div role="main" id="main-content" className="container mb-6">
+        <div role="main" id="main-content">
           {children}
         </div>
       </div>

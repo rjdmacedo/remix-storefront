@@ -12,8 +12,6 @@ import type {
   ParentMenuItemFragment,
 } from 'storefrontapi.generated';
 import {countries} from '~/data/countries';
-import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
-import {redirectWithError} from '~/lib/toast.server';
 
 import type {I18nLocale} from './type';
 

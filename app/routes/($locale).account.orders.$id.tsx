@@ -18,7 +18,7 @@ import {
 } from '~/components/ui';
 import {cn, statusMessage} from '~/lib/utils';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
-import {PRODUCT_VARIANT_FRAGMENT} from '~/data/fragments';
+import {CART_QUERY_FRAGMENT, PRODUCT_VARIANT_FRAGMENT} from '~/data/fragments';
 import {Link, Heading, PageHeader, Section} from '~/components';
 
 import type {CustomerOrderQuery} from '../../storefrontapi.generated';
@@ -246,11 +246,8 @@ function ShippingAddress({
 }
 
 const CUSTOMER_ORDER_QUERY = `#graphql
+  ${CART_QUERY_FRAGMENT}
   ${PRODUCT_VARIANT_FRAGMENT}
-  fragment Money on MoneyV2 {
-    amount
-    currencyCode
-  }
   fragment AddressFull on MailingAddress {
     address1
     address2

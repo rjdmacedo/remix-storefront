@@ -1,14 +1,16 @@
 import type {HomepageFeaturedProductsQuery} from 'storefrontapi.generated';
 import {ProductCard, Section} from '~/components';
+import React from 'react';
 
 const mockProducts = {
   nodes: new Array(12).fill(''),
 };
 
-type ProductSwimlaneProps = HomepageFeaturedProductsQuery & {
-  title?: string;
-  count?: number;
-};
+type ProductSwimlaneProps = HomepageFeaturedProductsQuery &
+  React.ComponentProps<typeof Section> & {
+    title?: string;
+    count?: number;
+  };
 
 export function ProductSwimlane({
   count = 12,

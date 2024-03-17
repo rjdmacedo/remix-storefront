@@ -3,6 +3,7 @@
   "private": true,
   "sideEffects": false,
   "version": "2.1.6",
+  "type": "commonjs",
   "scripts": {
     "build": "shopify hydrogen build",
     "dev": "shopify hydrogen dev --codegen",

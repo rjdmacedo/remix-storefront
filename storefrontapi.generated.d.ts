@@ -58,6 +58,108 @@ export type MediaFragment =
   | Media_Model3d_Fragment
   | Media_Video_Fragment;
 
+export type MoneyFragment = Pick<
+  StorefrontAPI.MoneyV2,
+  'amount' | 'currencyCode'
+>;
+
+export type CartLineFragment = Pick<
+  StorefrontAPI.CartLine,
+  'id' | 'quantity'
+> & {
+  attributes: Array<Pick<StorefrontAPI.Attribute, 'key' | 'value'>>;
+  cost: {
+    totalAmount: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+    amountPerQuantity: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+    compareAtAmountPerQuantity?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+    >;
+  };
+  merchandise: Pick<
+    StorefrontAPI.ProductVariant,
+    'id' | 'availableForSale' | 'requiresShipping' | 'title'
+  > & {
+    compareAtPrice?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+    >;
+    price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+    image?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.Image, 'id' | 'url' | 'altText' | 'width' | 'height'>
+    >;
+    product: Pick<StorefrontAPI.Product, 'handle' | 'title' | 'id'>;
+    selectedOptions: Array<
+      Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+    >;
+  };
+};
+
+export type CartApiQueryFragment = Pick<
+  StorefrontAPI.Cart,
+  'id' | 'checkoutUrl' | 'totalQuantity' | 'note'
+> & {
+  buyerIdentity: Pick<
+    StorefrontAPI.CartBuyerIdentity,
+    'countryCode' | 'email' | 'phone'
+  > & {
+    customer?: StorefrontAPI.Maybe<
+      Pick<
+        StorefrontAPI.Customer,
+        'id' | 'email' | 'firstName' | 'lastName' | 'displayName'
+      >
+    >;
+  };
+  lines: {
+    nodes: Array<
+      Pick<StorefrontAPI.CartLine, 'id' | 'quantity'> & {
+        attributes: Array<Pick<StorefrontAPI.Attribute, 'key' | 'value'>>;
+        cost: {
+          totalAmount: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+          amountPerQuantity: Pick<
+            StorefrontAPI.MoneyV2,
+            'amount' | 'currencyCode'
+          >;
+          compareAtAmountPerQuantity?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+          >;
+        };
+        merchandise: Pick<
+          StorefrontAPI.ProductVariant,
+          'id' | 'availableForSale' | 'requiresShipping' | 'title'
+        > & {
+          compareAtPrice?: StorefrontAPI.Maybe<
+            Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+          >;
+          price: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+          image?: StorefrontAPI.Maybe<
+            Pick<
+              StorefrontAPI.Image,
+              'id' | 'url' | 'altText' | 'width' | 'height'
+            >
+          >;
+          product: Pick<StorefrontAPI.Product, 'handle' | 'title' | 'id'>;
+          selectedOptions: Array<
+            Pick<StorefrontAPI.SelectedOption, 'name' | 'value'>
+          >;
+        };
+      }
+    >;
+  };
+  cost: {
+    subtotalAmount: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+    totalAmount: Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>;
+    totalDutyAmount?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+    >;
+    totalTaxAmount?: StorefrontAPI.Maybe<
+      Pick<StorefrontAPI.MoneyV2, 'amount' | 'currencyCode'>
+    >;
+  };
+  attributes: Array<Pick<StorefrontAPI.Attribute, 'key' | 'value'>>;
+  discountCodes: Array<
+    Pick<StorefrontAPI.CartDiscountCode, 'code' | 'applicable'>
+  >;
+};
+
 export type ProductCardFragment = Pick<
   StorefrontAPI.Product,
   'id' | 'title' | 'handle' | 'vendor' | 'publishedAt'
@@ -534,11 +636,6 @@ export type CustomerDefaultAddressUpdateMutation = {
     >;
   }>;
 };
-
-export type MoneyFragment = Pick<
-  StorefrontAPI.MoneyV2,
-  'amount' | 'currencyCode'
->;
 
 export type AddressFullFragment = Pick<
   StorefrontAPI.MailingAddress,
@@ -1734,7 +1831,7 @@ interface GeneratedQueryTypes {
     return: HomepageFeaturedCollectionsQuery;
     variables: HomepageFeaturedCollectionsQueryVariables;
   };
-  '#graphql\n  #graphql\nfragment ProductVariant on ProductVariant {\n  id\n  sku\n  title\n  availableForSale\n\n  image {\n    id\n    url\n    width\n    height\n    altText\n  }\n  price {\n    amount\n    currencyCode\n  }\n  product {\n    title\n    handle\n  }\n  unitPrice {\n    amount\n    currencyCode\n  }\n  compareAtPrice {\n    amount\n    currencyCode\n  }\n  selectedOptions {\n    name\n    value\n  }\n}\n\n  fragment Money on MoneyV2 {\n    amount\n    currencyCode\n  }\n  fragment AddressFull on MailingAddress {\n    address1\n    address2\n    city\n    company\n    country\n    countryCodeV2\n    firstName\n    formatted\n    id\n    lastName\n    name\n    phone\n    province\n    provinceCode\n    zip\n  }\n  fragment DiscountApplication on DiscountApplication {\n    value {\n      __typename\n      ... on MoneyV2 {\n        amount\n        currencyCode\n      }\n      ... on PricingPercentageValue {\n        percentage\n      }\n    }\n  }\n  fragment LineItemFull on OrderLineItem {\n    title\n    quantity\n    discountAllocations {\n      allocatedAmount {\n        ...Money\n      }\n      discountApplication {\n        ...DiscountApplication\n      }\n    }\n    originalTotalPrice {\n      ...Money\n    }\n    discountedTotalPrice {\n      ...Money\n    }\n    variant {\n      ...ProductVariant\n    }\n  }\n\n  query CustomerOrder(\n    $country: CountryCode\n    $language: LanguageCode\n    $orderId: ID!\n  ) @inContext(country: $country, language: $language) {\n    node(id: $orderId) {\n      ... on Order {\n        id\n        name\n        orderNumber\n        processedAt\n        fulfillmentStatus\n        totalTaxV2 {\n          ...Money\n        }\n        totalPriceV2 {\n          ...Money\n        }\n        subtotalPriceV2 {\n          ...Money\n        }\n        shippingAddress {\n          ...AddressFull\n        }\n        discountApplications(first: 100) {\n          nodes {\n            ...DiscountApplication\n          }\n        }\n        lineItems(first: 100) {\n          nodes {\n            ...LineItemFull\n          }\n        }\n      }\n    }\n  }\n': {
+  '#graphql\n  #graphql\nfragment Money on MoneyV2 {\n  amount\n  currencyCode\n}\nfragment CartLine on CartLine {\n  id\n  quantity\n  attributes {\n    key\n    value\n  }\n  cost {\n    totalAmount {\n      ...Money\n    }\n    amountPerQuantity {\n      ...Money\n    }\n    compareAtAmountPerQuantity {\n      ...Money\n    }\n  }\n  merchandise {\n    ... on ProductVariant {\n      id\n      availableForSale\n      compareAtPrice {\n        ...Money\n      }\n      price {\n        ...Money\n      }\n      requiresShipping\n      title\n      image {\n        id\n        url\n        altText\n        width\n        height\n\n      }\n      product {\n        handle\n        title\n        id\n      }\n      selectedOptions {\n        name\n        value\n      }\n    }\n  }\n}\nfragment CartApiQuery on Cart {\n  id\n  checkoutUrl\n  totalQuantity\n  buyerIdentity {\n    countryCode\n    customer {\n      id\n      email\n      firstName\n      lastName\n      displayName\n    }\n    email\n    phone\n  }\n  lines(first: $numCartLines) {\n    nodes {\n      ...CartLine\n    }\n  }\n  cost {\n    subtotalAmount {\n      ...Money\n    }\n    totalAmount {\n      ...Money\n    }\n    totalDutyAmount {\n      ...Money\n    }\n    totalTaxAmount {\n      ...Money\n    }\n  }\n  note\n  attributes {\n    key\n    value\n  }\n  discountCodes {\n    code\n    applicable\n  }\n}\n\n  #graphql\nfragment ProductVariant on ProductVariant {\n  id\n  sku\n  title\n  availableForSale\n\n  image {\n    id\n    url\n    width\n    height\n    altText\n  }\n  price {\n    amount\n    currencyCode\n  }\n  product {\n    title\n    handle\n  }\n  unitPrice {\n    amount\n    currencyCode\n  }\n  compareAtPrice {\n    amount\n    currencyCode\n  }\n  selectedOptions {\n    name\n    value\n  }\n}\n\n  fragment AddressFull on MailingAddress {\n    address1\n    address2\n    city\n    company\n    country\n    countryCodeV2\n    firstName\n    formatted\n    id\n    lastName\n    name\n    phone\n    province\n    provinceCode\n    zip\n  }\n  fragment DiscountApplication on DiscountApplication {\n    value {\n      __typename\n      ... on MoneyV2 {\n        amount\n        currencyCode\n      }\n      ... on PricingPercentageValue {\n        percentage\n      }\n    }\n  }\n  fragment LineItemFull on OrderLineItem {\n    title\n    quantity\n    discountAllocations {\n      allocatedAmount {\n        ...Money\n      }\n      discountApplication {\n        ...DiscountApplication\n      }\n    }\n    originalTotalPrice {\n      ...Money\n    }\n    discountedTotalPrice {\n      ...Money\n    }\n    variant {\n      ...ProductVariant\n    }\n  }\n\n  query CustomerOrder(\n    $country: CountryCode\n    $language: LanguageCode\n    $orderId: ID!\n  ) @inContext(country: $country, language: $language) {\n    node(id: $orderId) {\n      ... on Order {\n        id\n        name\n        orderNumber\n        processedAt\n        fulfillmentStatus\n        totalTaxV2 {\n          ...Money\n        }\n        totalPriceV2 {\n          ...Money\n        }\n        subtotalPriceV2 {\n          ...Money\n        }\n        shippingAddress {\n          ...AddressFull\n        }\n        discountApplications(first: 100) {\n          nodes {\n            ...DiscountApplication\n          }\n        }\n        lineItems(first: 100) {\n          nodes {\n            ...LineItemFull\n          }\n        }\n      }\n    }\n  }\n': {
     return: CustomerOrderQuery;
     variables: CustomerOrderQueryVariables;
   };

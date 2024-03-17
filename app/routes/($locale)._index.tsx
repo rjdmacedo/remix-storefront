@@ -103,6 +103,7 @@ export default function Homepage() {
                   products={products}
                   title="Featured Products"
                   count={4}
+                  className="mx-4"
                 />
               );
             }}

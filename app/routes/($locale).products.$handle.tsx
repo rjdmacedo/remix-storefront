@@ -7,11 +7,11 @@ import {
 } from '@remix-run/react';
 import invariant from 'tiny-invariant';
 import {Disclosure} from '@headlessui/react';
-import {AnalyticsPageType, Money} from '@shopify/hydrogen';
+import {Money, AnalyticsPageType} from '@shopify/hydrogen';
 import type {SelectedOptionInput} from '@shopify/hydrogen/storefront-api-types';
-import type {ShopifyAnalyticsProduct} from '@shopify/hydrogen';
-import {defer, type DataFunctionArgs} from '@shopify/remix-oxygen';
-import React, {type ReactNode, Suspense, useMemo} from 'react';
+import {defer, LoaderFunctionArgs} from '@shopify/remix-oxygen';
+import React, {ReactNode, Suspense, useMemo} from 'react';
+import type {Storefront, ShopifyAnalyticsProduct} from '@shopify/hydrogen';
 
 import {
   MEDIA_FRAGMENT,
@@ -31,7 +31,6 @@ import {
 import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
 import {cn, getExcerpt} from '~/lib/utils';
-import type {Storefront} from '~/lib/type';
 import {
   Button,
   Select,
@@ -49,7 +48,7 @@ import type {
 
 export const headers = routeHeaders;
 
-export async function loader({params, request, context}: DataFunctionArgs) {
+export async function loader({params, request, context}: LoaderFunctionArgs) {
   const {handle} = params;
   invariant(handle, 'Missing "$handle" param, check route filename');
 

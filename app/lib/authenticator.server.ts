@@ -8,7 +8,7 @@ import {doLogin} from '~/routes/($locale).login';
 import {getCustomer} from '~/routes/($locale).account';
 import {preprocessFormData} from '~/lib/forms';
 import {emailSchema, passwordSchema} from '~/lib/validation/user';
-import {HydrogenSession} from '~/lib/hydrogen.server';
+import {AppSession} from '~/lib/hydrogen.server';
 
 // Create an instance of the authenticator, pass a generic with what
 // strategies will return and will store in the session
@@ -16,7 +16,7 @@ export const authenticator = new Authenticator<
   Pick<StorefrontAPI.Customer, 'email' | 'firstName' | 'lastName'> & {
     token: string;
   }
->(HydrogenSession.storage, {
+>(AppSession.storage, {
   sessionKey: 'user',
   sessionErrorKey: 'access-token-error',
 });

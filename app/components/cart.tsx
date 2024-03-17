@@ -7,8 +7,8 @@ import type {
 import React, {useRef} from 'react';
 import {useScroll} from 'react-use';
 import {
-  Money,
   Image,
+  Money,
   CartForm,
   OptimisticInput,
   flattenConnection,
@@ -16,8 +16,8 @@ import {
 } from '@shopify/hydrogen';
 
 import {cn, getInputStyleClasses} from '~/lib/utils';
+import {FeaturedProducts, IconRemove, Link} from '~/components';
 import {Button, buttonVariants, Typography} from '~/components/ui';
-import {IconRemove, Link, FeaturedProducts} from '~/components';
 
 type Layout = 'page' | 'drawer';
 
@@ -297,19 +297,32 @@ function CartLineItem({line}: {line: CartLine}) {
 }
 
 function ItemRemoveButton({lineId}: {lineId: CartLine['id']}) {
+  const optimisticData = useOptimisticData<OptimisticData>(lineId);
   return (
-    <CartForm
-      route="/cart"
-      inputs={{lineIds: [lineId]}}
-      action={CartForm.ACTIONS.LinesRemove}
+    <div
+      style={{
+        // TODO: improve this
+        // Hide the line item if the optimistic data action is remove
+        // Do not remove the form from the DOM
+        display: optimisticData?.action === 'remove' ? 'none' : 'block',
+      }}
     >
-      {(fetcher) => (
-        <Button size="icon" type="submit" variant="outline">
-          <span className="sr-only">Remove</span>
-          <IconRemove aria-hidden="true" />
-        </Button>
-      )}
-    </CartForm>
+      <CartForm
+        route="/cart"
+        inputs={{lineIds: [lineId]}}
+        action={CartForm.ACTIONS.LinesRemove}
+      >
+        {(fetcher) => (
+          <>
+            <Button size="icon" type="submit" variant="outline">
+              <span className="sr-only">Remove</span>
+              <IconRemove aria-hidden="true" />
+            </Button>
+            <OptimisticInput id={lineId} data={{action: 'remove'}} />
+          </>
+        )}
+      </CartForm>
+    </div>
   );
 }
 
