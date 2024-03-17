@@ -10,16 +10,13 @@ export default async function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext,
 ) {
-  // Create the Content Security Policy
   const {nonce, header, NonceProvider} = createContentSecurityPolicy();
 
   const body = await renderToReadableStream(
-    // Wrap the entire app in the nonce provider
     <NonceProvider>
       <RemixServer context={remixContext} url={request.url} />
     </NonceProvider>,
     {
-      // Pass the nonce to react
       nonce,
       signal: request.signal,
       onError(error) {
@@ -35,7 +32,6 @@ export default async function handleRequest(
   }
 
   responseHeaders.set('Content-Type', 'text/html');
-  // Add the CSP header
   responseHeaders.set('Content-Security-Policy', header);
 
   return new Response(body, {

@@ -1,45 +1,20 @@
-import {
-  Form,
-  useActionData,
-  useLoaderData,
-  type MetaFunction,
-} from '@remix-run/react';
-import {json, redirect} from '@shopify/remix-oxygen';
+import {Form, useLoaderData, type MetaFunction} from '@remix-run/react';
+import {json} from '@shopify/remix-oxygen';
 import type {
   AppLoadContext,
   LoaderFunctionArgs,
   ActionFunctionArgs,
 } from '@shopify/remix-oxygen';
-import * as z from 'zod';
 import React, {useState} from 'react';
-import {ExclamationTriangleIcon} from '@radix-ui/react-icons';
 import {EyeIcon, EyeSlashIcon} from '@heroicons/react/24/outline';
 
-import {
-  Input,
-  Alert,
-  Label,
-  Button,
-  AlertTitle,
-  Typography,
-  AlertDescription,
-} from '~/components/ui';
+import {Input, Label, Button, Typography} from '~/components/ui';
 import {Link} from '~/components';
-import {preprocessFormData} from '~/lib/forms';
-import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
-import {emailSchema, passwordSchema} from '~/lib/validation/user';
 import type {
   ShopNameQuery,
   CustomerAccessTokenCreateMutation,
 } from 'storefrontapi.generated';
-import {redirectWithSuccess} from '~/lib/toast.server';
-
-const LoginFormSchema = z.object({
-  email: emailSchema,
-  password: passwordSchema,
-});
-
-type FormData = z.infer<typeof LoginFormSchema>;
+import {jsonWithError, redirectWithSuccess} from '~/lib/toast.server';
 
 export const handle = {
   isPublic: true,
@@ -49,85 +24,58 @@ export const meta: MetaFunction = () => {
   return [{title: 'Login'}];
 };
 
-export async function loader({context, params}: LoaderFunctionArgs) {
-  const token = await context.session.get(CUSTOMER_ACCESS_TOKEN);
+export async function loader({context, params, request}: LoaderFunctionArgs) {
+  const {session, storefront, authenticator} = context;
 
-  if (token) {
-    return redirect(
-      params.locale ? `${params.locale}/account/profile` : '/account/profile',
-    );
-  }
+  const searchParams = new URL(request.url).searchParams;
+  const successRedirect =
+    searchParams.get('redirect') ||
+    searchParams.get('return_to') ||
+    params.locale
+      ? `/${params.locale}/account/profile`
+      : '/account/profile';
 
-  const {shop} = await context.storefront.query<ShopNameQuery>(SHOP_QUERY, {
-    variables: {language: context.storefront.i18n.language},
+  // If the user is already logged in, redirect them to the successRedirect.
+  await authenticator.isAuthenticated(request, {successRedirect});
+
+  const error = session.get(authenticator.sessionErrorKey);
+
+  const {shop} = await storefront.query<ShopNameQuery>(SHOP_QUERY, {
+    variables: {language: storefront.i18n.language},
   });
+
+  if (error) {
+    return jsonWithError({shopName: shop.name}, error.message);
+  }
 
   return json({shopName: shop.name});
 }
 
-export async function action({request, context, params}: ActionFunctionArgs) {
-  const formData = await request.clone().formData();
+export async function action({context, params, request}: ActionFunctionArgs) {
+  const searchParams = new URL(request.url).searchParams;
+  const redirectTo =
+    searchParams.get('redirect') ||
+    searchParams.get('return_to') ||
+    params.locale
+      ? `/${params.locale}/account/profile`
+      : '/account/profile';
 
-  const result = LoginFormSchema.safeParse(
-    preprocessFormData(formData, LoginFormSchema),
-  );
+  const user = await context.authenticator.authenticate('user-pass', request, {
+    context,
+    failureRedirect: '/login',
+  });
 
-  if (!result.success) {
-    return json(
-      {
-        status: 'error',
-        errors: result.error.flatten(),
-      } as const,
-      {
-        status: 400,
-      },
-    );
-  }
+  context.session.set(context.authenticator.sessionKey, user);
+  const headers = new Headers({
+    'Set-Cookie': await context.session.commit(),
+  });
 
-  const {session, storefront} = context;
-
-  try {
-    const customerAccessToken = await doLogin(context, {
-      email: result.data.email,
-      password: result.data.password,
-    });
-    session.set(CUSTOMER_ACCESS_TOKEN, customerAccessToken);
-
-    const {searchParams} = new URL(request.url);
-    const redirectTo = searchParams.get('redirect') || '/account/profile';
-
-    return redirectWithSuccess(
-      params.locale ? params.locale + redirectTo : redirectTo,
-      'You are now logged in.',
-      {headers: {'Set-Cookie': await session.commit()}},
-    );
-  } catch (error: any) {
-    if (storefront.isApiError(error)) {
-      return badRequest({
-        formErrors: ['Something went wrong. Please try again later.'],
-        fieldErrors: {},
-      });
-    }
-
-    /**
-     * The user did something wrong, but the raw error from the API is not super friendly.
-     * Let's make one up.
-     */
-    return badRequest({
-      formErrors: [
-        'Sorry. We did not recognize either your email or password. Please try to sign in again or create a new account.',
-      ],
-      fieldErrors: {},
-    });
-  }
+  return redirectWithSuccess(redirectTo, `Welcome back!`, {headers});
 }
 
 export default function Login() {
-  const actionData = useActionData<typeof action>();
   const {shopName} = useLoaderData<typeof loader>();
   const [eyeOpen, setEyeOpen] = useState(false);
-
-  const formHasError = actionData?.status === 'error';
 
   return (
     <div className="my-24 flex justify-center px-4">
@@ -139,16 +87,6 @@ export default function Login() {
           noValidate
           className="mb-4 mt-4 space-y-4 pb-8 pt-6"
         >
-          {formHasError && actionData?.errors?.formErrors.length > 0 && (
-            <Alert variant="destructive">
-              <ExclamationTriangleIcon />
-              <AlertTitle>Uh oh!</AlertTitle>
-              <AlertDescription>
-                {actionData?.errors?.formErrors[0]}
-              </AlertDescription>
-            </Alert>
-          )}
-
           <div className="flex flex-col space-y-2">
             <Label htmlFor="email">Email Address</Label>
             <Input
@@ -161,11 +99,6 @@ export default function Login() {
               aria-label="Email address"
               autoComplete="email"
             />
-            {actionData?.errors.fieldErrors.email && (
-              <Typography.Text color="destructive" size="xs">
-                {actionData?.errors.fieldErrors.email[0]}
-              </Typography.Text>
-            )}
           </div>
 
           <div className="flex flex-col space-y-2">
@@ -192,11 +125,6 @@ export default function Login() {
                 </Button>
               }
             />
-            {actionData?.errors.fieldErrors.password && (
-              <Typography.Text color="destructive" size="xs">
-                {actionData?.errors.fieldErrors.password[0]}
-              </Typography.Text>
-            )}
           </div>
 
           <div className="flex items-center justify-between">
@@ -226,18 +154,6 @@ export default function Login() {
     </div>
   );
 }
-
-const badRequest = (data: z.typeToFlattenedError<FormData>) =>
-  json(
-    {
-      status: 'error',
-      errors: {
-        formErrors: data.formErrors,
-        fieldErrors: data.fieldErrors,
-      },
-    } as const,
-    {status: 400},
-  );
 
 const SHOP_QUERY = `#graphql
   query ShopName($language: LanguageCode) @inContext(language: $language) {

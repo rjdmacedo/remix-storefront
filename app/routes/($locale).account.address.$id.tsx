@@ -4,7 +4,7 @@ import type {DataFunctionArgs} from '@shopify/remix-oxygen';
 import type {MailingAddressInput} from '@shopify/hydrogen/storefront-api-types';
 
 import {jsonWithError, jsonWithSuccess} from '~/lib/toast.server';
-import {assertApiErrors, requireLoggedInUser} from '~/lib/utils';
+import {assertApiErrors} from '~/lib/utils';
 import type {
   CustomerAddressCreateMutation,
   CustomerAddressDeleteMutation,
@@ -16,13 +16,12 @@ export async function loader() {
   return redirect('/account/addresses');
 }
 
-export async function action({params, context, request}: DataFunctionArgs) {
-  const {token} = await requireLoggedInUser(context, {
-    locale: params.locale,
-    redirectTo: `/account/addresses`,
-  });
+export async function action({context, request}: DataFunctionArgs) {
+  const {storefront, authenticator} = context;
 
-  const {storefront} = context;
+  const user = await authenticator.isAuthenticated(request, {
+    failureRedirect: '/login',
+  });
 
   const formData = await request.formData();
 
@@ -36,7 +35,7 @@ export async function action({params, context, request}: DataFunctionArgs) {
         {
           variables: {
             id: addressId,
-            token,
+            token: user.token,
           },
         },
       );
@@ -84,7 +83,7 @@ export async function action({params, context, request}: DataFunctionArgs) {
       const data = await storefront.mutate<CustomerAddressCreateMutation>(
         CREATE_ADDRESS_MUTATION,
         {
-          variables: {token, address},
+          variables: {token: user.token, address},
         },
       );
 
@@ -98,7 +97,7 @@ export async function action({params, context, request}: DataFunctionArgs) {
             UPDATE_DEFAULT_ADDRESS_MUTATION,
             {
               variables: {
-                token,
+                token: user.token,
                 addressId: newId,
               },
             },
@@ -124,7 +123,7 @@ export async function action({params, context, request}: DataFunctionArgs) {
         {
           variables: {
             id: decodeURIComponent(addressId),
-            token,
+            token: user.token,
             address,
           },
         },
@@ -138,7 +137,7 @@ export async function action({params, context, request}: DataFunctionArgs) {
             UPDATE_DEFAULT_ADDRESS_MUTATION,
             {
               variables: {
-                token,
+                token: user.token,
                 addressId: decodeURIComponent(addressId),
               },
             },

@@ -1,27 +1,25 @@
-import {
-  StarIcon,
-  TrashIcon,
-  PencilSquareIcon,
-} from '@heroicons/react/24/outline';
 import React from 'react';
-import {Form} from '@remix-run/react';
+import {StarIcon} from '@heroicons/react/24/solid';
+import {PersonIcon, SewingPinIcon} from '@radix-ui/react-icons';
 import type {MailingAddress} from '@shopify/hydrogen/storefront-api-types';
 
 import {
+  Card,
   Button,
-  Dialog,
   Typography,
-  DialogTitle,
-  DialogFooter,
-  DialogTrigger,
-  DialogContent,
-  DialogDescription,
+  CardFooter,
+  CardContent,
 } from '~/components/ui';
 import {
-  AccountAddressDeleteDialog,
   AccountAddressEditDialog,
+  AccountAddressDeleteDialog,
 } from '~/components';
 import type {CustomerDetailsFragment} from 'storefrontapi.generated';
+import {
+  BriefcaseIcon,
+  DevicePhoneMobileIcon,
+} from '@heroicons/react/24/outline';
+import {useFetcher} from '@remix-run/react';
 
 export function AccountAddressBook({
   customer,
@@ -52,101 +50,201 @@ export function AccountAddressBook({
   };
 
   return (
-    <>
-      <div className="grid w-full gap-4">
-        {!addresses?.length && (
-          <Typography.Text className="mb-1" as="p">
-            You haven&apos;t saved any addresses yet.
-          </Typography.Text>
-        )}
+    <div className="grid gap-4">
+      {!addresses?.length && (
+        <Typography.Text className="mb-1" as="p">
+          You haven&apos;t saved any addresses yet.
+        </Typography.Text>
+      )}
 
-        <div className="@container/addresses">
-          {Boolean(addresses?.length) && (
-            <div className="grid grid-cols-1 gap-6 @xl/addresses:grid-cols-2 @2xl/addresses:grid-cols-3">
-              {customer.defaultAddress && (
-                <Address
-                  address={customer.defaultAddress}
-                  onEdit={handleOnEdit}
-                  onDelete={handleOnDelete}
-                  defaultAddress
-                />
-              )}
-              {addresses
-                .filter((address) => address.id !== customer.defaultAddress?.id)
-                .map((address) => (
-                  <Address
-                    key={address.id}
-                    address={address}
-                    onEdit={handleOnEdit}
-                    onDelete={handleOnDelete}
-                  />
-                ))}
-
-              <AccountAddressEditDialog
-                open={isEditDialogOpen}
-                address={address!}
-                setOpen={setIsEditDialogOpen}
-                defaultAddress={address?.id === customer.defaultAddress?.id}
-              />
-
-              <AccountAddressDeleteDialog
-                open={isDeleteDialogOpen}
-                address={address!}
-                setOpen={setIsDeleteDialogOpen}
-              />
-            </div>
+      {Boolean(addresses?.length) && (
+        <>
+          {customer.defaultAddress && (
+            <AddressCard
+              address={customer.defaultAddress}
+              customer={customer}
+              onEdit={handleOnEdit}
+              onDelete={handleOnDelete}
+              defaultAddress
+            />
           )}
-        </div>
-      </div>
-    </>
+          {addresses
+            .filter((address) => address.id !== customer.defaultAddress?.id)
+            .map((address) => (
+              <AddressCard
+                key={address.id}
+                address={address}
+                customer={customer}
+                onEdit={handleOnEdit}
+                onDelete={handleOnDelete}
+              />
+            ))}
+        </>
+      )}
+
+      <AccountAddressEditDialog
+        open={isEditDialogOpen}
+        address={address!}
+        setOpen={setIsEditDialogOpen}
+        defaultAddress={address?.id === customer.defaultAddress?.id}
+      />
+
+      <AccountAddressDeleteDialog
+        open={isDeleteDialogOpen}
+        address={address!}
+        setOpen={setIsDeleteDialogOpen}
+      />
+    </div>
   );
 }
 
-function Address({
+function AddressCard({
   address,
+  customer,
   onEdit,
   onDelete,
   defaultAddress,
 }: {
   address: MailingAddress;
+  customer: CustomerDetailsFragment;
   onEdit: (address: MailingAddress) => void;
   onDelete: (address: MailingAddress) => void;
   defaultAddress?: boolean;
 }) {
   return (
-    <div className="@container/address relative flex flex-col rounded border shadow-lg py-2 px-4">
-      {defaultAddress && (
+    <Card>
+      <CardContent className="flex flex-col gap-2 p-6">
+        <AddressCardSection
+          icon={<PersonIcon className="h-6 w-6" />}
+          header="Name"
+          content={`${address.firstName} ${address.lastName}`}
+        />
+        <AddressCardSection
+          icon={<SewingPinIcon className="h-6 w-6" />}
+          header="Address"
+          content={
+            <div className="flex flex-col space-y-1">
+              <Typography.Text size="sm" weight="light">
+                {[address.address1, address.address2]
+                  .filter(Boolean)
+                  .join(', ')}
+              </Typography.Text>
+              <Typography.Text size="sm" weight="light">
+                {[address.city, address.zip, address.province]
+                  .filter(Boolean)
+                  .join(', ')}
+              </Typography.Text>
+              <Typography.Text size="sm" weight="light">
+                {address.country}
+              </Typography.Text>
+            </div>
+          }
+        />
+        {address.company && (
+          <AddressCardSection
+            icon={<BriefcaseIcon className="h-6 w-6" />}
+            header="Company"
+            content={address.company}
+          />
+        )}
+        {(address.phone || customer.email) && (
+          <AddressCardSection
+            icon={<DevicePhoneMobileIcon className="h-6 w-6" />}
+            header="Contact"
+            content={
+              <div className="flex flex-col space-y-1">
+                <Typography.Text size="sm" weight="light">
+                  {address.phone}
+                </Typography.Text>
+                <Typography.Text size="sm" weight="light">
+                  {customer.email}
+                </Typography.Text>
+              </div>
+            }
+          />
+        )}
+      </CardContent>
+      <CardFooter className="flex gap-2">
+        <Button size="sm" onClick={() => onEdit(address)}>
+          Edit
+        </Button>
+        <Button size="sm" variant="outline" onClick={() => onDelete(address)}>
+          Delete
+        </Button>
+
+        <DefaultAddressButton
+          address={address}
+          defaultAddress={defaultAddress}
+        />
+      </CardFooter>
+    </Card>
+  );
+}
+
+function DefaultAddressButton({
+  address,
+  defaultAddress,
+}: {
+  address: MailingAddress;
+  defaultAddress?: boolean;
+}) {
+  const fetcher = useFetcher();
+
+  function handleOnClick() {
+    fetcher.submit(
+      {
+        defaultAddress: true,
+        'address-id': address?.id,
+      },
+      {
+        method: 'post',
+        action: `/account/address/${encodeURIComponent(address.id)}`,
+      },
+    );
+  }
+
+  if (defaultAddress)
+    return (
+      <>
         <StarIcon
           title="This address is your default address"
-          className="absolute top-4 right-4 @md/address:top-6 @md/address:right-6 w-6 h-6 fill-yellow-400 stroke-yellow-400"
+          className="h-6 w-6 fill-yellow-400 stroke-yellow-400"
         />
-      )}
-      <ul className="flex-1 flex-row">
-        {(address.firstName || address.lastName) && (
-          <li>
-            {'' +
-              (address.firstName && address.firstName + ' ') +
-              address?.lastName}
-          </li>
-        )}
-        {address.formatted &&
-          address.formatted.map((line: string) => <li key={line}>{line}</li>)}
-      </ul>
+        <Typography.Text
+          size="xs"
+          weight="light"
+          className="text-gray-500 dark:text-gray-400"
+        >
+          This address is your default address
+        </Typography.Text>
+      </>
+    );
 
-      <div className="mt-3 flex flex-row justify-end">
-        <Button variant="ghost" size="icon" onClick={() => onEdit(address)}>
-          <PencilSquareIcon
-            title="Edit this address"
-            className="h-5 w-5 stroke-primary"
-          />
-        </Button>
+  return (
+    <Button size="icon" type="submit" variant="ghost" onClick={handleOnClick}>
+      <StarIcon
+        title="This address is your default address"
+        className="h-6 w-6 fill-yellow-400 stroke-yellow-400"
+      />
+    </Button>
+  );
+}
 
-        <Button variant="ghost" size="icon" onClick={() => onDelete(address)}>
-          <TrashIcon
-            title="Delete this address"
-            className="h-5 w-5 stroke-destructive"
-          />
-        </Button>
+function AddressCardSection({
+  icon,
+  header,
+  content,
+}: {
+  icon: React.ReactNode;
+  header: string;
+  content: React.ReactNode | string;
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      {icon}
+      <div className="flex flex-col">
+        <h3 className="font-semibold">{header}</h3>
+        <p className="text-sm text-gray-500 dark:text-gray-400">{content}</p>
       </div>
     </div>
   );

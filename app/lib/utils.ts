@@ -14,7 +14,6 @@ import type {
 import {countries} from '~/data/countries';
 import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
 import {redirectWithError} from '~/lib/toast.server';
-import {getCustomer} from '~/routes/($locale).account';
 
 import type {I18nLocale} from './type';
 
@@ -291,6 +290,10 @@ export const DEFAULT_LOCALE: I18nLocale = Object.freeze({
   pathPrefix: '',
 });
 
+/**
+ * Returns the locale from the request
+ * @param request - Remix request
+ */
 export function getLocaleFromRequest(request: Request): I18nLocale {
   const url = new URL(request.url);
   const firstPathPart =
@@ -334,39 +337,14 @@ export function isLocalPath(url: string) {
   return false;
 }
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
+export function prefixPathWithLocale(
+  path: string,
+  storefront: AppLoadContext['storefront'],
+) {
+  const locale = storefront.i18n ?? DEFAULT_LOCALE;
+  return `${locale.pathPrefix}${path.startsWith('/') ? path : '/' + path}`;
 }
 
-export async function requireLoggedInUser(
-  context: AppLoadContext,
-  {
-    locale,
-    redirectTo = '/',
-  }: {
-    locale?: string;
-    redirectTo?: string;
-  } = {},
-) {
-  try {
-    const token = await context.session.get(CUSTOMER_ACCESS_TOKEN);
-
-    if (!token) throw new Error('No token found');
-
-    return {
-      token: String(token),
-    };
-  } catch (error: any) {
-    context.session.unset(CUSTOMER_ACCESS_TOKEN);
-    const loginPath = locale ? `/${locale}/login` : '/login';
-    return redirectWithError(
-      loginPath + '?redirect=' + redirectTo,
-      error.message,
-      {
-        headers: {
-          'Set-Cookie': await context.session.commit(),
-        },
-      },
-    );
-  }
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }

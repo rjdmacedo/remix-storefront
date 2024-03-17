@@ -21,7 +21,6 @@ import {
 import {
   UserIcon,
   UserPlusIcon,
-  CursorArrowRippleIcon,
   ShoppingBagIcon,
 } from '@heroicons/react/24/outline';
 import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
@@ -40,7 +39,7 @@ import {
   CommandSeparator,
 } from '~/components/ui';
 import type {loader} from '~/routes/($locale).search';
-import {useDebounce, useIsHydrated} from '~/hooks';
+import {useDebounce, useIsHydrated, usePrefixPathWithLocale} from '~/hooks';
 import {cn, isDiscounted, isNewArrival} from '~/lib/utils';
 import {useRootLoaderData} from '~/root';
 
@@ -90,17 +89,26 @@ function SearchForm() {
 }
 
 function SearchMenu({...props}: DialogProps) {
-  const rootData = useRootLoaderData();
   const fetcher = useFetcher<typeof loader>();
+  const rootData = useRootLoaderData();
   const navigate = useNavigate();
   const [theme, setTheme] = useTheme();
+
+  // const locale = (rootData?.selectedLocale ?? DEFAULT_LOCALE).pathPrefix;
+
+  const homePath = usePrefixPathWithLocale('/');
+  const cartPath = usePrefixPathWithLocale('/cart');
+  const loginPath = usePrefixPathWithLocale('/login');
+  const logoutPath = usePrefixPathWithLocale('/logout');
+  const profilePath = usePrefixPathWithLocale('/account/profile');
+  const registerPath = usePrefixPathWithLocale('register');
 
   const loading = fetcher.state !== 'idle';
 
   const [open, setOpen] = React.useState(false);
   const [query, setQuery] = React.useState('');
 
-  const menu = rootData?.layout?.header;
+  // const menu = rootData?.layout?.header;
   const isLoggedIn: boolean = rootData?.isLoggedIn;
 
   const products = flattenConnection(fetcher.data?.products) || [];
@@ -143,8 +151,8 @@ function SearchMenu({...props}: DialogProps) {
         onClick={() => setOpen(true)}
         {...props}
       >
-        <span className="hidden lg:inline-flex">Search something...</span>
         <span className="inline-flex lg:hidden">Search...</span>
+        <span className="hidden lg:inline-flex">Search something...</span>
         <kbd className="pointer-events-none absolute right-1.5 top-2 hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
           <span className="text-xs">⌘</span>K
         </kbd>
@@ -166,22 +174,21 @@ function SearchMenu({...props}: DialogProps) {
             </CommandLoading>
           )}
 
-          <CommandEmpty className="flex items-center justify-center">
-            <span>No results found.</span>
-            {loading && <span className="ml-2">Searching...</span>}
-          </CommandEmpty>
+          <div className="flex items-center justify-center">
+            <CommandEmpty>No results found.</CommandEmpty>
+          </div>
 
           <CommandGroup heading="Pages" value="pages-group">
             <CommandItem
               value="home"
-              onSelect={() => runCommand(() => navigate('/'))}
+              onSelect={() => runCommand(() => navigate(homePath))}
             >
               <HomeIcon className="mr-2 h-4 w-4" />
               Home
             </CommandItem>
             <CommandItem
               value="cart"
-              onSelect={() => runCommand(() => navigate('/cart'))}
+              onSelect={() => runCommand(() => navigate(cartPath))}
             >
               <ShoppingBagIcon className="mr-2 h-4 w-4" />
               Cart
@@ -189,27 +196,29 @@ function SearchMenu({...props}: DialogProps) {
             {isLoggedIn && (
               <CommandItem
                 value="account"
-                onSelect={() => runCommand(() => navigate('/account/profile'))}
+                onSelect={() => runCommand(() => navigate(profilePath))}
               >
                 <UserIcon className="mr-2 h-4 w-4" />
                 <span>My Account</span>
               </CommandItem>
             )}
-            {(menu?.items || []).map((item) => (
+            {/**
+              (menu?.items || []).map((item) => (
               <CommandItem
                 key={item.id}
                 value={item.id}
                 onSelect={() =>
-                  runCommand(() => item.url && navigate(item.url))
+                  runCommand(() => item.url && navigate(locale + item.to))
                 }
               >
                 <CursorArrowRippleIcon className="mr-2 h-4 w-4" />
                 {item.title}
               </CommandItem>
-            ))}
+            ))
+             */}
           </CommandGroup>
 
-          <CommandSeparator className="my-2" alwaysRender />
+          <CommandSeparator className="my-2" />
 
           <CommandGroup heading="Actions" value="actions-group">
             {isLoggedIn ? (
@@ -219,7 +228,7 @@ function SearchMenu({...props}: DialogProps) {
                   runCommand(() =>
                     fetcher.submit(null, {
                       method: 'post',
-                      action: '/logout',
+                      action: logoutPath,
                     }),
                   )
                 }
@@ -231,14 +240,14 @@ function SearchMenu({...props}: DialogProps) {
               <>
                 <CommandItem
                   value="login"
-                  onSelect={() => runCommand(() => navigate('/login'))}
+                  onSelect={() => runCommand(() => navigate(loginPath))}
                 >
                   <EnterIcon className="mr-2 h-4 w-4" />
                   <span>Sign In</span>
                 </CommandItem>
                 <CommandItem
                   value="register"
-                  onSelect={() => runCommand(() => navigate('/register'))}
+                  onSelect={() => runCommand(() => navigate(registerPath))}
                 >
                   <UserPlusIcon className="mr-2 h-4 w-4" />
                   <span>Register</span>

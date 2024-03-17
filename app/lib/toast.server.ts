@@ -18,7 +18,7 @@ const createCookie = createCookieFactory({
 
 const sessionStorage = createCookieSessionStorageFactory(createCookie)({
   cookie: {
-    name: 'toast-session',
+    name: '__toast',
     sameSite: 'lax',
     path: '/',
     httpOnly: true,
@@ -31,7 +31,7 @@ function getSessionFromRequest(request: Request) {
   return sessionStorage.getSession(cookie);
 }
 
-async function flashMessage(
+export async function flashMessage(
   flash: FlashSessionValues,
   headers?: ResponseInit['headers'],
 ) {
@@ -244,7 +244,7 @@ export function redirectWithInfo(
 /**
  * Helper method used to get the toast data from the current request and purge the flash storage from the session
  * @param request Current request
- * @returns Returns the the toast notification if exists, undefined otherwise and the headers needed to purge it from the session
+ * @returns Returns the toast notification if exists, undefined otherwise and the headers needed to purge it from the session
  */
 export async function getToast(
   request: Request,
@@ -261,7 +261,17 @@ export async function getToast(
 
 const ToastMessageSchema = z.object({
   message: z.string(),
-  type: z.custom<'info' | 'success' | 'error' | 'warning'>(),
+  type: z.custom<
+    | 'success'
+    | 'info'
+    | 'warning'
+    | 'error'
+    | 'custom'
+    | 'message'
+    | 'promise'
+    | 'dismiss'
+    | 'loading'
+  >(),
 });
 
 const FlashSessionValuesSchema = z.object({

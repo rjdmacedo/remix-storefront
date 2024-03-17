@@ -7,23 +7,20 @@ import {
   Form as RemixForm,
 } from '@remix-run/react';
 import React from 'react';
-import {defer, json, redirect} from '@shopify/remix-oxygen';
+import {defer, redirect} from '@shopify/remix-oxygen';
 import type {LoaderFunctionArgs, AppLoadContext} from '@shopify/remix-oxygen';
 
+import type {
+  CustomerDetailsQuery,
+  CustomerDetailsFragment,
+} from 'storefrontapi.generated';
 import {getFeaturedData} from '~/routes/($locale).featured-products';
 import type {FeaturedData} from '~/routes/($locale).featured-products';
 import {Button, Typography} from '~/components/ui';
 import {ORDER_CARD_FRAGMENT} from '~/components/OrderCard';
-import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
 import {usePrefixPathWithLocale} from '~/hooks';
 import {AccountAside, PageHeader} from '~/components';
 import {CACHE_NONE, routeHeaders} from '~/data/cache';
-import type {
-  CustomerDetailsFragment,
-  CustomerDetailsQuery,
-} from 'storefrontapi.generated';
-import {redirectWithError} from '~/lib/toast.server';
-import {doLogout} from '~/routes/($locale).logout';
 
 export const headers = routeHeaders;
 
@@ -42,31 +39,29 @@ export async function loader({request, context}: LoaderFunctionArgs) {
     throw redirect('/account/profile', 302) as unknown as TmpRemixFix;
   }
 
-  const token = await context.session.get(CUSTOMER_ACCESS_TOKEN);
+  const user = await context.authenticator.isAuthenticated(request);
 
-  const isAuthenticated = Boolean(token);
-
-  if (!isAuthenticated) {
-    return redirectWithError('/login', 'Test') as unknown as TmpRemixFix;
-  } else {
-    const customer = await getCustomer(context, token);
-
-    const heading = customer
-      ? customer.firstName
-        ? `Welcome back, ${customer.firstName}`
-        : `Welcome to your account`
-      : 'Account Details';
-
-    return defer(
-      {
-        heading,
-        customer,
-        featuredData: getFeaturedData(context.storefront),
-        authenticated: true,
-      },
-      {headers: {'Cache-Control': CACHE_NONE}},
-    );
+  if (!user?.token) {
+    return redirect('/login') as unknown as TmpRemixFix;
   }
+
+  const customer = await getCustomer(context, user.token);
+
+  const heading = customer
+    ? customer.firstName
+      ? `Welcome back, ${customer.firstName}`
+      : `Welcome to your account`
+    : 'Account Details';
+
+  return defer(
+    {
+      heading,
+      customer,
+      featuredData: getFeaturedData(context.storefront),
+      authenticated: !!user,
+    },
+    {headers: {'Cache-Control': CACHE_NONE}},
+  );
 }
 
 export default function AccountLayoutPage() {
@@ -217,20 +212,21 @@ export async function getCustomer(
   context: AppLoadContext,
   customerAccessToken: string,
 ) {
-  const {storefront} = context;
-
-  const data = await storefront.query<CustomerDetailsQuery>(CUSTOMER_QUERY, {
-    variables: {
-      customerAccessToken,
-      country: context.storefront.i18n.country,
-      language: context.storefront.i18n.language,
+  const data = await context.storefront.query<CustomerDetailsQuery>(
+    CUSTOMER_QUERY,
+    {
+      variables: {
+        customerAccessToken,
+        country: context.storefront.i18n.country,
+        language: context.storefront.i18n.language,
+      },
+      cache: context.storefront.CacheNone(),
     },
-    cache: storefront.CacheNone(),
-  });
+  );
 
   /** If the customer failed to load, we assume their access token is invalid. */
   if (!data || !data.customer) {
-    throw await doLogout(context);
+    throw new Error('Invalid access token');
   }
 
   return data.customer;

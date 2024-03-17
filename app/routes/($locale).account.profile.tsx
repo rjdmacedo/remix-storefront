@@ -2,6 +2,7 @@ import type {
   ActionFunctionArgs,
   LoaderFunctionArgs,
 } from '@shopify/remix-oxygen';
+import {json} from '@shopify/remix-oxygen';
 import {
   useRemixForm,
   RemixFormProvider,
@@ -10,17 +11,19 @@ import {
 } from 'remix-hook-form';
 import {z} from 'zod';
 import React from 'react';
-import {json} from '@shopify/remix-oxygen';
 import validator from 'validator';
 import invariant from 'tiny-invariant';
 import {zodResolver} from '@hookform/resolvers/zod';
 import {Form, type MetaFunction} from '@remix-run/react';
 
 import {routeHeaders} from '~/data/cache';
-import {CUSTOMER_ACCESS_TOKEN} from '~/lib/const';
-import {jsonWithError, jsonWithSuccess} from '~/lib/toast.server';
+import {
+  jsonWithError,
+  jsonWithSuccess,
+  redirectWithError,
+} from '~/lib/toast.server';
 import {useAccount, CUSTOMER_UPDATE_MUTATION} from '~/routes/($locale).account';
-import {assertApiErrors, requireLoggedInUser} from '~/lib/utils';
+import {assertApiErrors} from '~/lib/utils';
 import {Label, Input, Separator, Typography, Button} from '~/components/ui';
 import type {
   CustomerDetailsQuery,
@@ -37,22 +40,22 @@ export const meta: MetaFunction = () => {
 
 export const headers = routeHeaders;
 
-export async function loader({params, context}: LoaderFunctionArgs) {
-  await requireLoggedInUser(context, {
-    locale: params.locale,
-    redirectTo: '/account/profile',
-  });
+export async function loader({request, context}: LoaderFunctionArgs) {
+  const user = await context.authenticator.isAuthenticated(request);
 
-  return json(null);
+  return user
+    ? null
+    : redirectWithError(
+        '/login?redirect=/account/profile',
+        'You must be logged in to view your profile.',
+      );
 }
 
 export async function action({request, context}: ActionFunctionArgs) {
-  const customerAccessToken = await context.session.get(CUSTOMER_ACCESS_TOKEN);
+  const {session, authenticator} = context;
+  const user = await session.get(authenticator.sessionKey);
 
-  invariant(
-    customerAccessToken,
-    'You must be logged in to update your account details.',
-  );
+  invariant(user, 'You must be logged in to update your account details.');
 
   const {data, errors} = await getValidatedFormData<FormData>(
     request,
@@ -77,7 +80,7 @@ export async function action({request, context}: ActionFunctionArgs) {
         CUSTOMER_UPDATE_MUTATION,
         {
           variables: {
-            customerAccessToken,
+            customerAccessToken: user.token,
             customer: {
               email: data.email,
               phone: data?.phone || null,

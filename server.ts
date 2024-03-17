@@ -14,6 +14,7 @@ import {
 
 import {HydrogenSession} from '~/lib/hydrogen.server';
 import {getLocaleFromRequest} from '~/lib/utils';
+import {authenticator} from '~/lib/authenticator.server';
 
 /**
  * Export a fetch handler in module format.
@@ -72,6 +73,7 @@ export default {
           session,
           waitUntil,
           storefront,
+          authenticator,
         }),
       });
 

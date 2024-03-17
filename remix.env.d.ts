@@ -2,9 +2,12 @@
 /// <reference types="@shopify/remix-oxygen" />
 /// <reference types="@shopify/oxygen-workers-types" />
 
+import {Authenticator} from 'remix-auth';
 import {HydrogenSession} from '~/lib/hydrogen.server';
 import type {Storefront} from '~/lib/type';
+
 import type {HydrogenCart} from '@shopify/hydrogen';
+import type * as StorefrontAPI from '@shopify/hydrogen/storefront-api-types';
 
 declare global {
   /**
@@ -34,6 +37,11 @@ declare module '@shopify/remix-oxygen' {
     session: HydrogenSession;
     waitUntil: ExecutionContext['waitUntil'];
     storefront: Storefront;
+    authenticator: Authenticator<
+      Pick<StorefrontAPI.Customer, 'email' | 'firstName' | 'lastName'> & {
+        token: string;
+      }
+    >;
   }
 
   /**

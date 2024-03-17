@@ -1,5 +1,6 @@
 export {AccountAddressBook} from './account-address-book';
 export {AccountAddressEditDialog} from './account-address-edit-dialog';
+export {AccountAddressAddDialog} from './account-address-add-dialog';
 export {AccountAddressDeleteDialog} from './account-address-delete-dialog';
 export {AccountAside} from './account-aside';
 export {AccountMain} from './account-main';

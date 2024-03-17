@@ -22,25 +22,29 @@ export const themeSessionResolver = createThemeSessionResolver(themeStorage);
  * swap out the cookie-based implementation with something else!
  */
 export class HydrogenSession {
-  readonly #session;
   #sessionStorage;
+  readonly #session;
+  private static secrets: string[];
 
-  constructor(sessionStorage: SessionStorage, session: Session) {
+  constructor(storage: SessionStorage, session: Session) {
     this.#session = session;
-    this.#sessionStorage = sessionStorage;
+    this.#sessionStorage = storage;
   }
 
-  static async init(request: Request, secrets: string[]) {
-    const storage = createCookieSessionStorage({
+  static get storage() {
+    return createCookieSessionStorage({
       cookie: {
         name: '__session',
         httpOnly: true,
         path: '/',
         sameSite: 'lax',
-        secrets,
+        secrets: ['s3cr3t'],
       },
     });
+  }
 
+  static async init(request: Request, secrets: string[]) {
+    const storage = this.storage;
     const session = await storage.getSession(request.headers.get('Cookie'));
 
     return new this(storage, session);

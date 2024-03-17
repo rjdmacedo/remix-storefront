@@ -6,12 +6,10 @@ import {seoPayload} from '~/lib/seo.server';
 import {routeHeaders} from '~/data/cache';
 import type {NonNullableFields} from '~/lib/type';
 import {PageHeader, Section, Heading, Link} from '~/components';
-import {requireLoggedInUser} from '~/lib/utils';
 
 export const headers = routeHeaders;
 
 export async function loader({request, context}: LoaderFunctionArgs) {
-  await requireLoggedInUser(context);
   const data = await context.storefront.query(POLICIES_QUERY);
 
   invariant(data, 'No data returned from the API');

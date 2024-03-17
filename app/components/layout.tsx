@@ -26,7 +26,6 @@ import {
   Button,
   Avatar,
   ScrollArea,
-  AvatarImage,
   SheetContent,
   SheetTrigger,
   AvatarFallback,
@@ -40,7 +39,12 @@ import {
   DropdownMenuSeparator,
 } from '~/components/ui';
 import {cn, type EnhancedMenu, type ChildEnhancedMenuItem} from '~/lib/utils';
-import {useIsHydrated, useCartFetchers, useIsHomePath} from '~/hooks';
+import {
+  useIsHydrated,
+  useCartFetchers,
+  useIsHomePath,
+  usePrefixPathWithLocale,
+} from '~/hooks';
 import {type LayoutQuery} from 'storefrontapi.generated';
 import {useRootLoaderData} from '~/root';
 
@@ -64,7 +68,7 @@ export function Layout({children, layout}: LayoutProps) {
 
         {header && <Header title={shop.name} menu={header} />}
 
-        <div role="main" id="main-content" className="container">
+        <div role="main" id="main-content" className="container mb-6">
           {children}
         </div>
       </div>
@@ -220,22 +224,39 @@ function AvatarMenu() {
   const fetcher = useFetcher();
   const navigate = useNavigate();
 
+  const getAccountPath = (
+    path: 'profile' | 'security' | 'addresses' | 'orders',
+  ) => usePrefixPathWithLocale(`/account/${path}`);
+
+  const logoutPath = usePrefixPathWithLocale('/logout');
+  const [profilePath, securityPath, addressesPath, ordersPath] = (
+    ['profile', 'security', 'addresses', 'orders'] as const
+  ).map(getAccountPath);
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Avatar className="h-8 w-8">
-          <AvatarFallback>RM</AvatarFallback>
-        </Avatar>
+        <Button size="icon" variant="ghost">
+          <Avatar className="h-8 w-8">
+            <AvatarFallback>RM</AvatarFallback>
+          </Avatar>
+        </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent loop>
         <DropdownMenuLabel>My Account</DropdownMenuLabel>
         <DropdownMenuSeparator />
         <DropdownMenuGroup>
-          <DropdownMenuItem onSelect={() => navigate('/account')}>
+          <DropdownMenuItem onSelect={() => navigate(profilePath)}>
             Profile
           </DropdownMenuItem>
-          <DropdownMenuItem onSelect={() => navigate('/cart')}>
-            Cart
+          <DropdownMenuItem onSelect={() => navigate(ordersPath)}>
+            Orders
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => navigate(securityPath)}>
+            Security
+          </DropdownMenuItem>
+          <DropdownMenuItem onSelect={() => navigate(addressesPath)}>
+            Addresses
           </DropdownMenuItem>
         </DropdownMenuGroup>
         <DropdownMenuSeparator />
@@ -243,7 +264,7 @@ function AvatarMenu() {
           onSelect={() =>
             fetcher.submit(null, {
               method: 'post',
-              action: '/logout',
+              action: logoutPath,
             })
           }
         >
@@ -262,7 +283,7 @@ function AccountLink({className}: {className?: string}) {
     <AvatarMenu />
   ) : (
     <Link
-      to="/account/profile"
+      to="/login"
       prefetch="intent"
       className={({isActive}) =>
         cn(
