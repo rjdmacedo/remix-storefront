@@ -1,74 +1,89 @@
-import typography from './typography';
-
-import {type Config} from 'tailwindcss';
+// @ts-ignore
+import animatePlugin from 'tailwindcss-animate';
 import formsPlugin from '@tailwindcss/forms';
-import defaultTheme from 'tailwindcss/defaultTheme';
+import {fontFamily} from 'tailwindcss/defaultTheme';
 import typographyPlugin from '@tailwindcss/typography';
+import containerQueries from '@tailwindcss/container-queries';
+import type {Config} from 'tailwindcss';
 
-const config = {
-  content: ['./app/**/*.{js,ts,jsx,tsx}'],
+export default {
   mode: 'jit',
+  content: ['app/**/*.{ts,tsx}', 'components/**/*.{ts,tsx}'],
+  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
+    container: {
+      center: true,
+      padding: {
+        DEFAULT: '1rem',
+        sm: '2rem',
+        lg: '4rem',
+        xl: '5rem',
+        '2xl': '6rem',
+      },
+    },
     extend: {
       colors: {
-        primary: 'rgb(var(--color-primary) / <alpha-value>)',
-        contrast: 'rgb(var(--color-contrast) / <alpha-value>)',
-        notice: 'rgb(var(--color-accent) / <alpha-value>)',
-        shopPay: 'rgb(var(--color-shop-pay) / <alpha-value>)',
-        info: 'rgb(var(--color-info) / <alpha-value>)',
-        error: 'rgb(var(--color-error) / <alpha-value>)',
-        success: 'rgb(var(--color-success) / <alpha-value>)',
-        warning: 'rgb(var(--color-warning) / <alpha-value>)',
-      },
-      screens: {
-        sm: '32em',
-        md: '48em',
-        lg: '64em',
-        xl: '80em',
-        '2xl': '96em',
-        'sm-max': {max: '48em'},
-        'sm-only': {min: '32em', max: '48em'},
-        'md-only': {min: '48em', max: '64em'},
-        'lg-only': {min: '64em', max: '80em'},
-        'xl-only': {min: '80em', max: '96em'},
-        '2xl-only': {min: '96em'},
+        border: 'hsl(var(--border))',
+        input: 'hsl(var(--input))',
+        ring: 'hsl(var(--ring))',
+        background: 'hsl(var(--background))',
+        foreground: 'hsl(var(--foreground))',
+        primary: {
+          DEFAULT: 'hsl(var(--primary))',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: 'hsl(var(--secondary))',
+          foreground: 'hsl(var(--secondary-foreground))',
+        },
+        destructive: {
+          DEFAULT: 'hsl(var(--destructive))',
+          foreground: 'hsl(var(--destructive-foreground))',
+        },
+        muted: {
+          DEFAULT: 'hsl(var(--muted))',
+          foreground: 'hsl(var(--muted-foreground))',
+        },
+        accent: {
+          DEFAULT: 'hsl(var(--accent))',
+          foreground: 'hsl(var(--accent-foreground))',
+        },
+        popover: {
+          DEFAULT: 'hsl(var(--popover))',
+          foreground: 'hsl(var(--popover-foreground))',
+        },
+        card: {
+          DEFAULT: 'hsl(var(--card))',
+          foreground: 'hsl(var(--card-foreground))',
+        },
       },
       spacing: {
         nav: 'var(--height-nav)',
         screen: 'var(--screen-height, 100vh)',
       },
-      height: {
-        screen: 'var(--screen-height, 100vh)',
-        'screen-no-nav':
-          'calc(var(--screen-height, 100vh) - var(--height-nav))',
-        'screen-dynamic': 'var(--screen-height-dynamic, 100vh)',
-      },
-      width: {
-        'mobile-gallery': 'calc(100vw - 3rem)',
+      borderRadius: {
+        lg: 'var(--radius)',
+        md: 'calc(var(--radius) - 2px)',
+        sm: 'calc(var(--radius) - 4px)',
       },
       fontFamily: {
-        sans: ['Nunito Sans', ...defaultTheme.fontFamily.sans],
+        sans: ['Nunito Sans', ...fontFamily.sans],
       },
-      typography,
-      fontSize: {
-        display: ['var(--font-size-display)', '1.1'],
-        heading: ['var(--font-size-heading)', '1.25'],
-        lead: ['var(--font-size-lead)', '1.333'],
-        copy: ['var(--font-size-copy)', '1.5'],
-        fine: ['var(--font-size-fine)', '1.333'],
+      keyframes: {
+        'accordion-down': {
+          to: {height: 'var(--radix-accordion-content-height)'},
+          from: {height: '0'},
+        },
+        'accordion-up': {
+          to: {height: '0'},
+          from: {height: 'var(--radix-accordion-content-height)'},
+        },
       },
-      maxWidth: {
-        'prose-wide': '80ch',
-        'prose-narrow': '45ch',
-      },
-      boxShadow: {
-        border: 'inset 0px 0px 0px 1px rgb(var(--color-primary) / 0.08)',
-        'dark-header': 'inset 0px -1px 0px 0px rgba(21, 21, 21, 0.4)',
-        'light-header': 'inset 0px -1px 0px 0px rgba(21, 21, 21, 0.05)',
+      animation: {
+        'accordion-down': 'accordion-down 0.2s ease-out',
+        'accordion-up': 'accordion-up 0.2s ease-out',
       },
     },
   },
-  plugins: [formsPlugin, typographyPlugin],
+  plugins: [formsPlugin, animatePlugin, typographyPlugin, containerQueries],
 } satisfies Config;
-
-export default config;

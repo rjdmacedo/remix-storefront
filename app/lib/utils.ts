@@ -1,33 +1,37 @@
-import {useLocation, useMatches} from '@remix-run/react';
-import {parse as parseCookie} from 'worktop/cookie';
-import type {
-  MenuItem,
-  Menu,
-  MoneyV2,
-} from '@shopify/hydrogen/storefront-api-types';
-
-// @ts-expect-error types not available
-import typographicBase from 'typographic-base';
-import {countries} from '~/data/countries';
-import {I18nLocale, Locale} from './type';
-import React from 'react';
+import clsx from 'clsx';
 import {twMerge} from 'tailwind-merge';
-import clsx, {ClassValue} from 'clsx';
+import type React from 'react';
+import type {MoneyV2} from '@shopify/hydrogen/storefront-api-types';
+import typographicBase from 'typographic-base';
+import type {ClassValue} from 'clsx';
+import type {AppLoadContext} from '@shopify/remix-oxygen';
 
-export interface EnhancedMenuItem extends MenuItem {
+import type {
+  MenuFragment,
+  ChildMenuItemFragment,
+  ParentMenuItemFragment,
+} from 'storefrontapi.generated';
+import {countries} from '~/data/countries';
+
+import type {I18nLocale} from './type';
+
+type EnhancedMenuItemProps = {
   to: string;
   target: string;
   isExternal?: boolean;
-  items: EnhancedMenuItem[];
-}
+};
 
-export interface EnhancedMenu extends Menu {
-  items: EnhancedMenuItem[];
-}
+export type ChildEnhancedMenuItem = ChildMenuItemFragment &
+  EnhancedMenuItemProps;
 
-export function cn(...inputs: ClassValue[]) {
-  return twMerge(clsx(inputs));
-}
+export type ParentEnhancedMenuItem = (ParentMenuItemFragment &
+  EnhancedMenuItemProps) & {
+  items: ChildEnhancedMenuItem[];
+};
+
+export type EnhancedMenu = Pick<MenuFragment, 'id'> & {
+  items: ParentEnhancedMenuItem[];
+};
 
 export function missingClass(string?: string, prefix?: string) {
   if (!string) {
@@ -67,10 +71,17 @@ export function isNewArrival(date: string, daysOld = 30) {
 }
 
 export function isDiscounted(price: MoneyV2, compareAtPrice: MoneyV2) {
-  if (compareAtPrice?.amount > price?.amount) {
-    return true;
-  }
-  return false;
+  return compareAtPrice?.amount > price?.amount;
+}
+
+export async function sleep(ms: number) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+export async function minDelay<T>(promise: Promise<T>, ms: number) {
+  const [p] = await Promise.all([promise, sleep(ms)]);
+
+  return p;
 }
 
 function resolveToFromType(
@@ -144,23 +155,26 @@ function resolveToFromType(
 /*
   Parse each menu link and adding, isExternal, to and target
 */
-function parseItem(customPrefixes = {}) {
-  return function (item: MenuItem): EnhancedMenuItem {
+function parseItem(primaryDomain: string, env: Env, customPrefixes = {}) {
+  return function (
+    item:
+      | MenuFragment['items'][number]
+      | MenuFragment['items'][number]['items'][number],
+  ):
+    | EnhancedMenu['items'][number]
+    | EnhancedMenu['items'][number]['items'][number]
+    | null {
     if (!item?.url || !item?.type) {
       // eslint-disable-next-line no-console
-      console.warn('Invalid menu item.  Must include a url and type.');
-      // @ts-ignore
-      return;
+      console.warn('Invalid menu item. Must include a url and type.');
+      return null;
     }
 
     // extract path from url because we don't need the origin on internal to attributes
-    const {pathname} = new URL(item.url);
+    const {host, pathname} = new URL(item.url);
 
-    /*
-      Currently the MenuAPI only returns online store urls e.g — xyz.myshopify.com/..
-      Note: update logic when API is updated to include the active qualified domain
-    */
-    const isInternalLink = /\.myshopify\.com/g.test(item.url);
+    const isInternalLink =
+      host === new URL(primaryDomain).host || host === env.PUBLIC_STORE_DOMAIN;
 
     const parsedItem = isInternalLink
       ? // internal links
@@ -178,10 +192,16 @@ function parseItem(customPrefixes = {}) {
           to: item.url,
         };
 
-    return {
-      ...parsedItem,
-      items: item.items?.map(parseItem(customPrefixes)),
-    };
+    if ('items' in item) {
+      return {
+        ...parsedItem,
+        items: item.items
+          .map(parseItem(primaryDomain, env, customPrefixes))
+          .filter(Boolean),
+      } as EnhancedMenu['items'][number];
+    } else {
+      return parsedItem as EnhancedMenu['items'][number]['items'][number];
+    }
   };
 }
 
@@ -190,18 +210,24 @@ function parseItem(customPrefixes = {}) {
   and resource type.
   It optionally overwrites url paths based on item.type
 */
-export function parseMenu(menu: Menu, customPrefixes = {}): EnhancedMenu {
+export function parseMenu(
+  menu: MenuFragment,
+  primaryDomain: string,
+  env: Env,
+  customPrefixes = {},
+): EnhancedMenu | null {
   if (!menu?.items) {
     // eslint-disable-next-line no-console
     console.warn('Invalid menu passed to parseMenu');
-    // @ts-ignore
-    return menu;
+    return null;
   }
+
+  const parser = parseItem(primaryDomain, env, customPrefixes);
 
   return {
     ...menu,
-    items: menu.items.map(parseItem(customPrefixes)),
-  };
+    items: menu.items.map(parser).filter(Boolean),
+  } as EnhancedMenu;
 }
 
 export const INPUT_STYLE_CLASSES =
@@ -262,6 +288,10 @@ export const DEFAULT_LOCALE: I18nLocale = Object.freeze({
   pathPrefix: '',
 });
 
+/**
+ * Returns the locale from the request
+ * @param request - Remix request
+ */
 export function getLocaleFromRequest(request: Request): I18nLocale {
   const url = new URL(request.url);
   const firstPathPart =
@@ -278,21 +308,11 @@ export function getLocaleFromRequest(request: Request): I18nLocale {
       };
 }
 
-export function usePrefixPathWithLocale(path: string) {
-  const [root] = useMatches();
-  const selectedLocale = root.data?.selectedLocale ?? DEFAULT_LOCALE;
-
-  return `${selectedLocale.pathPrefix}${
-    path.startsWith('/') ? path : '/' + path
-  }`;
-}
-
-export function useIsHomePath() {
-  const {pathname} = useLocation();
-  const [root] = useMatches();
-  const selectedLocale = root.data?.selectedLocale ?? DEFAULT_LOCALE;
-  const strippedPathname = pathname.replace(selectedLocale.pathPrefix, '');
-  return strippedPathname === '/';
+export function parseAsCurrency(value: number, locale: I18nLocale) {
+  return new Intl.NumberFormat(locale.language + '-' + locale.country, {
+    style: 'currency',
+    currency: locale.currency,
+  }).format(value);
 }
 
 /**
@@ -315,12 +335,14 @@ export function isLocalPath(url: string) {
   return false;
 }
 
-/**
- * Shopify's 'Online Store' stores cart IDs in a 'cart' cookie.
- * By doing the same, merchants can switch from the Online Store to Hydrogen
- * without customers losing carts.
- */
-export function getCartId(request: Request) {
-  const cookies = parseCookie(request.headers.get('Cookie') || '');
-  return cookies.cart ? `gid://shopify/Cart/${cookies.cart}` : undefined;
+export function prefixPathWithLocale(
+  path: string,
+  storefront: AppLoadContext['storefront'],
+) {
+  const locale = storefront.i18n ?? DEFAULT_LOCALE;
+  return `${locale.pathPrefix}${path.startsWith('/') ? path : '/' + path}`;
+}
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
 }

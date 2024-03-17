@@ -1,12 +1,21 @@
 // Virtual entry point for the app
-import * as remixBuild from '@remix-run/dev/server-build';
 import {
+  cartGetIdDefault,
+  cartSetIdDefault,
+  createCartHandler,
+  storefrontRedirect,
+  createStorefrontClient,
+  createCustomerAccountClient,
+} from '@shopify/hydrogen';
+import {
+  type AppLoadContext,
   createRequestHandler,
   getStorefrontHeaders,
 } from '@shopify/remix-oxygen';
-import {createStorefrontClient, storefrontRedirect} from '@shopify/hydrogen';
-import {HydrogenSession} from '~/lib/session.server';
-import {getLocaleFromRequest} from '~/lib/utils';
+import {AppSession} from '~/lib/hydrogen.server';
+import {authenticator} from '~/lib/authenticator.server';
+import * as remixBuild from '@remix-run/dev/server-build';
+import {CART_QUERY_FRAGMENT} from '~/data/fragments';
 
 /**
  * Export a fetch handler in module format.
@@ -25,10 +34,10 @@ export default {
         throw new Error('SESSION_SECRET environment variable is not set');
       }
 
-      const waitUntil = (p: Promise<any>) => executionContext.waitUntil(p);
+      const waitUntil = executionContext.waitUntil.bind(executionContext);
       const [cache, session] = await Promise.all([
         caches.open('hydrogen'),
-        HydrogenSession.init(request, [env.SESSION_SECRET]),
+        AppSession.init(request, [env.SESSION_SECRET]),
       ]);
 
       /**
@@ -37,13 +46,35 @@ export default {
       const {storefront} = createStorefrontClient({
         cache,
         waitUntil,
-        i18n: getLocaleFromRequest(request),
+        i18n: {language: 'EN', country: 'US'},
         publicStorefrontToken: env.PUBLIC_STOREFRONT_API_TOKEN,
         privateStorefrontToken: env.PRIVATE_STOREFRONT_API_TOKEN,
-        storeDomain: `https://${env.PUBLIC_STORE_DOMAIN}`,
-        storefrontApiVersion: env.PUBLIC_STOREFRONT_API_VERSION || '2023-04',
+        storeDomain: env.PUBLIC_STORE_DOMAIN,
         storefrontId: env.PUBLIC_STOREFRONT_ID,
         storefrontHeaders: getStorefrontHeaders(request),
+      });
+
+      /**
+       * Create a client for Customer Account API.
+       */
+      const customerAccount = createCustomerAccountClient({
+        waitUntil,
+        request,
+        session,
+        customerAccountId: env.PUBLIC_CUSTOMER_ACCOUNT_API_CLIENT_ID,
+        customerAccountUrl: env.PUBLIC_CUSTOMER_ACCOUNT_API_URL,
+      });
+
+      /*
+       * Create a cart handler that will be used to
+       * create and update the cart in the session.
+       */
+      const cart = createCartHandler({
+        storefront,
+        customerAccount,
+        getCartId: cartGetIdDefault(request.headers),
+        setCartId: cartSetIdDefault(),
+        cartQueryFragment: CART_QUERY_FRAGMENT,
       });
 
       /**
@@ -53,11 +84,14 @@ export default {
       const handleRequest = createRequestHandler({
         build: remixBuild,
         mode: process.env.NODE_ENV,
-        getLoadContext: () => ({
+        getLoadContext: (): AppLoadContext => ({
+          env,
+          cart,
           session,
           waitUntil,
           storefront,
-          env,
+          authenticator,
+          customerAccount,
         }),
       });
 
